@@ -12,19 +12,14 @@ endif()
 project ("libciva")
 
 # CIVA lib
-add_library(libciva "libciva/libciva.cpp" "libciva/libciva.h" "libciva/ins/ins.cpp" "libciva/ins/ins.h" "libciva/varManager/varManager.h"  "libciva/config/config.h" "libciva/config/config.cpp" "libciva/varManager/varManager.cpp")
+add_library(libciva "libciva/libciva.cpp" "libciva/libciva.h" "libciva/ins/ins.cpp" "libciva/ins/ins.h" "libciva/varManager/varManager.h"  "libciva/config/config.h" "libciva/config/config.cpp" "libciva/varManager/varManager.cpp" "libciva/geoutils/geoutils.cpp" "libciva/geoutils/geoutils.h" "libciva/ins/insSetGet.cpp" "libciva/ins/insEvent.cpp" "libciva/ins/modes/align.cpp" "libciva/ins/insDisplay.cpp")
+set_property(TARGET libciva PROPERTY CXX_STANDARD 14)
 target_include_directories(libciva PRIVATE "libciva")
 target_compile_definitions(libciva PRIVATE WORK_DIR="./")
 
-# Add source to this project's executable.
+# WIN
 add_executable(libcivaWin "libcivaWin/libcivaWin.cpp" "libcivaWin/libcivaWin.h" "libcivaWin/winVarManager.cpp" "libcivaWin/winVarManager.h")
+set_property(TARGET libcivaWin PROPERTY CXX_STANDARD 14)
 target_include_directories(libcivaWin PRIVATE "libciva")
 target_link_libraries(libcivaWin PRIVATE libciva)
 target_compile_definitions(libcivaWin PRIVATE WORK_DIR="./")
-
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-	set_property(TARGET libciva PROPERTY CXX_STANDARD 14)
-	set_property(TARGET libcivaWin PROPERTY CXX_STANDARD 14)
-endif()
-
-# TODO: Add tests and install targets if needed.
