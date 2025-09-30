@@ -105,6 +105,20 @@ enum class INSERT_MODE {
   DME_ALT,
 };
 
+enum class WPT_SELECTOR_POS {
+  INV = -1,
+  WPT_0,
+  WPT_1,
+  WPT_2,
+  WPT_3,
+  WPT_4,
+  WPT_5,
+  WPT_6,
+  WPT_7,
+  WPT_8,
+  WPT_9,
+};
+
 // Use Bitset to set/reset indicators
 typedef union {
   double value;
@@ -202,6 +216,11 @@ class INS {
   void setINSPosLon(double lon) const noexcept;
   double getINSPosLon() const noexcept;
 
+  void setWPTPosLat(double lat, WPT_SELECTOR_POS wpt) const noexcept;
+  double getWPTPosLat(WPT_SELECTOR_POS wpt) const noexcept;
+  void setWPTPosLon(double lon, WPT_SELECTOR_POS wpt) const noexcept;
+  double getWPTPosLon(WPT_SELECTOR_POS wpt) const noexcept;
+
   #pragma endregion
 
   double align() noexcept;
@@ -226,6 +245,9 @@ public:
 
   DISPLAY getDisplay() const noexcept;
 
+  void setWPTSelectorPos(WPT_SELECTOR_POS pos) const noexcept;
+  WPT_SELECTOR_POS getWPTSelectorPos() const noexcept;
+
   #pragma endregion
 
   #pragma region Events
@@ -238,6 +260,9 @@ public:
 
   void handleNumeric(char value) const noexcept;
   void handleInsert() const noexcept;
+
+  void incWPTSelectorPos() const noexcept;
+  void decWPTSelectorPos() const noexcept;
 
   #pragma endregion
 };

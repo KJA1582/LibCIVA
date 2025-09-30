@@ -27,8 +27,6 @@ static void runner() {
 
     winVarManager->dump();
     std::cout << "dT was " << delta.count() * 1e-6 << "ms" << std::endl;
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 }
 
@@ -98,6 +96,12 @@ int main() {
             break;
           case VK_RETURN:
             unit1->handleInsert();
+            break;
+          case VK_ADD:
+            unit1->incWPTSelectorPos();
+            break;
+          case VK_SUBTRACT:
+            unit1->decWPTSelectorPos();
             break;
           case VK_ESCAPE:
             __exit = true;

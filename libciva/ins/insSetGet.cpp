@@ -161,3 +161,32 @@ double INS::getINSPosLon() const noexcept {
 
   return 999;
 }
+
+void INS::setWPTSelectorPos(WPT_SELECTOR_POS pos) const noexcept {
+  varManager.setVar(WPT_SELECTOR_POS_VAR + id, (double)pos);
+}
+WPT_SELECTOR_POS INS::getWPTSelectorPos() const noexcept {
+  double pos;
+  if (varManager.getVar(WPT_SELECTOR_POS_VAR + id, pos)) return (WPT_SELECTOR_POS)pos;
+
+  return WPT_SELECTOR_POS::INV;
+}
+
+void INS::setWPTPosLat(double lat, WPT_SELECTOR_POS wpt) const noexcept {
+  varManager.setVar(WPT_POS_LAT_VAR + std::to_string((int)wpt) + "_" + id, lat);
+}
+double INS::getWPTPosLat(WPT_SELECTOR_POS wpt) const noexcept {
+  double lon;
+  if (varManager.getVar(WPT_POS_LAT_VAR + std::to_string((int)wpt) + "_" + id, lon)) return lon;
+
+  return 999;
+}
+void INS::setWPTPosLon(double lon, WPT_SELECTOR_POS wpt) const noexcept {
+  varManager.setVar(WPT_POS_LON_VAR + std::to_string((int)wpt) + "_" + id, lon);
+}
+double INS::getWPTPosLon(WPT_SELECTOR_POS wpt) const noexcept {
+  double lon;
+  if (varManager.getVar(WPT_POS_LON_VAR + std::to_string((int)wpt) + "_" + id, lon)) return lon;
+
+  return 999;
+}

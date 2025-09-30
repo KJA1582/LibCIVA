@@ -1,25 +1,14 @@
 #include "winVarManager.h"
 
-char convertCharacter(char c) {
+static char convertCharacter(char c) {
   if (c == 10) return 'R';
   if (c == 11) return 'L';
 
   return 48 + c;
 }
 
-void WinVarManager::setVar(const std::string &name, double value) noexcept {
-  VarManager::setVar(name, value);
-}
-
-bool WinVarManager::getVar(const std::string &name, double &value) const noexcept {
-  return VarManager::getVar(name, value);
-}
-
 void WinVarManager::dump() const noexcept {
   for (auto it = store.begin(); it != store.end(); ++it) {
-    std::cout << std::left << std::setfill(' ') << std::setw(40) << it->first;
-    std::cout << " = ";
-
     double value = it->second;
     if (it->first.find(ACTION_MALFUNCTION_CODE_VAR) == 0) {
       switch ((ACTION_MALFUNCTION_CODE)it->second) {
@@ -81,6 +70,6 @@ void WinVarManager::dump() const noexcept {
       std::cout << std::right << std::setfill(' ') << std::setw(27) << it->second;
     }
 
-    std::cout << std::endl;
+    std::cout << " = " << it->first << std::endl;
   }
 }

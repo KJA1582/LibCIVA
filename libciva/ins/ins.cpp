@@ -24,6 +24,10 @@ static double heater(const Config &config, double currentTempC, double ambientTe
 INS::INS(VarManager &varManager, const std::string &id, const std::string &workDir) noexcept :
   varManager(varManager), id(id), config(Config(workDir)) {
 
+  setModeSelectorPos(MODE_SELECTOR_POS::OFF);
+  setDataSelectorPos(DATA_SELECTOR_POS::POS);
+  setWPTSelectorPos(WPT_SELECTOR_POS::WPT_0);
+
   reset(true);
 
   double temperature;
@@ -47,8 +51,6 @@ INS::~INS() noexcept {
 void INS::reset(bool full) const noexcept {
   if (full) {
     setINSState(INS_STATE::OFF);
-    setModeSelectorPos(MODE_SELECTOR_POS::OFF);
-    setDataSelectorPos(DATA_SELECTOR_POS::POS);
     setActionMalfunctionCode(ACTION_MALFUNCTION_CODE::INV);
     setBatteryTestState(BATTERY_TEST::IDLE);
     setDisplay({ 0 });
@@ -56,6 +58,11 @@ void INS::reset(bool full) const noexcept {
     setDisplayPosLon(999);
     setINSPosLat(999);
     setINSPosLon(999);
+
+    for (int i = (int)WPT_SELECTOR_POS::WPT_0; i <= (int)WPT_SELECTOR_POS::WPT_9; i++) {
+      setWPTPosLat(999, (WPT_SELECTOR_POS)i);
+      setWPTPosLon(999, (WPT_SELECTOR_POS)i);
+    }
   }
 
   setAlignSubmode(ALIGN_SUBMODE::MODE_9);
@@ -165,7 +172,9 @@ void INS::update(double dTime) noexcept {
   }
 
   // Display
-  display();
+  if (state > INS_STATE::OFF && state < INS_STATE::ATT) {
+    display();
+  }
 
   // Time step
   operatingTime += dTime;

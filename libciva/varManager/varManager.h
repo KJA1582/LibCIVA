@@ -23,6 +23,9 @@ constexpr auto INDICATORS_VAR = "INDICATORS_";
 constexpr auto BATTERY_TEST_VAR = "BATTERY_TEST_";
 constexpr auto DISPLAY_VAR = "DISPLAY_";
 constexpr auto INSERT_MODE_VAR = "INSERT_MODE_";
+constexpr auto WPT_SELECTOR_POS_VAR = "WPT_SELECTOR_POS_";
+constexpr auto WPT_POS_LAT_VAR = "LAT_WPT_";
+constexpr auto WPT_POS_LON_VAR = "LON_WPT_";
 
 constexpr auto SIM_VAR_AMBIENT_TEMPERATURE = "AMBIENT TEMPERATURE";
 
