@@ -14,6 +14,8 @@ double INS::align() noexcept {
     // Downmode
     setINSState(INS_STATE::STBY);
     reset(false);
+
+    return 0;
   }
   else if (mode == MODE_SELECTOR_POS::NAV) {
     // Upmode
@@ -63,10 +65,12 @@ double INS::align() noexcept {
         config.setLastLat(displayLat);
         config.setLastLon(displayLon);
       }
-      else if (displayLat != 999 && displayLon != 999 &&
+      else if (isPosValid(displayLat, displayLon) &&
         actionMalfunctionCode == ACTION_MALFUNCTION_CODE::INV &&
         distanceInNMI(displayLat, displayLon, lastLat, lastLon) > 76) {
         setActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A06_41);
+        indicators.indicator.WARN = true;
+        setIndicators(indicators);
         // FIXME: In malf clear handler, set last pos
       }
 
@@ -77,8 +81,15 @@ double INS::align() noexcept {
       break;
     }
     case ALIGN_SUBMODE::MODE_7: {
+      if (!isPosInLimit(displayLat)) {
+        setActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A04_45);
+        indicators.indicator.WARN = true;
+        setIndicators(indicators);
+      }
+
       if (operatingTime >= MAX_MODE_7 && isPosValid(displayLat, displayLon) &&
-        actionMalfunctionCode != ACTION_MALFUNCTION_CODE::A06_41) {
+        isPosInLimit(displayLat) && actionMalfunctionCode != ACTION_MALFUNCTION_CODE::A06_41 &&
+        actionMalfunctionCode != ACTION_MALFUNCTION_CODE::A04_45) {
         setAlignSubmode(ALIGN_SUBMODE::MODE_6);
         operatingTime = 0;
       }

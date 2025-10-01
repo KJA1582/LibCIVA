@@ -7,6 +7,12 @@ static char convertCharacter(char c) {
   return 48 + c;
 }
 
+WinVarManager::WinVarManager() noexcept : VarManager("") {
+  setVar(SIM_VAR_AMBIENT_TEMPERATURE, 20);
+  setVar(SIM_VAR_AMBIENT_WIND_DIRECTION, 24);
+  setVar(SIM_VAR_AMBIENT_WIND_VELOCITY, 46);
+}
+
 void WinVarManager::dump() const noexcept {
   for (auto it = store.begin(); it != store.end(); ++it) {
     double value = it->second;

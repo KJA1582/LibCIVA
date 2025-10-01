@@ -9,7 +9,7 @@
 
 class WinVarManager: public VarManager {
 public:
-  WinVarManager() noexcept : VarManager("") { }
+  WinVarManager() noexcept;
 
   void dump() const noexcept;
 };

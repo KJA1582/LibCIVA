@@ -1,7 +1,5 @@
 # WPT Entry
 
-- Check input range and behaviour
-
 # Other Displays
 
 - All aside from POS/WPT

@@ -11,6 +11,10 @@ constexpr auto MAX_MODE_6 = 420; // Rest of the ~8.5min MODE 7 and 6
 constexpr auto MODE_5_TO_0 = 204; // 3.4min per mode
 constexpr auto TIME_PER_AI = 1200; // 20min per AI, 3 AI per hour, 3h results in AI9
 
+constexpr auto PROG_NUM = "11 07"; // CIV-A-22
+
+constexpr auto MIN_TAS = 37.5;
+
 enum class DATA_SELECTOR_POS {
   INV = -1,
   TKGS,

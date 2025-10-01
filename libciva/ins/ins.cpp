@@ -49,10 +49,15 @@ INS::~INS() noexcept {
 }
 
 void INS::reset(bool full) const noexcept {
+  INDICATORS i;
+  i.indicator.INSERT = true;
+  setIndicators({ 0 });
+
   if (full) {
     setINSState(INS_STATE::OFF);
-    setActionMalfunctionCode(ACTION_MALFUNCTION_CODE::INV);
-    setBatteryTestState(BATTERY_TEST::IDLE);
+    INDICATORS i;
+    i.indicator.INSERT = true;
+    setIndicators({ 0 });
     setDisplay({ 0 });
     setDisplayPosLat(999);
     setDisplayPosLon(999);
@@ -65,9 +70,10 @@ void INS::reset(bool full) const noexcept {
     }
   }
 
+  setActionMalfunctionCode(ACTION_MALFUNCTION_CODE::INV);
+  setBatteryTestState(BATTERY_TEST::IDLE);
   setAlignSubmode(ALIGN_SUBMODE::MODE_9);
   setAccuracyIndex(ACCURACY_INDEX::AI_9);
-  setIndicators({ 0 });
   setOperatingTime(0);
 }
 

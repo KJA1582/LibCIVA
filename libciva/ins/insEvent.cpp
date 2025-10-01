@@ -115,11 +115,15 @@ void INS::handleNumeric(char value) const noexcept {
   INDICATORS indicators = getIndicators();
   INSERT_MODE insertMode = getInsertMode();
   WPT_SELECTOR_POS wptSelector = getWPTSelectorPos();
+  ALIGN_SUBMODE alignMode = getAlignSubmode();
 
   if (state <= INS_STATE::OFF || state >= INS_STATE::ATT) return;
 
   switch (pos) {
     case DATA_SELECTOR_POS::POS: {
+      // Disallow entry of PPos after Mode 6 entry, which needs it
+      if (alignMode < ALIGN_SUBMODE::MODE_7) break;
+
       if (value == 2 && insertMode == INSERT_MODE::INV) {
         setInsertMode(INSERT_MODE::POS_LAT);
         startLatS(display, indicators, read);
@@ -193,8 +197,11 @@ void INS::handleInsert() const noexcept {
     case INSERT_MODE::POS_LON: {
       indicators.indicator.INSERT = false;
 
+      double lon = convertLon(display);
+      if (lon > 180 || lon < -180) break;
+
       setDisplayPosLat(convertLat(display));
-      setDisplayPosLon(convertLon(display));
+      setDisplayPosLon(lon);
 
       setInsertMode(INSERT_MODE::INV);
       setIndicators(indicators);
@@ -204,7 +211,10 @@ void INS::handleInsert() const noexcept {
     case INSERT_MODE::WPT_LAT: {
       indicators.indicator.INSERT = false;
 
-      setWPTPosLat(convertLat(display), wptSelector);
+      double lat = convertLat(display);
+      if (lat > 90 || lat < -90) break;
+
+      setWPTPosLat(lat, wptSelector);
 
       if (getWPTPosLon(wptSelector) == 999) {
         setWPTPosLon(0, wptSelector);
@@ -218,7 +228,10 @@ void INS::handleInsert() const noexcept {
     case INSERT_MODE::WPT_LON: {
       indicators.indicator.INSERT = false;
 
-      setWPTPosLon(convertLon(display), wptSelector);
+      double lon = convertLon(display);
+      if (lon > 180 || lon < -180) break;
+
+      setWPTPosLon(lon, wptSelector);
 
       if (getWPTPosLat(wptSelector) == 999) {
         setWPTPosLat(0, wptSelector);

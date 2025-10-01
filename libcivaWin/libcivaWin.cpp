@@ -32,7 +32,6 @@ static void runner() {
 
 int main() {
   winVarManager = std::make_unique<WinVarManager>();
-  winVarManager->setVar(SIM_VAR_AMBIENT_TEMPERATURE, 20);
 
   unit1 = std::make_unique<INS>(*winVarManager, "UNIT_1", WORK_DIR);
 
