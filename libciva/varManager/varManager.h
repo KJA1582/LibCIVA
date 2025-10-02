@@ -30,6 +30,8 @@ constexpr auto WPT_POS_LON_VAR = "LON_WPT_";
 constexpr auto SIM_VAR_AMBIENT_TEMPERATURE = "AMBIENT TEMPERATURE";
 constexpr auto SIM_VAR_AMBIENT_WIND_DIRECTION = "AMBIENT WIND DIRECTION";
 constexpr auto SIM_VAR_AMBIENT_WIND_VELOCITY = "AMBIENT WIND VELOCITY";
+constexpr auto SIM_VAR_AIRSPEED_TRUE = "AIRSPEED TRUE";
+constexpr auto SIM_VAR_GROUND_VELOCITY = "GROUND VELOCITY";
 
 class VarManager {
   const std::string prefix;

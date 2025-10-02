@@ -3,14 +3,17 @@
 static char convertCharacter(char c) {
   if (c == 10) return 'R';
   if (c == 11) return 'L';
+  if (c == 12) return ' ';
 
   return 48 + c;
 }
 
 WinVarManager::WinVarManager() noexcept : VarManager("") {
   setVar(SIM_VAR_AMBIENT_TEMPERATURE, 20);
-  setVar(SIM_VAR_AMBIENT_WIND_DIRECTION, 24);
-  setVar(SIM_VAR_AMBIENT_WIND_VELOCITY, 46);
+  setVar(SIM_VAR_AMBIENT_WIND_DIRECTION, 124.3423);
+  setVar(SIM_VAR_AMBIENT_WIND_VELOCITY, 15);
+  setVar(SIM_VAR_AIRSPEED_TRUE, 190);
+  setVar(SIM_VAR_GROUND_VELOCITY, 175);
 }
 
 void WinVarManager::dump() const noexcept {
@@ -18,24 +21,19 @@ void WinVarManager::dump() const noexcept {
     double value = it->second;
     if (it->first.find(ACTION_MALFUNCTION_CODE_VAR) == 0) {
       switch ((ACTION_MALFUNCTION_CODE)it->second) {
-          case ACTION_MALFUNCTION_CODE::A04_45:
-            std::cout << std::right << std::setfill(' ') << std::setw(27) << "04 45";
-            break;
-          case ACTION_MALFUNCTION_CODE::A04_57:
-            std::cout << std::right << std::setfill(' ') << std::setw(27) << "04 47";
-            break;
-          case ACTION_MALFUNCTION_CODE::A06_41:
-            std::cout << std::right << std::setfill(' ') << std::setw(27) << "06 41";
-            break;
-          case ACTION_MALFUNCTION_CODE::A06_43:
-            std::cout << std::right << std::setfill(' ') << std::setw(27) << "06 43";
-            break;
-          case ACTION_MALFUNCTION_CODE::A06_56:
-            std::cout << std::right << std::setfill(' ') << std::setw(27) << "06 56";
-            break;
-          default:
-            std::cout << std::right << std::setfill(' ') << std::setw(27) << "     ";
-            break;
+        case ACTION_MALFUNCTION_CODE::A04_41:
+          std::cout << std::right << std::setfill(' ') << std::setw(27) << "04 41";
+          break;
+        case ACTION_MALFUNCTION_CODE::A04_43:
+          std::cout << std::right << std::setfill(' ') << std::setw(27) << "04 43";
+          break;
+        case ACTION_MALFUNCTION_CODE::A04_57:
+          std::cout << std::right << std::setfill(' ') << std::setw(27) << "04 47";
+          break;
+
+        default:
+          std::cout << std::right << std::setfill(' ') << std::setw(27) << "     ";
+          break;
       }
     }
     else if (it->first.find(DISPLAY_VAR) == 0) {

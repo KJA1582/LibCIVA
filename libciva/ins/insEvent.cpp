@@ -187,14 +187,20 @@ void INS::handleInsert() const noexcept {
   INDICATORS indicators = getIndicators();
   INSERT_MODE insertMode = getInsertMode();
   WPT_SELECTOR_POS wptSelector = getWPTSelectorPos();
+  DATA_SELECTOR_POS dataSelector = getDataSelectorPos();
+  ACTION_MALFUNCTION_CODE actionMalfunctionCode = getActionMalfunctionCode();
 
   switch (insertMode) {
     case INSERT_MODE::POS_LAT: {
+      if (dataSelector != DATA_SELECTOR_POS::POS) break;
+
       setInsertMode(INSERT_MODE::PRE_POS_LON);
 
       break;
     }
     case INSERT_MODE::POS_LON: {
+      if (dataSelector != DATA_SELECTOR_POS::POS) break;
+
       indicators.indicator.INSERT = false;
 
       double lon = convertLon(display);
@@ -203,12 +209,26 @@ void INS::handleInsert() const noexcept {
       setDisplayPosLat(convertLat(display));
       setDisplayPosLon(lon);
 
+      // FIXME: Trigger 02-63 if done outside NAV and ALIGN MODE 6 or lower
+      // FIXME: Disallow in NAV if HOLD is not pressed
+      double lat = getDisplayPosLat();
+      setINSPosLat(lat);
+      setINSPosLon(lon);
+      if (actionMalfunctionCode == ACTION_MALFUNCTION_CODE::INV &&
+          distanceInNMI(lat, lon, config.getLastLat(), config.getLastLon()) > MAX_RAMP_DEV) {
+          setActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A04_41);
+          indicators.indicator.WARN = true;
+          setIndicators(indicators);
+      }
+
       setInsertMode(INSERT_MODE::INV);
       setIndicators(indicators);
 
       break;
     }
     case INSERT_MODE::WPT_LAT: {
+      if (dataSelector != DATA_SELECTOR_POS::WPT) break;
+
       indicators.indicator.INSERT = false;
 
       double lat = convertLat(display);
@@ -226,6 +246,8 @@ void INS::handleInsert() const noexcept {
       break;
     }
     case INSERT_MODE::WPT_LON: {
+      if (dataSelector != DATA_SELECTOR_POS::WPT) break;
+
       indicators.indicator.INSERT = false;
 
       double lon = convertLon(display);

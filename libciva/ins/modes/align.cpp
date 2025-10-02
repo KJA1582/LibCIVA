@@ -8,6 +8,8 @@ double INS::align() noexcept {
   ALIGN_SUBMODE submode = getAlignSubmode();
   double displayLat = getDisplayPosLat();
   double displayLon = getDisplayPosLon();
+  double insLat = getINSPosLat();
+  double insLon = getINSPosLon();
   ACTION_MALFUNCTION_CODE actionMalfunctionCode = getActionMalfunctionCode();
 
   if (mode == MODE_SELECTOR_POS::STBY) {
@@ -21,6 +23,8 @@ double INS::align() noexcept {
     // Upmode
     if (submode <= ALIGN_SUBMODE::MODE_5) {
       setINSState(INS_STATE::NAV);
+      indicators.indicator.READY_NAV = false;
+      setIndicators(indicators);
       // FIXME: To truly get the downside of AI5 NAV, save the OG AI on nav entry as a scalar
       // Meaning, at AI0, error increases less fast than at AI5. POS updating will reset scalar and AI to AI0 level
       setAccuracyIndex(ACCURACY_INDEX::AI_0);
@@ -47,30 +51,29 @@ double INS::align() noexcept {
       if (batteryTestState == BATTERY_TEST::IDLE && (int)state != (int)mode) {
         setBatteryTestState(BATTERY_TEST::INHIBITED);
       }
-      else if (batteryTestState == BATTERY_TEST::IDLE && operatingTime < 12) {
+      else if (batteryTestState == BATTERY_TEST::IDLE && operatingTime < MAX_BAT_TEST_TIME) {
         indicators.indicator.CDU_BAT = true;
         setIndicators(indicators);
         setBatteryTestState(BATTERY_TEST::RUNNING);
       }
-      else if (batteryTestState == BATTERY_TEST::RUNNING && operatingTime >= 12) {
+      else if (batteryTestState == BATTERY_TEST::RUNNING && operatingTime >= MAX_BAT_TEST_TIME) {
         indicators.indicator.CDU_BAT = false;
         setIndicators(indicators);
         setBatteryTestState(BATTERY_TEST::COMPLETED);
       }
 
-      // TODO: 06-43 for dual/triple INS
+      // TODO: 04-43 for dual/triple INS
       double lastLat = config.getLastLat();
       double lastLon = config.getLastLon();
       if (lastLat == 999 && lastLon == 999) {
         config.setLastLat(displayLat);
         config.setLastLon(displayLon);
       }
-      else if (isPosValid(displayLat, displayLon) &&
+      else if (isPosValid(insLat, insLon) &&
         actionMalfunctionCode == ACTION_MALFUNCTION_CODE::INV &&
-        distanceInNMI(displayLat, displayLon, lastLat, lastLon) > 76) {
-        setActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A06_41);
+        distanceInNMI(insLat, insLon, lastLat, lastLon) > MAX_RAMP_DEV) {
+        setActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A04_41);
         indicators.indicator.WARN = true;
-        setIndicators(indicators);
         // FIXME: In malf clear handler, set last pos
       }
 
@@ -81,15 +84,8 @@ double INS::align() noexcept {
       break;
     }
     case ALIGN_SUBMODE::MODE_7: {
-      if (!isPosInLimit(displayLat)) {
-        setActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A04_45);
-        indicators.indicator.WARN = true;
-        setIndicators(indicators);
-      }
-
-      if (operatingTime >= MAX_MODE_7 && isPosValid(displayLat, displayLon) &&
-        isPosInLimit(displayLat) && actionMalfunctionCode != ACTION_MALFUNCTION_CODE::A06_41 &&
-        actionMalfunctionCode != ACTION_MALFUNCTION_CODE::A04_45) {
+      if (operatingTime >= MAX_MODE_7 && isPosValid(insLat, insLat) &&
+        actionMalfunctionCode != ACTION_MALFUNCTION_CODE::A04_41) {
         setAlignSubmode(ALIGN_SUBMODE::MODE_6);
         operatingTime = 0;
       }
@@ -98,8 +94,9 @@ double INS::align() noexcept {
     case ALIGN_SUBMODE::MODE_6: {
       if (operatingTime >= MAX_MODE_6) {
         setAlignSubmode(ALIGN_SUBMODE::MODE_5);
-        setINSPosLat(displayLat);
-        setINSPosLon(displayLon);
+
+        indicators.indicator.READY_NAV = true;
+
         operatingTime = 0;
       }
       break;
@@ -119,6 +116,8 @@ double INS::align() noexcept {
       break;
     }
   }
+
+  setIndicators(indicators);
 
   return operatingTime;
 }

@@ -2,7 +2,7 @@
 
 # Other Displays
 
-- All aside from POS/WPT
+- All aside from POS/WPT/WIND
 
 # DME entry
  
@@ -21,6 +21,8 @@
 
 - TEST mode
 - MALF clearing
+- BAT operation behaviour
+- TAXI in ALIGN error
 
 # Updating
 

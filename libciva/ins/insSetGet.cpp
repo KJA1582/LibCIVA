@@ -32,10 +32,13 @@ void INS::setDataSelectorPos(DATA_SELECTOR_POS pos) const noexcept {
   varManager.setVar(DATA_SELECTOR_POS_VAR + id, (double)pos);
 
   INDICATORS indicators = getIndicators();
-  indicators.indicator.INSERT = indicators.indicator.WAYPOINT_CHANGE = false;
-  setIndicators(indicators);
-
-  setInsertMode(INSERT_MODE::INV);
+  double insLat = getINSPosLat();
+  double insLon = getINSPosLon();
+  if (isPosValid(insLat, insLon)) {
+    indicators.indicator.INSERT = indicators.indicator.WAYPOINT_CHANGE = false;
+    setIndicators(indicators);
+    setInsertMode(INSERT_MODE::INV);
+  }
 }
 DATA_SELECTOR_POS INS::getDataSelectorPos() const noexcept {
   double pos;
@@ -138,7 +141,7 @@ void INS::setInsertMode(INSERT_MODE mode) const noexcept {
 }
 INSERT_MODE INS::getInsertMode() const noexcept {
   double mode;
-  if(varManager.getVar(INSERT_MODE_VAR + id, mode)) return (INSERT_MODE)mode;
+  if (varManager.getVar(INSERT_MODE_VAR + id, mode)) return (INSERT_MODE)mode;
 
   return INSERT_MODE::INV;
 }

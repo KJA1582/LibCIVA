@@ -10,10 +10,18 @@ constexpr auto MAX_MODE_7 = 90; // Not specified in manual, but "shortly"
 constexpr auto MAX_MODE_6 = 420; // Rest of the ~8.5min MODE 7 and 6
 constexpr auto MODE_5_TO_0 = 204; // 3.4min per mode
 constexpr auto TIME_PER_AI = 1200; // 20min per AI, 3 AI per hour, 3h results in AI9
+constexpr auto MAX_BAT_TEST_TIME = 12; // 12s bat test
 
 constexpr auto PROG_NUM = "11 07"; // CIV-A-22
 
-constexpr auto MIN_TAS = 37.5;
+constexpr auto MIN_GS = 75;
+constexpr auto MIN_TAS_WIND = 115;
+constexpr auto MAX_TAS_WIND = 606;
+constexpr auto MAX_RAMP_DEV = 76;
+
+constexpr auto DISPLAY_CHAR_LEFT = 10;
+constexpr auto DISPLAY_CHAR_RIGHT = 11;
+constexpr auto DISPLAY_CHAR_BLANK = 12;
 
 enum class DATA_SELECTOR_POS {
   INV = -1,
@@ -83,11 +91,9 @@ enum class PERFORMANCE_INDEX {
 
 enum class ACTION_MALFUNCTION_CODE {
   INV = -1,
-  A04_45, // ramp pos out of bounds
+  A04_41, // ramp pos > 76nmi from last pos
+  A04_43, // ramp pos missmatch between pairs of units
   A04_57, // taxi during align
-  A06_41, // ramp pos > 76nmi from last pos
-  A06_43, // ramp pos missmatch between pairs of units
-  A06_56, // inertial pos - dispalyed pos > 3+3*t
 };
 
 enum class BATTERY_TEST {
@@ -140,8 +146,8 @@ typedef union {
 } INDICATORS;
 
 // Use bitset to set display characters
-// Characters are encoded 0->9 for 0->9, 10 for R, 11 for L
-// TO/FROM 11 indicates blinking (value is -1)
+// Characters are encoded 0->9 for 0->9, 10 for R, 11 for L, 12 for " "
+// TO/FROM 11 indicates blinking (to display: value-1)
 typedef union {
   double value;
   struct {

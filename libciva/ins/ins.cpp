@@ -49,14 +49,8 @@ INS::~INS() noexcept {
 }
 
 void INS::reset(bool full) const noexcept {
-  INDICATORS i;
-  i.indicator.INSERT = true;
-  setIndicators({ 0 });
-
   if (full) {
     setINSState(INS_STATE::OFF);
-    INDICATORS i;
-    i.indicator.INSERT = true;
     setIndicators({ 0 });
     setDisplay({ 0 });
     setDisplayPosLat(999);
@@ -68,9 +62,15 @@ void INS::reset(bool full) const noexcept {
       setWPTPosLat(999, (WPT_SELECTOR_POS)i);
       setWPTPosLon(999, (WPT_SELECTOR_POS)i);
     }
+
+    setActionMalfunctionCode(ACTION_MALFUNCTION_CODE::INV);
+    setInsertMode(INSERT_MODE::INV);
   }
 
-  setActionMalfunctionCode(ACTION_MALFUNCTION_CODE::INV);
+  INDICATORS i = { 0 };
+  i.indicator.INSERT = true;
+  setIndicators(i);
+
   setBatteryTestState(BATTERY_TEST::IDLE);
   setAlignSubmode(ALIGN_SUBMODE::MODE_9);
   setAccuracyIndex(ACCURACY_INDEX::AI_9);
@@ -117,11 +117,13 @@ void INS::update(double dTime) noexcept {
         // Upmode
         setINSState(INS_STATE::STBY);
 
-        // TODO: Load last pos into display and INS pos
         setDisplayPosLat(config.getLastLat());
         setDisplayPosLon(config.getLastLon());
-        setINSPosLat(config.getLastLat());
-        setINSPosLon(config.getLastLon());
+
+        indicators.indicator.INSERT = true;
+        setIndicators(indicators);
+
+        //setInsertMode(INSERT_MODE::POS_LAT);
 
         operatingTime = 0;
         break;

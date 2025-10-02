@@ -16,7 +16,3 @@ double distanceInNMI(double startLat, double startLon, double endLat, double end
 bool isPosValid(double lat, double lon) {
   return lat <= 90 && lat >= -90 && lon <= 180 && lon >= -180;
 }
-
-bool isPosInLimit(double lat) {
-  return lat <= 80 && lat >= -80;
-}
