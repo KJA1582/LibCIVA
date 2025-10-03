@@ -54,11 +54,111 @@ void INS::display() const noexcept {
   INSERT_MODE insertMode = getInsertMode();
   WPT_SELECTOR_POS wptSelector = getWPTSelectorPos();
 
+  double gs;
+  bool gsValid = varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs);
+  double trueHeading;
+  bool trueHeadingValid = varManager.getVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, trueHeading);
+
   switch (dataPos) {
     case DATA_SELECTOR_POS::TKGS: {
+      short track = 0;
+
+      if (!gsValid) {
+        gs = 0;
+
+        if (trueHeadingValid || gs < MIN_GS) {
+          track = (short)(round(trueHeading * 10));
+        }
+      }
+      else {
+        track = (short)(round(getTrack() * 10));
+      }
+      if (gs > MAX_GS_DISPLAY) {
+        gs = MAX_GS_DISPLAY;
+      }
+      else {
+        gs = round(gs);
+      }
+
+      display.characters.LEFT_DEC_1 = display.characters.LEFT_DEG_1 =
+        display.characters.RIGHT_DEC_1 = display.characters.RIGHT_DEC_2 =
+        display.characters.RIGHT_DEG_1 = display.characters.RIGHT_DEG_2 = display.characters.N =
+        display.characters.S = display.characters.E = display.characters.W = false;
+      display.characters.LEFT_DEG_2 = display.characters.LEFT_DEC_2 = true;
+      display.characters.LEFT_1 = display.characters.LEFT_2 = display.characters.LEFT_3 =
+        display.characters.LEFT_4 = display.characters.RIGHT_1 = display.characters.RIGHT_2 =
+        display.characters.RIGHT_3 = display.characters.RIGHT_4 = display.characters.RIGHT_5 =
+        DISPLAY_CHAR_BLANK;
+
+      char trackH = (short)track / 1000;
+      char trackT = (short)(track - trackH * 1000) / 100;
+      char trackO = (short)(track - trackH * 1000 - trackT * 100) / 10;
+      char trackD = (char)(track - trackH * 1000 - trackT * 100 - trackO * 10);
+
+      display.characters.LEFT_2 = trackH > 0 ? trackH : DISPLAY_CHAR_BLANK;
+      display.characters.LEFT_3 = trackH > 0 || trackT > 0 ? trackT : DISPLAY_CHAR_BLANK;
+      display.characters.LEFT_4 = trackO;
+      display.characters.LEFT_5 = trackD;
+
+      char speedTH = (short)gs / 1000;
+      char speedH = (short)(gs - speedTH * 1000) / 100;
+      char speedT = (short)(gs - speedTH * 1000 - speedH * 100) / 10;
+      char speedO = (short)gs - speedTH * 1000  - speedH * 100 - speedT * 10;
+
+      display.characters.RIGHT_3 = speedTH > 0 ? speedTH : DISPLAY_CHAR_BLANK;
+      display.characters.RIGHT_4 = speedH > 0 || speedTH > 0 ? speedH : DISPLAY_CHAR_BLANK;
+      display.characters.RIGHT_5 = speedH > 0 || speedT > 0 ? speedT : DISPLAY_CHAR_BLANK;
+      display.characters.RIGHT_6 = speedO;
+
       break;
     }
     case DATA_SELECTOR_POS::HDGDA: {
+      short heading = 0;
+
+      if (!trueHeadingValid) {
+        heading = 0;
+      }
+      else {
+        heading = (short)(round(trueHeading * 10));
+      }
+
+      short driftAngle = (short)round(((heading - (short)(round(getTrack() * 10))) % 1800) / 10.0);
+      uint8_t driftAngleDir = DISPLAY_CHAR_LEFT;
+      if (driftAngle < 0) {
+        driftAngle *= -1;
+        driftAngleDir = DISPLAY_CHAR_RIGHT;
+      }
+
+      display.characters.LEFT_DEC_1 = display.characters.LEFT_DEG_1 =
+        display.characters.RIGHT_DEC_1 = display.characters.RIGHT_DEC_2 =
+        display.characters.RIGHT_DEG_1 = display.characters.N = display.characters.S =
+        display.characters.E = display.characters.W = false;
+      display.characters.LEFT_DEG_2 = display.characters.LEFT_DEC_2 =
+        display.characters.RIGHT_DEG_2 = true;
+      display.characters.LEFT_1 = display.characters.LEFT_2 = display.characters.LEFT_3 =
+        display.characters.LEFT_4 = display.characters.RIGHT_1 = display.characters.RIGHT_2 =
+        display.characters.RIGHT_3 = display.characters.RIGHT_4 = display.characters.RIGHT_5 =
+        DISPLAY_CHAR_BLANK;
+
+      char headingH = (short)heading / 1000;
+      char headingT = (short)(heading - headingH * 1000) / 100;
+      char headingO = (short)(heading - headingH * 1000 - headingT * 100) / 10;
+      char headingD = (char)(heading - headingH * 1000 - headingT * 100 - headingO * 10);
+
+      display.characters.LEFT_2 = headingH > 0 ? headingH : DISPLAY_CHAR_BLANK;
+      display.characters.LEFT_3 = headingH > 0 || headingT > 0 ? headingT : DISPLAY_CHAR_BLANK;
+      display.characters.LEFT_4 = headingO;
+      display.characters.LEFT_5 = headingD;
+
+      char driftAngleH = (short)driftAngle / 100;
+      char drigtAngleT = (short)(driftAngle - driftAngleH * 100) / 10;
+      char drigtAngleO = (short)driftAngle - driftAngleH * 100 - drigtAngleT * 10;
+
+      display.characters.RIGHT_3 = driftAngleH > 0 ? driftAngleH : DISPLAY_CHAR_BLANK;
+      display.characters.RIGHT_4 = driftAngleH > 0 || drigtAngleT > 0 ? drigtAngleT : DISPLAY_CHAR_BLANK;
+      display.characters.RIGHT_5 = drigtAngleO;
+      display.characters.RIGHT_6 = driftAngleDir;
+
       break;
     }
     case DATA_SELECTOR_POS::XTKTKE: {
@@ -107,12 +207,13 @@ void INS::display() const noexcept {
       display.characters.LEFT_DEC_1 = display.characters.LEFT_DEC_2 =
         display.characters.LEFT_DEG_1 = display.characters.RIGHT_DEC_1 =
         display.characters.RIGHT_DEC_2 = display.characters.RIGHT_DEG_1 =
-        display.characters.RIGHT_DEG_2 = display.characters.N = display.characters.S = 
+        display.characters.RIGHT_DEG_2 = display.characters.N = display.characters.S =
         display.characters.E = display.characters.W = false;
       display.characters.LEFT_DEG_2 = true;
       display.characters.LEFT_1 = display.characters.LEFT_2 = display.characters.LEFT_3 =
         display.characters.LEFT_4 = display.characters.RIGHT_1 = display.characters.RIGHT_2 =
-        display.characters.RIGHT_3 = display.characters.RIGHT_4 = display.characters.RIGHT_5 = 12;
+        display.characters.RIGHT_3 = display.characters.RIGHT_4 = display.characters.RIGHT_5 =
+        DISPLAY_CHAR_BLANK;
 
       if (!valid || gs < MIN_GS || tas < MIN_TAS_WIND || tas > MAX_TAS_WIND) {
         display.characters.LEFT_5 = display.characters.RIGHT_6 = 0;
@@ -125,17 +226,17 @@ void INS::display() const noexcept {
           dir = round(dir);
           speed = fmin(round(speed), 606.0);
 
-          short dirH = (short)dir / 100;
-          short dirT = (short)(dir - dirH * 100) / 10;
-          short dirO = (short)dir - dirH * 100 - dirT * 10;
+          char dirH = (short)dir / 100;
+          char dirT = (short)(dir - dirH * 100) / 10;
+          char dirO = (short)dir - dirH * 100 - dirT * 10;
 
           display.characters.LEFT_3 = dirH > 0 ? dirH : DISPLAY_CHAR_BLANK;
           display.characters.LEFT_4 = dirH > 0 || dirT > 0 ? dirT : DISPLAY_CHAR_BLANK;
           display.characters.LEFT_5 = dirO;
 
-          short speedH = (short)speed / 100;
-          short speedT = (short)(speed - speedH * 100) / 10;
-          short speedO = (short)speed - speedH * 100 - speedT * 10;
+          char speedH = (short)speed / 100;
+          char speedT = (short)(speed - speedH * 100) / 10;
+          char speedO = (short)speed - speedH * 100 - speedT * 10;
 
           display.characters.RIGHT_4 = speedH > 0 ? speedH : DISPLAY_CHAR_BLANK;
           display.characters.RIGHT_5 = speedH > 0 || speedT > 0 ? speedT : DISPLAY_CHAR_BLANK;

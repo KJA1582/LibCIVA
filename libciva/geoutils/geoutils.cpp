@@ -1,6 +1,6 @@
 #include "geoutils.h"
 
-double distanceInNMI(double startLat, double startLon, double endLat, double endLon) {
+double distanceInNMI(double startLat, double startLon, double endLat, double endLon) noexcept {
   double R = 3440; // nmi
   double φ1 = startLat * M_PI / 180; // φ, λ in radians
   double φ2 = endLat * M_PI / 180;
@@ -13,6 +13,7 @@ double distanceInNMI(double startLat, double startLon, double endLat, double end
   return R * c; // in nmi
 }
 
-bool isPosValid(double lat, double lon) {
+bool isPosValid(double lat, double lon) noexcept {
   return lat <= 90 && lat >= -90 && lon <= 180 && lon >= -180;
 }
+

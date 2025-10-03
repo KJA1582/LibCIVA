@@ -96,14 +96,19 @@ double INS::getDisplayPosLon() const noexcept {
   return 999;
 }
 
-void INS::setActionMalfunctionCode(ACTION_MALFUNCTION_CODE code) const noexcept {
-  varManager.setVar(ACTION_MALFUNCTION_CODE_VAR + id, (double)code);
+void INS::addActionMalfunctionCode(ACTION_MALFUNCTION_CODE code) noexcept {
+  if(std::find(malfs.begin(), malfs.end(), code) == malfs.end()) {
+    malfs.push_back(code);
+  }
 }
-ACTION_MALFUNCTION_CODE INS::getActionMalfunctionCode() const noexcept {
-  double lon;
-  if (varManager.getVar(ACTION_MALFUNCTION_CODE_VAR + id, lon)) return (ACTION_MALFUNCTION_CODE)lon;
-
-  return ACTION_MALFUNCTION_CODE::INV;
+void INS::clearActionMalfunctionCodes() noexcept {
+  malfs.clear();
+}
+bool INS::hasActionMalfunctionCode(ACTION_MALFUNCTION_CODE code) const noexcept {
+  return std::find(malfs.begin(), malfs.end(), code) != malfs.end();
+}
+bool INS::hasActionMalfunctionCode() const noexcept {
+  return !malfs.empty();
 }
 
 void INS::setIndicators(INDICATORS indicators) const noexcept {
@@ -192,4 +197,14 @@ double INS::getWPTPosLon(WPT_SELECTOR_POS wpt) const noexcept {
   if (varManager.getVar(WPT_POS_LON_VAR + std::to_string((int)wpt) + "_" + id, lon)) return lon;
 
   return 999;
+}
+
+void INS::setTrack(double track) const noexcept {
+  varManager.setVar(TRACK_VAR + id, track);
+}
+double INS::getTrack() const noexcept {
+  double track;
+  if (varManager.getVar(TRACK_VAR + id, track)) return track;
+
+  return 0;
 }

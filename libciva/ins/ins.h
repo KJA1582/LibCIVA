@@ -1,6 +1,14 @@
 #ifndef INS_H
 #define INS_H
 
+#define _USE_MATH_DEFINES
+
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <string>
+#include <vector>
+
 #include "config/config.h"
 #include "geoutils/geoutils.h"
 #include "varManager/varManager.h"
@@ -18,9 +26,12 @@ constexpr auto MIN_GS = 75;
 constexpr auto MIN_TAS_WIND = 115;
 constexpr auto MAX_TAS_WIND = 606;
 constexpr auto MAX_RAMP_DEV = 76;
+constexpr auto MAX_GS = 910;
+constexpr auto MAX_GS_DISPLAY = 2400;
+constexpr auto MAX_DRIFT_ANGLE = 45;
 
-constexpr auto DISPLAY_CHAR_LEFT = 10;
-constexpr auto DISPLAY_CHAR_RIGHT = 11;
+constexpr auto DISPLAY_CHAR_RIGHT = 10;
+constexpr auto DISPLAY_CHAR_LEFT = 11;
 constexpr auto DISPLAY_CHAR_BLANK = 12;
 
 enum class DATA_SELECTOR_POS {
@@ -91,9 +102,11 @@ enum class PERFORMANCE_INDEX {
 
 enum class ACTION_MALFUNCTION_CODE {
   INV = -1,
-  A04_41, // ramp pos > 76nmi from last pos
-  A04_43, // ramp pos missmatch between pairs of units
-  A04_57, // taxi during align
+  A02_31, // ground speed > 910, non-clearable
+  A02_42, // drift angle > 45, non-clearable
+  A04_41, // ramp pos > 76nmi from last pos, clearable
+  A04_43, // ramp pos missmatch between pairs of units, non-clearable
+  A04_57, // taxi during align, non-clearable
 };
 
 enum class BATTERY_TEST {
@@ -151,23 +164,23 @@ typedef union {
 typedef union {
   double value;
   struct {
-    unsigned char LEFT_1 : 4;
-    unsigned char LEFT_2 : 4;
-    unsigned char LEFT_3 : 4;
-    unsigned char LEFT_4 : 4;
-    unsigned char LEFT_5 : 4;
+    uint8_t LEFT_1 : 4;
+    uint8_t LEFT_2 : 4;
+    uint8_t LEFT_3 : 4;
+    uint8_t LEFT_4 : 4;
+    uint8_t LEFT_5 : 4;
     bool LEFT_DEG_1 : 1;
     bool LEFT_DEG_2 : 1;
     bool LEFT_DEC_1 : 1;
     bool LEFT_DEC_2 : 1;
-    unsigned char RIGHT_1 : 4;
-    unsigned char RIGHT_2 : 4;
-    unsigned char RIGHT_3 : 4;
-    unsigned char RIGHT_4 : 4;
-    unsigned char RIGHT_5 : 4;
-    unsigned char RIGHT_6 : 4;
-    unsigned char TO : 4;
-    unsigned char FROM : 4;
+    uint8_t RIGHT_1 : 4;
+    uint8_t RIGHT_2 : 4;
+    uint8_t RIGHT_3 : 4;
+    uint8_t RIGHT_4 : 4;
+    uint8_t RIGHT_5 : 4;
+    uint8_t RIGHT_6 : 4;
+    uint8_t TO : 4;
+    uint8_t FROM : 4;
     bool RIGHT_DEG_1 : 1;
     bool RIGHT_DEG_2 : 1;
     bool RIGHT_DEC_1 : 1;
@@ -184,8 +197,7 @@ class INS {
   Config config;
 
   const std::string id;
-
-  void reset(bool full) const noexcept;
+  std::vector<ACTION_MALFUNCTION_CODE> malfs;
 
   #pragma region Getter/Setter
 
@@ -209,7 +221,10 @@ class INS {
   void setDisplayPosLon(double lon) const noexcept;
   double getDisplayPosLon() const noexcept;
 
-  void setActionMalfunctionCode(ACTION_MALFUNCTION_CODE code) const noexcept;
+  void addActionMalfunctionCode(ACTION_MALFUNCTION_CODE code) noexcept;
+  void clearActionMalfunctionCodes() noexcept;
+  bool hasActionMalfunctionCode(ACTION_MALFUNCTION_CODE code) const noexcept;
+  bool hasActionMalfunctionCode() const noexcept;
 
   void setIndicators(INDICATORS indicators) const noexcept;
 
@@ -231,10 +246,16 @@ class INS {
   void setWPTPosLon(double lon, WPT_SELECTOR_POS wpt) const noexcept;
   double getWPTPosLon(WPT_SELECTOR_POS wpt) const noexcept;
 
+  void setTrack(double track) const noexcept;
+  double getTrack() const noexcept;
+
   #pragma endregion
 
+  void reset(bool full) noexcept;
   double align() noexcept;
   void display() const noexcept;
+  void handleOutOfBounds() noexcept;
+  void calculateTrack() const noexcept;
 public:
   INS(VarManager &varManager, const std::string &id, const std::string &workDir) noexcept;
   ~INS() noexcept;
@@ -248,8 +269,6 @@ public:
 
   void setModeSelectorPos(MODE_SELECTOR_POS pos) const noexcept;
   MODE_SELECTOR_POS getModeSelectorPos() const noexcept;
-
-  ACTION_MALFUNCTION_CODE getActionMalfunctionCode() const noexcept;
 
   INDICATORS getIndicators() const noexcept;
 
@@ -269,7 +288,7 @@ public:
   void decModeSelectorPos() const noexcept;
 
   void handleNumeric(char value) const noexcept;
-  void handleInsert() const noexcept;
+  void handleInsert() noexcept;
 
   void incWPTSelectorPos() const noexcept;
   void decWPTSelectorPos() const noexcept;

@@ -182,13 +182,12 @@ void INS::handleNumeric(char value) const noexcept {
   setIndicators(indicators);
 }
 
-void INS::handleInsert() const noexcept {
+void INS::handleInsert() noexcept {
   DISPLAY display = getDisplay();
   INDICATORS indicators = getIndicators();
   INSERT_MODE insertMode = getInsertMode();
   WPT_SELECTOR_POS wptSelector = getWPTSelectorPos();
   DATA_SELECTOR_POS dataSelector = getDataSelectorPos();
-  ACTION_MALFUNCTION_CODE actionMalfunctionCode = getActionMalfunctionCode();
 
   switch (insertMode) {
     case INSERT_MODE::POS_LAT: {
@@ -214,9 +213,8 @@ void INS::handleInsert() const noexcept {
       double lat = getDisplayPosLat();
       setINSPosLat(lat);
       setINSPosLon(lon);
-      if (actionMalfunctionCode == ACTION_MALFUNCTION_CODE::INV &&
-          distanceInNMI(lat, lon, config.getLastLat(), config.getLastLon()) > MAX_RAMP_DEV) {
-          setActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A04_41);
+      if (distanceInNMI(lat, lon, config.getLastLat(), config.getLastLon()) > MAX_RAMP_DEV) {
+          addActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A04_41);
           indicators.indicator.WARN = true;
           setIndicators(indicators);
       }

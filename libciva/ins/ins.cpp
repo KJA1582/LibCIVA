@@ -22,7 +22,7 @@ static double heater(const Config &config, double currentTempC, double ambientTe
 #pragma endregion
 
 INS::INS(VarManager &varManager, const std::string &id, const std::string &workDir) noexcept :
-  varManager(varManager), id(id), config(Config(workDir)) {
+  varManager(varManager), id(id), config(Config(workDir)), malfs() {
 
   setModeSelectorPos(MODE_SELECTOR_POS::OFF);
   setDataSelectorPos(DATA_SELECTOR_POS::POS);
@@ -48,28 +48,32 @@ INS::~INS() noexcept {
   config.save();
 }
 
-void INS::reset(bool full) const noexcept {
+void INS::reset(bool full) noexcept {
+  INDICATORS i = { 0 };
+  i.indicator.INSERT = true;
+  setIndicators(i);
+
   if (full) {
+    uint64_t d;
+    d = 0x00CCCCCCCC0CCCCC;
+
     setINSState(INS_STATE::OFF);
     setIndicators({ 0 });
-    setDisplay({ 0 });
+    setDisplay(*(reinterpret_cast<DISPLAY *>(&d)));
     setDisplayPosLat(999);
     setDisplayPosLon(999);
     setINSPosLat(999);
     setINSPosLon(999);
+    setTrack(0);
 
     for (int i = (int)WPT_SELECTOR_POS::WPT_0; i <= (int)WPT_SELECTOR_POS::WPT_9; i++) {
       setWPTPosLat(999, (WPT_SELECTOR_POS)i);
       setWPTPosLon(999, (WPT_SELECTOR_POS)i);
     }
 
-    setActionMalfunctionCode(ACTION_MALFUNCTION_CODE::INV);
+    clearActionMalfunctionCodes();
     setInsertMode(INSERT_MODE::INV);
   }
-
-  INDICATORS i = { 0 };
-  i.indicator.INSERT = true;
-  setIndicators(i);
 
   setBatteryTestState(BATTERY_TEST::IDLE);
   setAlignSubmode(ALIGN_SUBMODE::MODE_9);
@@ -83,10 +87,19 @@ void INS::update(double dTime) noexcept {
   MODE_SELECTOR_POS mode = getModeSelectorPos();
   INDICATORS indicators = getIndicators();
 
+  // Heat
+  double ambient = 0;
+  if (varManager.getVar(SIM_VAR_AMBIENT_TEMPERATURE, ambient)) {
+    setTemperature(heater(config, getTemperature(), ambient, state > INS_STATE::OFF, dTime));
+  }
+
   // Switching to ATT
   if (state < INS_STATE::ATT && mode == MODE_SELECTOR_POS::ATT) {
     setINSState(INS_STATE::ATT);
-    setDisplay({ 0 });
+
+    uint64_t d;
+    d = 0x00CCCCCCCC0CCCCC;
+    setDisplay(*(reinterpret_cast<DISPLAY *>(&d)));
 
     operatingTime = 0;
     setOperatingTime(operatingTime);
@@ -104,6 +117,8 @@ void INS::update(double dTime) noexcept {
 
     setINSState(INS_STATE::OFF);
     reset(true);
+
+    return;
   }
 
   // Main state
@@ -122,8 +137,6 @@ void INS::update(double dTime) noexcept {
 
         indicators.indicator.INSERT = true;
         setIndicators(indicators);
-
-        //setInsertMode(INSERT_MODE::POS_LAT);
 
         operatingTime = 0;
         break;
@@ -150,6 +163,9 @@ void INS::update(double dTime) noexcept {
         // Downmode
         setINSState(INS_STATE::STBY);
         reset(false);
+
+        setINSPosLat(999);
+        setINSPosLon(999);
       }
       else if (mode == MODE_SELECTOR_POS::ALIGN) {
         // Downmode
@@ -173,18 +189,71 @@ void INS::update(double dTime) noexcept {
     }
   }
 
-  // Heater
-  double ambient = 0;
-  if (varManager.getVar(SIM_VAR_AMBIENT_TEMPERATURE, ambient)) {
-    setTemperature(heater(config, getTemperature(), ambient, state > INS_STATE::OFF, dTime));
-  }
-
   // Display
   if (state > INS_STATE::OFF && state < INS_STATE::ATT) {
     display();
   }
 
+  // Ground track
+ calculateTrack();
+
+  // Out of bound errors
+  handleOutOfBounds();
+
   // Time step
   operatingTime += dTime;
   setOperatingTime(operatingTime);
+}
+
+void INS::calculateTrack() const noexcept {
+  double trueHeading;
+  double windDir;
+  double windSpeed;
+  double tas;
+  double gs;
+
+  if (varManager.getVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, trueHeading) &&
+      varManager.getVar(SIM_VAR_AMBIENT_WIND_DIRECTION, windDir) &&
+      varManager.getVar(SIM_VAR_AMBIENT_WIND_VELOCITY, windSpeed) &&
+      varManager.getVar(SIM_VAR_AIRSPEED_TRUE, tas) &&
+      varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs)) {
+
+    if (gs < MIN_GS) {
+      setTrack(trueHeading);
+
+      return;
+    }
+
+    double _trueHeading = trueHeading * M_PI / 180;
+    double _windDir = fmod(windDir + 180, 360) * M_PI / 180;
+
+    setTrack(fmod(360 + (atan2(tas * sin(_trueHeading) + windSpeed * sin(_windDir),
+                               tas * cos(_trueHeading) + windSpeed * cos(_windDir))) * 180 / M_PI, 360));
+  }
+}
+
+void INS::handleOutOfBounds() noexcept {
+  INDICATORS indicators = getIndicators();
+
+  double gs;
+  if (!varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs)) {
+    gs = 0;
+  };
+  double trueHeading;
+  if (!varManager.getVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, trueHeading)) {
+    trueHeading = 0;
+  }
+
+  if (abs(trueHeading - getTrack()) > MAX_DRIFT_ANGLE) {
+    addActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A02_42);
+    indicators.indicator.WARN = true;
+    setIndicators(indicators);
+  }
+  if (gs > MAX_GS) {
+    addActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A02_31);
+    indicators.indicator.WARN = true;
+    setIndicators(indicators);
+  }
+
+  setIndicators(indicators);
 }

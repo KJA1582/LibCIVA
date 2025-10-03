@@ -5,11 +5,11 @@
 
 class Config {
   const std::string workDir;
-  double operatingTempInC = -1;
-  double heaterWattage = -1;
-  double heaterEfficiency = -1;
-  double unitMass = -1;
-  double unitSpecificHeat = -1;
+  double operatingTempInC = 76;
+  double heaterWattage = 2000;
+  double heaterEfficiency = 0.7;
+  double unitMass = 5;
+  double unitSpecificHeat = 900;
   double lastLat = 999;
   double lastLon = 999;
 

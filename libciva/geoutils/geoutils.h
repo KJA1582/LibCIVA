@@ -3,12 +3,12 @@
 
 #define _USE_MATH_DEFINES
 
-#include <math.h>
+#include <cmath>
 
-double distanceInNMI(double startLat, double startLon, double endLat, double endLon);
+#include "varManager/varManager.h"
 
-bool isPosValid(double lat, double lon);
+double distanceInNMI(double startLat, double startLon, double endLat, double endLon) noexcept;
 
-bool isPosInLimit(double lat);
+bool isPosValid(double lat, double lon) noexcept;
 
 #endif

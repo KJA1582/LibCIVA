@@ -9,34 +9,19 @@ static char convertCharacter(char c) {
 }
 
 WinVarManager::WinVarManager() noexcept : VarManager("") {
-  setVar(SIM_VAR_AMBIENT_TEMPERATURE, 20);
-  setVar(SIM_VAR_AMBIENT_WIND_DIRECTION, 124.3423);
-  setVar(SIM_VAR_AMBIENT_WIND_VELOCITY, 15);
+  setVar(SIM_VAR_AMBIENT_TEMPERATURE, 15);
+  setVar(SIM_VAR_AMBIENT_WIND_DIRECTION, 284);
+  setVar(SIM_VAR_AMBIENT_WIND_VELOCITY, 36);
   setVar(SIM_VAR_AIRSPEED_TRUE, 190);
-  setVar(SIM_VAR_GROUND_VELOCITY, 175);
+  setVar(SIM_VAR_GROUND_VELOCITY, 159.4);
+  setVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, 249.2);
+  // Expected Drift Angle: 7 left, so HDG > TK (left -> right)
 }
 
 void WinVarManager::dump() const noexcept {
   for (auto it = store.begin(); it != store.end(); ++it) {
     double value = it->second;
-    if (it->first.find(ACTION_MALFUNCTION_CODE_VAR) == 0) {
-      switch ((ACTION_MALFUNCTION_CODE)it->second) {
-        case ACTION_MALFUNCTION_CODE::A04_41:
-          std::cout << std::right << std::setfill(' ') << std::setw(27) << "04 41";
-          break;
-        case ACTION_MALFUNCTION_CODE::A04_43:
-          std::cout << std::right << std::setfill(' ') << std::setw(27) << "04 43";
-          break;
-        case ACTION_MALFUNCTION_CODE::A04_57:
-          std::cout << std::right << std::setfill(' ') << std::setw(27) << "04 47";
-          break;
-
-        default:
-          std::cout << std::right << std::setfill(' ') << std::setw(27) << "     ";
-          break;
-      }
-    }
-    else if (it->first.find(DISPLAY_VAR) == 0) {
+    if (it->first.find(DISPLAY_VAR) == 0) {
       const DISPLAY v = *reinterpret_cast<const DISPLAY *>(&it->second);
       std::cout << convertCharacter(v.characters.LEFT_1);
       std::cout << convertCharacter(v.characters.LEFT_2);
