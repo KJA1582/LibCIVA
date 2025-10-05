@@ -5,10 +5,18 @@
 
 #include <cmath>
 
-#include "varManager/varManager.h"
+struct POSITION {
+  // In degrees
+  double latitude;
+  // In degrees
+  double longitude;
 
-double distanceInNMI(double startLat, double startLon, double endLat, double endLon) noexcept;
+  inline bool isValid() const noexcept {
+    return latitude <= 90 && latitude >= -90 && longitude <= 180 && longitude >= -180;
+  }
 
-bool isPosValid(double lat, double lon) noexcept;
+  double distanceTo(const POSITION &target) const noexcept;
+
+};
 
 #endif

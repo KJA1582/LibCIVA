@@ -47,8 +47,14 @@ int main() {
     ReadConsoleInput(hIn, &inp, 1, &num_of_events);
 
     switch (inp.EventType) {
-      case KEY_EVENT:
-        if (!inp.Event.KeyEvent.bKeyDown) break;
+      case KEY_EVENT: {
+        if (!inp.Event.KeyEvent.bKeyDown) {
+          if (inp.Event.KeyEvent.wVirtualKeyCode == VK_MULTIPLY) {
+            unit1->handleTestButtonState(false);
+          }
+
+          break;
+        }
 
         switch (inp.Event.KeyEvent.wVirtualKeyCode) {
           case VK_UP:
@@ -97,16 +103,22 @@ int main() {
             unit1->handleInsert();
             break;
           case VK_ADD:
-            unit1->incWPTSelectorPos();
+            unit1->incWaypointSelectorPos();
             break;
           case VK_SUBTRACT:
-            unit1->decWPTSelectorPos();
+            unit1->decWaypointSelectorPos();
+            break;
+          case VK_MULTIPLY:
+            unit1->handleTestButtonState(true);
+            Sleep(200); //DEBOUNCE;
             break;
           case VK_ESCAPE:
             __exit = true;
             break;
         }
+      
         break;
+      }            
     }
 
     Sleep(20);

@@ -1,211 +1,81 @@
 #include "ins.h"
 
-#pragma region Helpers
-
-static double heater(const Config &config, double currentTempC, double ambientTempC,
-                     bool shouldHeat, double dTime) {
-  if (shouldHeat && currentTempC >= config.getOperatingTempInC()) return currentTempC;
-  if (!shouldHeat && currentTempC <= ambientTempC + 0.1)
-    return ambientTempC;
-
-  double cooling = 0.02;
-  double loss = cooling * (currentTempC - ambientTempC) * (dTime / config.getUnitMass());
-
-  if (!shouldHeat) return currentTempC - loss;
-
-  double energy = config.getHeaterWattage() * config.getHeaterEfficiency() * dTime;
-  double dTemp = energy / (config.getUnitMass() * config.getUnitSpecificHeat());
-
-  return currentTempC + dTemp - loss;
-}
-
-#pragma endregion
+#pragma region Lifecycle
 
 INS::INS(VarManager &varManager, const std::string &id, const std::string &workDir) noexcept :
-  varManager(varManager), id(id), config(Config(workDir)), malfs() {
+  varManager(varManager), id(id), config(Config(workDir)), actionMalfunctionCodes() {
+  clearDisplay();
 
-  setModeSelectorPos(MODE_SELECTOR_POS::OFF);
-  setDataSelectorPos(DATA_SELECTOR_POS::POS);
-  setWPTSelectorPos(WPT_SELECTOR_POS::WPT_0);
+  // Init all things from global vars
+  varManager.getVar(SIM_VAR_AMBIENT_TEMPERATURE, ovenTemperature);
 
-  reset(true);
-
-  double temperature;
-  varManager.getVar(SIM_VAR_AMBIENT_TEMPERATURE, temperature);
-  setTemperature(temperature);
-
-  setOperatingTime(0);
+  // Init exports
+  exportVars();
 }
 
 INS::~INS() noexcept {
-  double lat = getDisplayPosLat();
-  double lon = getDisplayPosLon();
-  if (lat != 999 && lon != 999) {
-    config.setLastLat(lat);
-    config.setLastLon(lon);
+  // If we have a valid position, save
+  if (currentINSPosition.isValid()) {
+    config.setLastLat(currentINSPosition.latitude);
+    config.setLastLon(currentINSPosition.longitude);
   }
 
   config.save();
 }
 
-void INS::reset(bool full) noexcept {
-  INDICATORS i = { 0 };
-  i.indicator.INSERT = true;
-  setIndicators(i);
+#pragma endregion
 
-  if (full) {
-    uint64_t d;
-    d = 0x00CCCCCCCC0CCCCC;
+void INS::temperatureSim(const double dTime) noexcept {
+  bool shouldHeat = state > INS_STATE::OFF;
 
-    setINSState(INS_STATE::OFF);
-    setIndicators({ 0 });
-    setDisplay(*(reinterpret_cast<DISPLAY *>(&d)));
-    setDisplayPosLat(999);
-    setDisplayPosLon(999);
-    setINSPosLat(999);
-    setINSPosLon(999);
-    setTrack(0);
-
-    for (int i = (int)WPT_SELECTOR_POS::WPT_0; i <= (int)WPT_SELECTOR_POS::WPT_9; i++) {
-      setWPTPosLat(999, (WPT_SELECTOR_POS)i);
-      setWPTPosLon(999, (WPT_SELECTOR_POS)i);
-    }
-
-    clearActionMalfunctionCodes();
-    setInsertMode(INSERT_MODE::INV);
-  }
-
-  setBatteryTestState(BATTERY_TEST::IDLE);
-  setAlignSubmode(ALIGN_SUBMODE::MODE_9);
-  setAccuracyIndex(ACCURACY_INDEX::AI_9);
-  setOperatingTime(0);
-}
-
-void INS::update(double dTime) noexcept {
-  double operatingTime = getOperatingTime();
-  INS_STATE state = getINSState();
-  MODE_SELECTOR_POS mode = getModeSelectorPos();
-  INDICATORS indicators = getIndicators();
-
-  // Heat
   double ambient = 0;
   if (varManager.getVar(SIM_VAR_AMBIENT_TEMPERATURE, ambient)) {
-    setTemperature(heater(config, getTemperature(), ambient, state > INS_STATE::OFF, dTime));
-  }
+    // Exit if at operating tem or ambiant in case of heating or no heating
+    if (shouldHeat && ovenTemperature >= config.getOperatingTempInC()) return;
+    if (!shouldHeat && ovenTemperature <= ambient + 0.1)  return;
 
-  // Switching to ATT
-  if (state < INS_STATE::ATT && mode == MODE_SELECTOR_POS::ATT) {
-    setINSState(INS_STATE::ATT);
+    double cooling = 0.02;
+    double loss = cooling * (ovenTemperature - ambient) * (dTime / config.getUnitMass());
 
-    uint64_t d;
-    d = 0x00CCCCCCCC0CCCCC;
-    setDisplay(*(reinterpret_cast<DISPLAY *>(&d)));
-
-    operatingTime = 0;
-    setOperatingTime(operatingTime);
-    return;
-  }
-
-  // Going to OFF
-  if (state > INS_STATE::OFF && mode == MODE_SELECTOR_POS::OFF) {
-    double lat = getDisplayPosLat();
-    double lon = getDisplayPosLon();
-    if (lat != 999 && lon != 999) {
-      config.setLastLat(lat);
-      config.setLastLon(lon);
-    }
-
-    setINSState(INS_STATE::OFF);
-    reset(true);
-
-    return;
-  }
-
-  // Main state
-  switch (state) {
-    case INS_STATE::INV: {
-      // ERROR CASE
-      break;
-    }
-    case INS_STATE::OFF: {
-      if (mode != MODE_SELECTOR_POS::OFF) {
-        // Upmode
-        setINSState(INS_STATE::STBY);
-
-        setDisplayPosLat(config.getLastLat());
-        setDisplayPosLon(config.getLastLon());
-
-        indicators.indicator.INSERT = true;
-        setIndicators(indicators);
-
-        operatingTime = 0;
-        break;
-      }
-
+    // Pure cooling down
+    if (!shouldHeat) {
+      ovenTemperature -= loss;
       return;
     }
-    case INS_STATE::STBY: {
-      if (mode != MODE_SELECTOR_POS::STBY) {
-        // Upmode
-        setINSState(INS_STATE::ALIGN);
-        reset(false);
-      }
 
-      break;
-    }
-    case INS_STATE::ALIGN: {
-      operatingTime = align();
+    double energy = config.getHeaterWattage() * config.getHeaterEfficiency() * dTime;
+    double dTemp = energy / (config.getUnitMass() * config.getUnitSpecificHeat());
 
-      break;
-    }
-    case INS_STATE::NAV: {
-      if (mode == MODE_SELECTOR_POS::STBY) {
-        // Downmode
-        setINSState(INS_STATE::STBY);
-        reset(false);
-
-        setINSPosLat(999);
-        setINSPosLon(999);
-      }
-      else if (mode == MODE_SELECTOR_POS::ALIGN) {
-        // Downmode
-        setINSState(INS_STATE::ALIGN);
-        // FIXME: Unsure if this downmodes to submode 9
-        // It does not for 0, no idea what happens if at > 5
-        setAlignSubmode(ALIGN_SUBMODE::MODE_9);
-      }
-
-      // TODO: NAV flow
-      ACCURACY_INDEX accuracyIndex = getAccuracyIndex();
-      if (operatingTime >= TIME_PER_AI && accuracyIndex < ACCURACY_INDEX::AI_9) {
-        setAccuracyIndex((ACCURACY_INDEX)((int)accuracyIndex + 1));
-        operatingTime = 0;
-      }
-
-      break;
-    }
-    case INS_STATE::ATT: {
-      break;
-    }
+    ovenTemperature = ovenTemperature + dTemp - loss;
   }
-
-  // Display
-  if (state > INS_STATE::OFF && state < INS_STATE::ATT) {
-    display();
-  }
-
-  // Ground track
- calculateTrack();
-
-  // Out of bound errors
-  handleOutOfBounds();
-
-  // Time step
-  operatingTime += dTime;
-  setOperatingTime(operatingTime);
 }
 
-void INS::calculateTrack() const noexcept {
+void INS::reset(const bool full) noexcept {
+  if (full) {
+    clearDisplay();
+    indicators = { 0 };
+    displayPosition = currentINSPosition = initialINSPosition = { 999, 999 };
+    track = 0;
+
+    for (uint8_t i = 0; i < 10; i++) {
+      waypoints[i] = { 999, 999 };
+    }
+
+    insertMode = INSERT_MODE::INV;
+    displayPerformanceIndex = activePerformanceIndex = 5;
+    mafunctionCodeDisplayed = false;
+    displayActionMalfunctionCodeIndex = 0;
+    clearActionMalfunctionCodes();
+  }
+
+  batteryTest = BATTERY_TEST::IDLE;
+  alignSubmode = ALIGN_SUBMODE::MODE_9;
+  accuracyIndex = 9;
+  timeInMode = 0;
+  timeInNAV = INTIAL_TIME_IN_NAV;
+}
+
+void INS::calculateTrack() noexcept {
   double trueHeading;
   double windDir;
   double windSpeed;
@@ -219,7 +89,7 @@ void INS::calculateTrack() const noexcept {
       varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs)) {
 
     if (gs < MIN_GS) {
-      setTrack(trueHeading);
+      track = trueHeading;
 
       return;
     }
@@ -227,14 +97,13 @@ void INS::calculateTrack() const noexcept {
     double _trueHeading = trueHeading * M_PI / 180;
     double _windDir = fmod(windDir + 180, 360) * M_PI / 180;
 
-    setTrack(fmod(360 + (atan2(tas * sin(_trueHeading) + windSpeed * sin(_windDir),
-                               tas * cos(_trueHeading) + windSpeed * cos(_windDir))) * 180 / M_PI, 360));
+    track = fmod(360 + (atan2(tas * sin(_trueHeading) + windSpeed * sin(_windDir),
+                              tas * cos(_trueHeading) + windSpeed * cos(_windDir))) *
+                 180 / M_PI, 360);
   }
 }
 
 void INS::handleOutOfBounds() noexcept {
-  INDICATORS indicators = getIndicators();
-
   double gs;
   if (!varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs)) {
     gs = 0;
@@ -244,16 +113,113 @@ void INS::handleOutOfBounds() noexcept {
     trueHeading = 0;
   }
 
-  if (abs(trueHeading - getTrack()) > MAX_DRIFT_ANGLE) {
+  if (abs(trueHeading - track) > MAX_DRIFT_ANGLE) {
     addActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A02_42);
     indicators.indicator.WARN = true;
-    setIndicators(indicators);
   }
   if (gs > MAX_GS) {
     addActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A02_31);
     indicators.indicator.WARN = true;
-    setIndicators(indicators);
   }
 
-  setIndicators(indicators);
+  // TODO: Inter system compare
+}
+
+void INS::exportVars() const noexcept {
+  varManager.setVar(DISPLAY_VAR + id, display.value);
+  varManager.setVar(INDICATORS_VAR + id, indicators.value);
+  varManager.setVar(MODE_SELECTOR_POS_VAR + id, (double)modeSelector);
+  varManager.setVar(DATA_SELECTOR_POS_VAR + id, (double)dataSelector);
+  varManager.setVar(WAYPOINT_SELECTOR_POS_VAR + id, (double)waypointSelector);
+}
+
+void INS::update(const double dTime) noexcept {
+  // Oven
+  temperatureSim(dTime);
+  // Switching to ATT
+  if (state < INS_STATE::ATT && modeSelector == MODE_SELECTOR::ATT) {
+    state = INS_STATE::ATT;
+    timeInMode = 0;
+    clearDisplay();
+
+    return;
+  }
+  // Going to OFF
+  if (state > INS_STATE::OFF && modeSelector == MODE_SELECTOR::OFF) {
+    if (currentINSPosition.isValid()) {
+      config.setLastINSPosition(currentINSPosition);
+    }
+    state = INS_STATE::OFF;
+    reset(true);
+  }
+  // Main state
+  switch (state) {
+    case INS_STATE::OFF: {
+      if (modeSelector != MODE_SELECTOR::OFF) {
+        // Upmode
+        state = INS_STATE::STBY;
+        displayPosition = config.getLastINSPosisiton();
+        indicators.indicator.INSERT = true;
+
+        timeInMode = 0;
+      }
+      break;
+    }
+    case INS_STATE::STBY: {
+      if (modeSelector != MODE_SELECTOR::STBY) {
+        // Upmode
+        state = INS_STATE::ALIGN;
+      }
+      break;
+    }
+    case INS_STATE::ALIGN: {
+      align(dTime);
+
+      break;
+    }
+    case INS_STATE::NAV: {
+      if (modeSelector == MODE_SELECTOR::STBY) {
+        // Downmode
+        state = INS_STATE::STBY;
+        reset(false);
+      }
+      else if (modeSelector == MODE_SELECTOR::ALIGN) {
+        // Downmode
+        state = INS_STATE::ALIGN;
+        alignSubmode = ALIGN_SUBMODE::MODE_9;
+        timeInNAV = INTIAL_TIME_IN_NAV;
+      }
+
+      // Ground track
+      calculateTrack();
+
+      // Out of bound errors
+      handleOutOfBounds();
+
+      // TODO: NAV flow
+
+      // AI
+      if (timeInMode >= TIME_PER_AI && accuracyIndex < 9) {
+        accuracyIndex++;
+        timeInMode = 0;
+      }
+
+      timeInNAV += dTime;
+      break;
+    }
+    case INS_STATE::ATT: {
+      break;
+    }
+  }
+
+  // Display
+  if (state > INS_STATE::OFF && state < INS_STATE::ATT) {
+    updateDisplay();
+  }
+
+  // Exports
+  exportVars();
+
+  // Time step
+  timeInMode += dTime;
 }

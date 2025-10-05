@@ -20,22 +20,23 @@ constexpr auto MODE_5_TO_0 = 204; // 3.4min per mode
 constexpr auto TIME_PER_AI = 1200; // 20min per AI, 3 AI per hour, 3h results in AI9
 constexpr auto MAX_BAT_TEST_TIME = 12; // 12s bat test
 
-constexpr auto PROG_NUM = "11 07"; // CIV-A-22
+constexpr char PROG_NUM[] = { 1, 1, 0, 7 }; // CIV-A-22
 
 constexpr auto MIN_GS = 75;
 constexpr auto MIN_TAS_WIND = 115;
 constexpr auto MAX_TAS_WIND = 606;
 constexpr auto MAX_RAMP_DEV = 76;
+constexpr auto MAX_DEV = 33;
 constexpr auto MAX_GS = 910;
 constexpr auto MAX_GS_DISPLAY = 2400;
 constexpr auto MAX_DRIFT_ANGLE = 45;
+constexpr auto INTIAL_TIME_IN_NAV = 5400;
 
 constexpr auto DISPLAY_CHAR_RIGHT = 10;
 constexpr auto DISPLAY_CHAR_LEFT = 11;
 constexpr auto DISPLAY_CHAR_BLANK = 12;
 
-enum class DATA_SELECTOR_POS {
-  INV = -1,
+enum class DATA_SELECTOR: uint8_t {
   TKGS,
   HDGDA,
   XTKTKE,
@@ -46,8 +47,7 @@ enum class DATA_SELECTOR_POS {
   DSRTKSTS
 };
 
-enum class MODE_SELECTOR_POS {
-  INV = -1,
+enum class MODE_SELECTOR: uint8_t {
   OFF,
   STBY,
   ALIGN,
@@ -55,8 +55,7 @@ enum class MODE_SELECTOR_POS {
   ATT,
 };
 
-enum class INS_STATE {
-  INV = -1,
+enum class INS_STATE: uint8_t {
   OFF,
   STBY,
   ALIGN,
@@ -65,8 +64,7 @@ enum class INS_STATE {
   FAIL,
 };
 
-enum class ALIGN_SUBMODE {
-  INV = -1,
+enum class ALIGN_SUBMODE: uint8_t {
   MODE_0, // See MODE_4, minimum
   MODE_1, // See MODE_4
   MODE_2, // See MODE_4
@@ -79,37 +77,18 @@ enum class ALIGN_SUBMODE {
   MODE_9, // STBY, change to 8 if ALIGN entered and warmed up
 };
 
-enum class ACCURACY_INDEX {
-  INV = -1,
-  AI_0, // MIN
-  AI_1,
-  AI_2, // MIN if DME alt invalid
-  AI_3,
-  AI_4,
-  AI_5,
-  AI_6,
-  AI_7,
-  AI_8,
-  AI_9, // MAX, starts here
-};
-
-enum class PERFORMANCE_INDEX {
-  INV = -1,
-  PI_1, // Eradication
-  PI_4, // Aided
-  PI_5, // Unaided
-};
-
-enum class ACTION_MALFUNCTION_CODE {
+enum class ACTION_MALFUNCTION_CODE: int8_t {
   INV = -1,
   A02_31, // ground speed > 910, non-clearable
   A02_42, // drift angle > 45, non-clearable
+  A02_49, // pos update in flight > 33, non-clearable
+  A02_63, // self checks failed, non-clearable
   A04_41, // ramp pos > 76nmi from last pos, clearable
   A04_43, // ramp pos missmatch between pairs of units, non-clearable
   A04_57, // taxi during align, non-clearable
 };
 
-enum class BATTERY_TEST {
+enum class BATTERY_TEST: uint8_t {
   IDLE,
   RUNNING,
   COMPLETED,
@@ -117,7 +96,7 @@ enum class BATTERY_TEST {
   INHIBITED,
 };
 
-enum class INSERT_MODE {
+enum class INSERT_MODE: int8_t {
   INV = -1,
   POS_LAT,
   PRE_POS_LON,
@@ -126,20 +105,7 @@ enum class INSERT_MODE {
   WPT_LON,
   DME_FREQ,
   DME_ALT,
-};
-
-enum class WPT_SELECTOR_POS {
-  INV = -1,
-  WPT_0,
-  WPT_1,
-  WPT_2,
-  WPT_3,
-  WPT_4,
-  WPT_5,
-  WPT_6,
-  WPT_7,
-  WPT_8,
-  WPT_9,
+  PERFORMANCE_INDEX,
 };
 
 // Use Bitset to set/reset indicators
@@ -160,7 +126,7 @@ typedef union {
 
 // Use bitset to set display characters
 // Characters are encoded 0->9 for 0->9, 10 for R, 11 for L, 12 for " "
-// TO/FROM 11 indicates blinking (to display: value-1)
+// TO/FROM 11 indicates blinking (to display: if > 11 then value-1 and blink else value and no blink)
 typedef union {
   double value;
   struct {
@@ -192,106 +158,169 @@ typedef union {
   } characters;
 } DISPLAY;
 
+typedef struct {
+  POSITION position;
+  // In MHz multiplied by 100
+  uint16_t frequency;
+  // In thousands of feet
+  uint8_t altitude;
+} DME;
+
 class INS {
+  // Global vars manager
   VarManager &varManager;
+  // INS Config
   Config config;
-
+  // Unit ID
   const std::string id;
-  std::vector<ACTION_MALFUNCTION_CODE> malfs;
+  // List of active malfunctions
+  std::vector<ACTION_MALFUNCTION_CODE> actionMalfunctionCodes;
 
-  #pragma region Getter/Setter
+  #pragma region Positions
 
-  void setINSState(INS_STATE state) const noexcept;
-  INS_STATE getINSState() const noexcept;
-
-  void setTemperature(double temperature) const noexcept;
-  double getTemperature() const noexcept;
-
-  void setOperatingTime(double operatingTime) const noexcept;
-  double getOperatingTime() const noexcept;
-
-  void setAlignSubmode(ALIGN_SUBMODE mode) const noexcept;
-  ALIGN_SUBMODE getAlignSubmode() const noexcept;
-
-  void setAccuracyIndex(ACCURACY_INDEX index) const noexcept;
-  ACCURACY_INDEX getAccuracyIndex() const noexcept;
-
-  void setDisplayPosLat(double lat) const noexcept;
-  double getDisplayPosLat() const noexcept;
-  void setDisplayPosLon(double lon) const noexcept;
-  double getDisplayPosLon() const noexcept;
-
-  void addActionMalfunctionCode(ACTION_MALFUNCTION_CODE code) noexcept;
-  void clearActionMalfunctionCodes() noexcept;
-  bool hasActionMalfunctionCode(ACTION_MALFUNCTION_CODE code) const noexcept;
-  bool hasActionMalfunctionCode() const noexcept;
-
-  void setIndicators(INDICATORS indicators) const noexcept;
-
-  void setBatteryTestState(BATTERY_TEST state) const noexcept;
-  BATTERY_TEST getBatteryTestState() const noexcept;
-
-  void setDisplay(DISPLAY display) const noexcept;
-
-  void setInsertMode(INSERT_MODE mode) const noexcept;
-  INSERT_MODE getInsertMode() const noexcept;
-
-  void setINSPosLat(double lat) const noexcept;
-  double getINSPosLat() const noexcept;
-  void setINSPosLon(double lon) const noexcept;
-  double getINSPosLon() const noexcept;
-
-  void setWPTPosLat(double lat, WPT_SELECTOR_POS wpt) const noexcept;
-  double getWPTPosLat(WPT_SELECTOR_POS wpt) const noexcept;
-  void setWPTPosLon(double lon, WPT_SELECTOR_POS wpt) const noexcept;
-  double getWPTPosLon(WPT_SELECTOR_POS wpt) const noexcept;
-
-  void setTrack(double track) const noexcept;
-  double getTrack() const noexcept;
+  // Current position displayed on unit
+  POSITION displayPosition = { 999, 999 };
+  // INS Position without any updates
+  POSITION initialINSPosition = { 999, 999 };
+  // Current INS position with updates
+  POSITION currentINSPosition = { 999, 999 };
 
   #pragma endregion
 
-  void reset(bool full) noexcept;
-  double align() noexcept;
-  void display() const noexcept;
+  #pragma region Waypoints/DMEs
+
+  // Waypoints (0 is not settable by hand)
+  POSITION waypoints[10] = {
+    { 999, 999 }, { 999, 999 }, { 999, 999 }, { 999, 999 }, { 999, 999 }, { 999, 999 },
+    { 999, 999 } , { 999, 999 } , { 999, 999 } , { 999, 999 }
+  };
+  // DMEs, index of selector - 1 = array index
+  DME dmes[9] = {
+    { 999, 999 }, { 999, 999 }, { 999, 999 }, { 999, 999 }, { 999, 999 }, { 999, 999 },
+    { 999, 999 } , { 999, 999 } , { 999, 999 }
+  };
+
+  #pragma endregion
+
+  #pragma region Indicators/Display
+
+  // Active indicators
+  INDICATORS indicators = { 0 };
+  // Previous indicators for test mode
+  INDICATORS previousIndicators = { 0 };
+  // Current Display
+  DISPLAY display = { 0 };
+
+  #pragma endregion
+
+  #pragma region States
+
+  // Current oven temperature
+  double ovenTemperature = 0;
+  // Current time in mode
+  double timeInMode = 0;
+  // Current time in NAV, starts at AI 5 value, ticks down in algin after AI 5, ticks up in NAV
+  double timeInNAV = INTIAL_TIME_IN_NAV;
+  // Current track
+  double track = 0;
+  // Current INS State
+  INS_STATE state = INS_STATE::OFF;
+  // Current align submode
+  ALIGN_SUBMODE alignSubmode = ALIGN_SUBMODE::MODE_9;
+  // State of battery test
+  BATTERY_TEST batteryTest = BATTERY_TEST::IDLE;
+  // Position of data selector
+  DATA_SELECTOR dataSelector = { DATA_SELECTOR::POS };
+  // Position of mode selector
+  MODE_SELECTOR modeSelector = { MODE_SELECTOR::OFF };
+  // Current active insert mode
+  INSERT_MODE insertMode = { INSERT_MODE::INV };
+  // Current performance index (4, 5)
+  uint8_t activePerformanceIndex = 5;
+  // PI displayed (required due to PI 1 never being active but displayed)
+  // 1 -> Eradication, 4 -> aided (DME/triple mix), 5 -> start, unaided
+  uint8_t displayPerformanceIndex = 5;
+  // Current accuracy index, 0 to 9, 0 best, 9 worst, 2 if DME update altitude invalid
+  uint8_t accuracyIndex = 9;
+  // CHARS read for insert mode
+  uint8_t charactersRead = 0;
+  // Waypoint selector
+  uint8_t waypointSelector = 0;
+  // Displayed action malfunction code index
+  uint8_t displayActionMalfunctionCodeIndex = 0;
+  // Leg
+  uint8_t currentLegStart = 1;
+  uint8_t currentLegEnd = 2;
+  // Malfunction code displayed if true, action code otherwise
+  bool mafunctionCodeDisplayed = false;
+  // Test mode
+  bool inTestMode = false;
+
+  #pragma endregion
+
+  #pragma region Private Getter/Setter
+
+  void addActionMalfunctionCode(const ACTION_MALFUNCTION_CODE code) noexcept;
+  bool removeCurrentActionMalfunctionCode() noexcept;
+  void clearActionMalfunctionCodes() noexcept;
+  void incCurrentActionMalfunctionCode() noexcept;
+  bool hasActionMalfunctionCode(const ACTION_MALFUNCTION_CODE code) const noexcept;
+  bool hasActionMalfunctionCode() const noexcept;
+  ACTION_MALFUNCTION_CODE getCurrentActionMalfunctionCode() const noexcept;
+
+  #pragma endregion
+
+  void temperatureSim(const double dTime) noexcept;
+  void reset(const bool full) noexcept;
+  void calculateTrack() noexcept;
   void handleOutOfBounds() noexcept;
-  void calculateTrack() const noexcept;
+  void updateDisplay() noexcept;
+  void align(const double dTime) noexcept;
+  void exportVars() const noexcept;
+
+  inline void clearDisplay() noexcept {
+    uint64_t d;
+    d = 0x00CCCCCCCC0CCCCC;
+    display = *(reinterpret_cast<DISPLAY *>(&d));
+  }
+
 public:
   INS(VarManager &varManager, const std::string &id, const std::string &workDir) noexcept;
   ~INS() noexcept;
 
-  void update(double dTime) noexcept;
+  void update(const double dTime) noexcept;
 
-  #pragma region Getter/Setter
+  #pragma region Public Getter/Setter
 
-  void setDataSelectorPos(DATA_SELECTOR_POS pos) const noexcept;
-  DATA_SELECTOR_POS getDataSelectorPos() const noexcept;
+  inline void setDataSelectorPos(const DATA_SELECTOR pos) noexcept {
+    dataSelector = pos;
+  }
+  inline void setModeSelectorPos(const MODE_SELECTOR pos) noexcept {
+    modeSelector = pos;
+  }
 
-  void setModeSelectorPos(MODE_SELECTOR_POS pos) const noexcept;
-  MODE_SELECTOR_POS getModeSelectorPos() const noexcept;
-
-  INDICATORS getIndicators() const noexcept;
-
-  DISPLAY getDisplay() const noexcept;
-
-  void setWPTSelectorPos(WPT_SELECTOR_POS pos) const noexcept;
-  WPT_SELECTOR_POS getWPTSelectorPos() const noexcept;
+  inline DATA_SELECTOR getDataSelectorPos() const noexcept {
+    return dataSelector;
+  }
+  inline MODE_SELECTOR getModeSelectorPos() const noexcept {
+    return modeSelector;
+  }
 
   #pragma endregion
 
   #pragma region Events
 
-  void incDataSelectorPos() const noexcept;
-  void decDataSelectorPos() const noexcept;
+  void incDataSelectorPos() noexcept;
+  void incModeSelectorPos() noexcept;
+  void incWaypointSelectorPos() noexcept;
 
-  void incModeSelectorPos() const noexcept;
-  void decModeSelectorPos() const noexcept;
+  void decDataSelectorPos() noexcept;
+  void decModeSelectorPos() noexcept;
+  void decWaypointSelectorPos() noexcept;
 
-  void handleNumeric(char value) const noexcept;
+  void handleNumeric(const uint8_t value) noexcept;
   void handleInsert() noexcept;
-
-  void incWPTSelectorPos() const noexcept;
-  void decWPTSelectorPos() const noexcept;
+  void handleTestButtonState(const bool state) noexcept;
 
   #pragma endregion
 };

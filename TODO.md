@@ -2,9 +2,14 @@
 
 # Other Displays
 
+- HDG/DA inhibit on > MODE 7
+- TK/GS inhibit on > MODE 7
 - XTK/TKE
 - DIS/TIME
-- DSRTK/STS
+- DSRTK
+- TO/FROM
+  - Blinking
+  - WPT and DME mode
 
 # DME entry
  
@@ -14,33 +19,34 @@
 
 - Export of desired track true
 - Export of desired heading true
-- Export of distance to target
 - Leg switching assumes 30°
+  - Configurable?
 - WPT CHG
-  - Copntray to FSX, WPT CHG INSERT stays illuminated when data pos is changed. CLEAR clears it 
+  - Contray to FSX, WPT CHG INSERT stays illuminated when data pos is changed. CLEAR clears it 
 - AUTO/MAN
-  - 25.6s min time, only change after that in man
+  - 25.6s min time, only change after that in auto
   - ALERT LAMP
+    - AUTO/MAN 2min
+    - AUTO blink if < 25.6 and past point
+    - MAN blink if past point
 
 # Other
 
-- TEST mode
-- MALF clearing
 - BAT operation behaviour
   - BAT CDU Lamp when on bat
   - BAT MSU lamp when auto shutdown due to low bat
 - TAXI in ALIGN error
 - HOLD button behaviour
   - No effect in any but POS/WPT
+    - Still illuminated
   - POS -> freeze
   - WPT -> show INS pos (the one w/o updated)
 
 # Updating
 
 - Entry to #4
-- Eradication (#1)
 - Manual Update
-  - AI to 1 immediate
+  - AI to 0 immediate
   - Error when update results in 33nmi shift
 - DME Update
   - AI trickle down to 0 if ALT INF correct, down to 2 otherwise
@@ -49,7 +55,9 @@
   - Unit 2 connected to NAV 2
   - Unit 3 gets data form Units 1 and 2
   - Offside DME Update
-    - Figure out how that works with thest flight
+    - Simply reduces AI in offside units
+    - If onside update is running in conjunction to offside (Unit 3 -> double offside)
+      - if stations not equal -> increase error correction rate
 
 # Multi Unit
 
@@ -81,11 +89,11 @@ Notes on PI:
     - 0.3% of the time, AI1 -> > 1nmi deviation
   - Impl: https://en.cppreference.com/w/cpp/numeric/random/normal_distribution.html
     - At unit power up, pick random number for error rate in lat/lon
-    - Ensure that in 3sigma, the error rates at AIX create Xnmi radial error
+    - Ensure that in 3sigma, the error rates at AI X create Xnmi radial error
     - Error per dTime is dependant on GS (technially accel but meh)
       - Stationary still incurs penalty, but very little (integrator errors)
 
 # MSFS Unit specific
 
-- VarManager export all flag, if not, only minimum data is exported
+- Setup via VarManager (no of units, export options, heading steering)
 - Controllable via LVAR+EVENT

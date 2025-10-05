@@ -23,6 +23,7 @@ void WinVarManager::dump() const noexcept {
     double value = it->second;
     if (it->first.find(DISPLAY_VAR) == 0) {
       const DISPLAY v = *reinterpret_cast<const DISPLAY *>(&it->second);
+      std::cout << "     ";
       std::cout << convertCharacter(v.characters.LEFT_1);
       std::cout << convertCharacter(v.characters.LEFT_2);
       std::cout << (v.characters.LEFT_DEG_1 ? "'" : " ");
@@ -34,7 +35,7 @@ void WinVarManager::dump() const noexcept {
       std::cout << (v.characters.LEFT_DEG_2 ? "'" : " ");
       std::cout << (v.characters.N ? "N" : " ");
       std::cout << (v.characters.S ? "S" : " ");
-      std::cout << " ";
+      std::cout << "|";
       std::cout << convertCharacter(v.characters.RIGHT_1);
       std::cout << convertCharacter(v.characters.RIGHT_2);
       std::cout << convertCharacter(v.characters.RIGHT_3);
@@ -47,16 +48,27 @@ void WinVarManager::dump() const noexcept {
       std::cout << (v.characters.RIGHT_DEG_2 ? "'" : " ");
       std::cout << (v.characters.E ? "E" : " ");
       std::cout << (v.characters.W ? "W" : " ");
-      std::cout << " ";
+      std::cout << "|";
       std::cout << convertCharacter(v.characters.TO);
+      std::cout << " ";
       std::cout << convertCharacter(v.characters.FROM);
     }
     else if (it->first.find(INDICATORS_VAR) == 0) {
-      const uint64_t v = *reinterpret_cast<const uint64_t *>(&it->second);
-      std::cout << std::right << std::setfill(' ') << std::setw(18) << "b" << std::bitset<9>(v);
+      const INDICATORS i = *reinterpret_cast<const INDICATORS *>(&it->second);
+
+      std::cout << (i.indicator.HOLD ? "HOLD|" : "    |");
+      std::cout << (i.indicator.REMOTE ? "REMOTE|" : "      |");
+      std::cout << (i.indicator.INSERT ? "INSERT|" : "      |");
+      std::cout << (i.indicator.ALERT ? "ALERT|" : "     |");
+      std::cout << (i.indicator.CDU_BAT ? "BAT|" : "   |");
+      std::cout << (i.indicator.WARN ? "WARN" : "    ") << std::endl;
+      std::cout << "          ";
+      std::cout << (i.indicator.READY_NAV ? "READY NAV|" : "         |");
+      std::cout << (i.indicator.READY_NAV ? "BAT" : "   ");
+      std::cout << "          ";
     }
     else {
-      std::cout << std::right << std::setfill(' ') << std::setw(27) << it->second;
+      std::cout << std::right << std::setfill(' ') << std::setw(33) << it->second;
     }
 
     std::cout << " = " << it->first << std::endl;
