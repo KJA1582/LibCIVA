@@ -149,7 +149,6 @@ void INS::incDataSelectorPos() noexcept {
 
     if (currentINSPosition.isValid()) {
       indicators.indicator.INSERT = false;
-      displayPerformanceIndex = 0;
     }
   }
 }
@@ -175,7 +174,6 @@ void INS::decDataSelectorPos() noexcept {
 
     if (currentINSPosition.isValid()) {
       indicators.indicator.INSERT = false;
-      displayPerformanceIndex = 0;
     }
   }
 }
@@ -291,7 +289,7 @@ void INS::handleNumeric(const uint8_t value) noexcept {
       indicators.indicator.INSERT = true;
       insertMode = INSERT_MODE::PERFORMANCE_INDEX;
 
-      displayPerformanceIndex = value;
+      display.characters.RIGHT_6 = value;
 
       break;
     }
@@ -354,7 +352,7 @@ void INS::handleInsert() noexcept {
           indicators.indicator.WARN = true;
         }
 
-        currentINSPosition = initialINSPosition = displayPosition;
+        waypoints[0] = currentINSPosition = initialINSPosition = displayPosition;
       }
       // Since OFF and ATT are early abort, this is STBY only
       // Tigger 04-41 if >76nmi from last
@@ -364,7 +362,7 @@ void INS::handleInsert() noexcept {
           indicators.indicator.WARN = true;
         }
 
-        currentINSPosition = initialINSPosition = displayPosition;
+        waypoints[0] = currentINSPosition = initialINSPosition = displayPosition;
       }
 
       break;
@@ -378,19 +376,12 @@ void INS::handleInsert() noexcept {
       if (dmeMode == DME_MODE::DME_LL && waypointSelector >= 1) {
         DMEs[waypointSelector - 1].position.latitude = lat;
 
-        if (DMEs[waypointSelector - 1].position.longitude == 999) {
-          DMEs[waypointSelector - 1].position.longitude = 0;
-        }
         if (activeDME == waypointSelector - 1) {
           activeDME = 0;
         }
       }
       else if (dmeMode == DME_MODE::INV) {
         waypoints[waypointSelector].latitude = lat;
-
-        if (waypoints[waypointSelector].longitude == 999) {
-          waypoints[waypointSelector].longitude = 0;
-        }
       }
 
       break;
@@ -404,19 +395,12 @@ void INS::handleInsert() noexcept {
       if (dmeMode == DME_MODE::DME_LL && waypointSelector >= 1) {
         DMEs[waypointSelector - 1].position.longitude = lon;
 
-        if (DMEs[waypointSelector - 1].position.latitude == 999) {
-          DMEs[waypointSelector - 1].position.latitude = 0;
-        }
         if (activeDME == waypointSelector - 1) {
           activeDME = 0;
         }
       }
       else if (dmeMode == DME_MODE::INV) {
         waypoints[waypointSelector].longitude = lon;
-
-        if (waypoints[waypointSelector].latitude == 999) {
-          waypoints[waypointSelector].latitude = 0;
-        }
       }
 
       break;
@@ -456,20 +440,18 @@ void INS::handleInsert() noexcept {
       if (dataSelector != DATA_SELECTOR::DSRTKSTS) return;
 
       // Erradication
-      if (displayPerformanceIndex == 1) {
+      if (display.characters.RIGHT_6 == 1) {
         activePerformanceIndex = 5;
         currentINSPosition = initialINSPosition;
       }
       // Aided
-      else if (displayPerformanceIndex == 4) {
+      else if (display.characters.RIGHT_6 == 4) {
         activePerformanceIndex = 4;
       }
       // Unaided
       else {
         activePerformanceIndex = 5;
       }
-
-      displayPerformanceIndex = 0;
 
       break;
     }

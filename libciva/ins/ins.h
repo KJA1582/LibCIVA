@@ -23,6 +23,7 @@ constexpr auto MAX_BAT_TEST_TIME = 12; // 12s bat test
 constexpr uint8_t PROG_NUM[] = { 1, 1, 0, 7 }; // CIV-A-22
 
 constexpr auto MIN_GS = 75;
+constexpr auto MIN_GS_TIME = 10;
 constexpr auto MIN_TAS_WIND = 115;
 constexpr auto MAX_TAS_WIND = 606;
 constexpr auto MAX_RAMP_DEV = 76;
@@ -61,13 +62,12 @@ class INS {
 
   // Waypoints (0 is not settable by hand)
   POSITION waypoints[10] = {
-    { 999, 999 }, { 999, 999 }, { 999, 999 }, { 999, 999 }, { 999, 999 }, { 999, 999 },
-    { 999, 999 } , { 999, 999 } , { 999, 999 } , { 999, 999 }
+    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } , { 0, 0 } , { 0, 0 } , { 0, 0 }
   };
   // DMEs, index of selector - 1 = array index
   DME DMEs[9] = {
-    { 999, 999, 0, 0}, { 999, 999, 0, 0 }, { 999, 999, 0, 0 }, { 999, 999, 0, 0 },
-    { 999, 999, 0, 0 }, { 999, 999, 0, 0 }, { 999, 999, 0, 0 } , { 999, 999, 0, 0 } , { 999, 999, 0, 0 }
+    { 0, 0, 0, 0}, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 },  { 0, 0, 0, 0 }, { 0, 0, 0, 0 },
+    { 0, 0, 0, 0 } , { 0, 0, 0, 0 } , { 0, 0, 0, 0 }
   };
 
   #pragma endregion
@@ -107,9 +107,6 @@ class INS {
   INSERT_MODE insertMode = { INSERT_MODE::INV };
   // Current performance index (4, 5)
   uint8_t activePerformanceIndex = 5;
-  // PI displayed (required due to PI 1 never being active but displayed)
-  // 1 -> Eradication, 4 -> aided (DME/triple mix), 5 -> start, unaided
-  uint8_t displayPerformanceIndex = 5;
   // Current accuracy index, 0 to 9, 0 best, 9 worst, 2 if DME update altitude invalid
   uint8_t accuracyIndex = 9;
   // CHARS read for insert mode

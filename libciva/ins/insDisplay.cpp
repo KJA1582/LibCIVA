@@ -341,8 +341,40 @@ void INS::updateDisplay() noexcept {
       break;
     }
     case DATA_SELECTOR::DISTIME: {
-      // TODO: DIST/TIME
-      clearDisplay();
+      uint16_t dist = 0;
+      int16_t time = -1;
+
+      display.characters.LEFT_DEC_1 = display.characters.LEFT_DEC_2 =
+        display.characters.LEFT_DEG_1 = display.characters.LEFT_DEG_2 =
+        display.characters.RIGHT_DEC_1 = display.characters.RIGHT_DEG_1 =
+        display.characters.RIGHT_DEG_2 = display.characters.N = display.characters.S =
+        display.characters.E = display.characters.W = false;
+      display.characters.RIGHT_DEC_2 = true;
+      display.characters.LEFT_1 = display.characters.RIGHT_1 = display.characters.RIGHT_2 = DISPLAY_CHAR_BLANK;
+
+      if (dmeMode != DME_MODE::INV) {
+        dist = (uint16_t)std::round(std::min(9999.0,
+                                             currentINSPosition.distanceTo(DMEs[std::max(0, waypointSelector - 1)].position)));
+      }
+      else {
+        dist = (uint16_t)std::round(std::min(9999.0,
+                                             waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd])));
+        if (state >= INS_STATE::ALIGN && (alignSubmode < ALIGN_SUBMODE::MODE_7 ||
+                                          (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
+          time = gsValid && gs > MIN_GS_TIME ? (int16_t)std::round(std::min(9999.0, (dist / gs) * 600)) : 9999;
+        }
+      }
+
+      formatQuad(display, dist, true);
+      if (time >= 0) {
+        formatQuad(display, time, false);
+      }
+      else {
+        display.characters.RIGHT_3 = display.characters.RIGHT_4 = display.characters.RIGHT_5 =
+          display.characters.RIGHT_6 = DISPLAY_CHAR_BLANK;
+        display.characters.RIGHT_DEC_2 = false;
+      }
+
       break;
     }
     case DATA_SELECTOR::WIND: {
@@ -360,7 +392,9 @@ void INS::updateDisplay() noexcept {
         display.characters.RIGHT_3 = display.characters.RIGHT_4 = display.characters.RIGHT_5 =
         DISPLAY_CHAR_BLANK;
 
-      if (!valid || gs < MIN_GS || tas < MIN_TAS_WIND || tas > MAX_TAS_WIND) {
+      if (!valid || gs < MIN_GS || tas < MIN_TAS_WIND || tas > MAX_TAS_WIND ||
+          !(state >= INS_STATE::ALIGN && (alignSubmode < ALIGN_SUBMODE::MODE_7 ||
+                                          (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7)))) {
         display.characters.LEFT_5 = display.characters.RIGHT_6 = 0;
       }
       else {
@@ -410,8 +444,9 @@ void INS::updateDisplay() noexcept {
 
       formatActionMalfunctionCode(display, getCurrentActionMalfunctionCode(), mafunctionCodeDisplayed);
 
-      display.characters.RIGHT_6 =
-        displayPerformanceIndex > 0 ? displayPerformanceIndex : activePerformanceIndex;
+      if (insertMode == INSERT_MODE::INV) {
+        display.characters.RIGHT_6 = activePerformanceIndex;
+      }
 
       break;
     }

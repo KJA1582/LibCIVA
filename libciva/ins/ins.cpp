@@ -58,11 +58,11 @@ void INS::reset(const bool full) noexcept {
     track = 0;
 
     for (uint8_t i = 0; i < 10; i++) {
-      waypoints[i] = { 999, 999 };
+      waypoints[i] = { 0, 0 };
     }
 
     insertMode = INSERT_MODE::INV;
-    displayPerformanceIndex = activePerformanceIndex = 5;
+    activePerformanceIndex = 5;
     mafunctionCodeDisplayed = inTestMode = false;
     dmeMode = DME_MODE::INV;
     displayActionMalfunctionCodeIndex = 0;

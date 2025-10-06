@@ -99,6 +99,8 @@ typedef union {
     bool WAYPOINT_CHANGE : 1;
     bool FROM_BLINK : 1;
     bool TO_BLINK : 1;
+    bool DME1 : 1;
+    bool DME2 : 1;
   } indicator;
 } INDICATORS;
 

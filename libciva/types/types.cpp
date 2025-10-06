@@ -1,7 +1,8 @@
 #include "types.h"
 
+constexpr double R = 3440; // nmi
+
 double POSITION::distanceTo(const POSITION &target) const noexcept {
-  double R = 3440; // nmi
   double φ1 = latitude * M_PI / 180; // φ, λ in radians
   double φ2 = target.latitude * M_PI / 180;
   double Δφ = (target.latitude - latitude) * M_PI / 180;

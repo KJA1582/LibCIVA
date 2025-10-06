@@ -26,7 +26,7 @@ void WinVarManager::dump() const noexcept {
       if (iIt == store.end()) continue;
       const INDICATORS i = *reinterpret_cast<const INDICATORS *>(&iIt->second);
 
-      std::cout << "                           ";
+      std::cout << "                         |";
       std::cout << convertCharacter(v.characters.LEFT_1);
       std::cout << convertCharacter(v.characters.LEFT_2);
       std::cout << (v.characters.LEFT_DEG_1 ? "'" : " ");
@@ -65,6 +65,7 @@ void WinVarManager::dump() const noexcept {
       else {
         std::cout << convertCharacter(v.characters.TO);
       }
+      std::cout << "|";
     }
     else if (it->first.find(INDICATORS_VAR) != std::string::npos) {
       const INDICATORS i = *reinterpret_cast<const INDICATORS *>(&it->second);
@@ -76,11 +77,12 @@ void WinVarManager::dump() const noexcept {
       std::cout << (i.indicator.ALERT ? "\033[93mALERT\033[0m|" : "\033[90mALERT\033[0m|");
       std::cout << (i.indicator.CDU_BAT ? "\033[93mBAT\033[0m|" : "\033[90mBAT\033[0m|");
       std::cout << (i.indicator.WARN ? "\033[91mWARN\033[0m" : "\033[90mWARN\033[0m") << std::endl;
-      std::cout << "                     ";
+      std::cout << "               ";
       std::cout << (i.indicator.READY_NAV ? "\033[92mREADY NAV\033[0m|" : "\033[90mREADY NAV\033[0m|");
-      std::cout << (i.indicator.MSU_BAT ? "\033[91mBAT\033[0m" : "\033[90mBAT\033[0m");
-      std::cout << "                     ";
-      // 5 missing in second row
+      std::cout << (i.indicator.MSU_BAT ? "\033[91mBAT\033[0m|" : "\033[90mBAT\033[0m|");
+      std::cout << (i.indicator.MSU_BAT ? "\033[92mDME 1\033[0m|" : "\033[90mDME 1\033[0m|");
+      std::cout << (i.indicator.MSU_BAT ? "\033[92mDME 2\033[0m" : "\033[90mDME 2\033[0m");
+      std::cout << "               ";
     }
     else if (it->first.find(MODE_SELECTOR_POS_VAR) != std::string::npos) {
       std::cout << "                                 ";

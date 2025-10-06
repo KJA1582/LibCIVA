@@ -16,8 +16,8 @@ class Config {
   double unitSpecificHeat = 900;
   POSITION lastINSPosition = { 999, 999 };
   DME lastDMEs[9] = {
-    { 999, 999, 0, 0}, { 999, 999, 0, 0 }, { 999, 999, 0, 0 }, { 999, 999, 0, 0 },
-    { 999, 999, 0, 0 }, { 999, 999, 0, 0 }, { 999, 999, 0, 0 } , { 999, 999, 0, 0 } , { 999, 999, 0, 0 }
+    { 0, 0, 0, 0}, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 },
+    { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }
   };
 
 public:
@@ -50,7 +50,7 @@ public:
   inline void setLastINSPosition(POSITION pos) noexcept {
     lastINSPosition = pos;
   }
-  inline void setLastDMEs(const DME (&DMEs)[9]) noexcept {
+  inline void setLastDMEs(const DME(&DMEs)[9]) noexcept {
     std::memcpy(lastDMEs, DMEs, sizeof(DMEs));
   }
 };

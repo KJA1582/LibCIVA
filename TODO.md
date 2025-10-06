@@ -1,14 +1,20 @@
 # Other Displays
 
 - XTK/TKE
+  - In non inserted WPT CHG, display from PPOS to indicated legStart to legEnd track
 - DIS/TIME
   - Active leg
   - Non inserted WPT CHG
   - DME
 - DSRTK
+  - Only in NAV
+  - In non inserted WPT CHG, display selected legStart to legEnd track
+  - In normal mode, show track from along-tack point to legEnd
+    - real importance comes from doing this with an XTK > 0
 - TO/FROM
   - WPT CHNG
     - Normal and DME
+    - Insert of PPOS into WP0
 
 # Navigation
 
@@ -63,10 +69,10 @@
 # Sim specific
 
 - To approximate drift and updating:
-  - NAV equations use display pos of slaved unit / tripple mix pos if avail
-  - Display pos is the only one that has drift errors getting reduced
-  - INS position stays w/o any updates (Eradication behaviour highlight)
-  - In order to "reduce" drift, SIM position must be used to determin original "offset" of display/INS pos
+  - NAV equations use current pos of slaved unit / tripple mix pos if avail
+  - Current pos is the only one that has drift errors getting reduced
+  - Initial position stays w/o any updates (Eradication behaviour highlight)
+  - In order to "reduce" drift, SIM position must be used to determin original "offset" of current/initial pos
     - Updates reduce both error rate and delta of actual SIM pos and display pos
   - Entering NAV at 5 starts with higher error rate
   - Running NAV on ground will increase error, but very slowly
