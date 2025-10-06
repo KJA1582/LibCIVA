@@ -3,7 +3,7 @@
 #pragma region Lifecycle
 
 INS::INS(VarManager &varManager, const std::string &id, const std::string &workDir) noexcept :
-  varManager(varManager), id(id), config(Config(workDir)), actionMalfunctionCodes() {
+  varManager(varManager), config(Config(workDir)), id(id), actionMalfunctionCodes() {
   clearDisplay();
 
   // Init all things from global vars
@@ -16,9 +16,9 @@ INS::INS(VarManager &varManager, const std::string &id, const std::string &workD
 INS::~INS() noexcept {
   // If we have a valid position, save
   if (currentINSPosition.isValid()) {
-    config.setLastLat(currentINSPosition.latitude);
-    config.setLastLon(currentINSPosition.longitude);
+    config.setLastINSPosition(currentINSPosition);
   }
+  config.setLastDMEs(DMEs);
 
   config.save();
 }
@@ -63,7 +63,8 @@ void INS::reset(const bool full) noexcept {
 
     insertMode = INSERT_MODE::INV;
     displayPerformanceIndex = activePerformanceIndex = 5;
-    mafunctionCodeDisplayed = false;
+    mafunctionCodeDisplayed = inTestMode = false;
+    dmeMode = DME_MODE::INV;
     displayActionMalfunctionCodeIndex = 0;
     clearActionMalfunctionCodes();
   }
@@ -76,11 +77,11 @@ void INS::reset(const bool full) noexcept {
 }
 
 void INS::calculateTrack() noexcept {
-  double trueHeading;
-  double windDir;
-  double windSpeed;
-  double tas;
-  double gs;
+  double trueHeading = 0;
+  double windDir = 0;
+  double windSpeed = 0;
+  double tas = 0;
+  double gs = 0;
 
   if (varManager.getVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, trueHeading) &&
       varManager.getVar(SIM_VAR_AMBIENT_WIND_DIRECTION, windDir) &&
@@ -95,10 +96,10 @@ void INS::calculateTrack() noexcept {
     }
 
     double _trueHeading = trueHeading * M_PI / 180;
-    double _windDir = fmod(windDir + 180, 360) * M_PI / 180;
+    double _windDir = std::fmod(windDir + 180, 360) * M_PI / 180;
 
-    track = fmod(360 + (atan2(tas * sin(_trueHeading) + windSpeed * sin(_windDir),
-                              tas * cos(_trueHeading) + windSpeed * cos(_windDir))) *
+    track = std::fmod(360 + (std::atan2(tas * std::sin(_trueHeading) + windSpeed * std::sin(_windDir),
+                              tas * std::cos(_trueHeading) + windSpeed * std::cos(_windDir))) *
                  180 / M_PI, 360);
   }
 }
@@ -126,16 +127,25 @@ void INS::handleOutOfBounds() noexcept {
 }
 
 void INS::exportVars() const noexcept {
-  varManager.setVar(DISPLAY_VAR + id, display.value);
-  varManager.setVar(INDICATORS_VAR + id, indicators.value);
-  varManager.setVar(MODE_SELECTOR_POS_VAR + id, (double)modeSelector);
-  varManager.setVar(DATA_SELECTOR_POS_VAR + id, (double)dataSelector);
-  varManager.setVar(WAYPOINT_SELECTOR_POS_VAR + id, (double)waypointSelector);
+  varManager.setVar(std::string(VAR_START) + DISPLAY_VAR + id, display.value);
+  varManager.setVar(std::string(VAR_START) + INDICATORS_VAR + id, indicators.value);
+  varManager.setVar(std::string(VAR_START) + MODE_SELECTOR_POS_VAR + id, (double)modeSelector);
+  varManager.setVar(std::string(VAR_START) + DATA_SELECTOR_POS_VAR + id, (double)dataSelector);
+  varManager.setVar(std::string(VAR_START) + WAYPOINT_SELECTOR_POS_VAR + id, (double)waypointSelector);
 }
 
 void INS::update(const double dTime) noexcept {
   // Oven
   temperatureSim(dTime);
+  // Aux data
+  if (state >= INS_STATE::ALIGN && (alignSubmode < ALIGN_SUBMODE::MODE_7 ||
+                                    (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
+    // Ground track
+    calculateTrack();
+
+    // Out of bound errors
+    handleOutOfBounds();
+  }
   // Switching to ATT
   if (state < INS_STATE::ATT && modeSelector == MODE_SELECTOR::ATT) {
     state = INS_STATE::ATT;
@@ -149,6 +159,10 @@ void INS::update(const double dTime) noexcept {
     if (currentINSPosition.isValid()) {
       config.setLastINSPosition(currentINSPosition);
     }
+    config.setLastDMEs(DMEs);
+
+    config.save();
+
     state = INS_STATE::OFF;
     reset(true);
   }
@@ -159,7 +173,9 @@ void INS::update(const double dTime) noexcept {
         // Upmode
         state = INS_STATE::STBY;
         displayPosition = config.getLastINSPosisiton();
+        config.getLastDMEs(DMEs);
         indicators.indicator.INSERT = true;
+        dmeMode = DME_MODE::INV;
 
         timeInMode = 0;
       }
@@ -190,12 +206,6 @@ void INS::update(const double dTime) noexcept {
         timeInNAV = INTIAL_TIME_IN_NAV;
       }
 
-      // Ground track
-      calculateTrack();
-
-      // Out of bound errors
-      handleOutOfBounds();
-
       // TODO: NAV flow
 
       // AI
@@ -207,10 +217,13 @@ void INS::update(const double dTime) noexcept {
       timeInNAV += dTime;
       break;
     }
-    case INS_STATE::ATT: {
+    case INS_STATE::ATT:
+    case INS_STATE::FAIL: {
       break;
     }
   }
+
+
 
   // Display
   if (state > INS_STATE::OFF && state < INS_STATE::ATT) {

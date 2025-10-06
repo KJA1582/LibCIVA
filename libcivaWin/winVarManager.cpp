@@ -1,6 +1,6 @@
 #include "winVarManager.h"
 
-static char convertCharacter(char c) {
+static uint8_t convertCharacter(uint8_t c) {
   if (c == 10) return 'R';
   if (c == 11) return 'L';
   if (c == 12) return ' ';
@@ -20,10 +20,13 @@ WinVarManager::WinVarManager() noexcept : VarManager("") {
 
 void WinVarManager::dump() const noexcept {
   for (auto it = store.begin(); it != store.end(); ++it) {
-    double value = it->second;
-    if (it->first.find(DISPLAY_VAR) == 0) {
+    if (it->first.find(DISPLAY_VAR) != std::string::npos) {
       const DISPLAY v = *reinterpret_cast<const DISPLAY *>(&it->second);
-      std::cout << "     ";
+      auto iIt = store.lower_bound(std::string(VAR_START) + INDICATORS_VAR);
+      if (iIt == store.end()) continue;
+      const INDICATORS i = *reinterpret_cast<const INDICATORS *>(&iIt->second);
+
+      std::cout << "                           ";
       std::cout << convertCharacter(v.characters.LEFT_1);
       std::cout << convertCharacter(v.characters.LEFT_2);
       std::cout << (v.characters.LEFT_DEG_1 ? "'" : " ");
@@ -49,26 +52,57 @@ void WinVarManager::dump() const noexcept {
       std::cout << (v.characters.E ? "E" : " ");
       std::cout << (v.characters.W ? "W" : " ");
       std::cout << "|";
-      std::cout << convertCharacter(v.characters.TO);
+      if (i.indicator.FROM_BLINK) {
+        std::cout << "\033[5m" << convertCharacter(v.characters.FROM) << "\033[0m";
+      }
+      else {
+        std::cout << convertCharacter(v.characters.FROM);
+      }
       std::cout << " ";
-      std::cout << convertCharacter(v.characters.FROM);
+      if (i.indicator.TO_BLINK) {
+        std::cout << "\033[5m" << convertCharacter(v.characters.TO) << "\033[0m";
+      }
+      else {
+        std::cout << convertCharacter(v.characters.TO);
+      }
     }
-    else if (it->first.find(INDICATORS_VAR) == 0) {
+    else if (it->first.find(INDICATORS_VAR) != std::string::npos) {
       const INDICATORS i = *reinterpret_cast<const INDICATORS *>(&it->second);
 
-      std::cout << (i.indicator.HOLD ? "HOLD|" : "    |");
-      std::cout << (i.indicator.REMOTE ? "REMOTE|" : "      |");
-      std::cout << (i.indicator.INSERT ? "INSERT|" : "      |");
-      std::cout << (i.indicator.ALERT ? "ALERT|" : "     |");
-      std::cout << (i.indicator.CDU_BAT ? "BAT|" : "   |");
-      std::cout << (i.indicator.WARN ? "WARN" : "    ") << std::endl;
-      std::cout << "          ";
-      std::cout << (i.indicator.READY_NAV ? "READY NAV|" : "         |");
-      std::cout << (i.indicator.READY_NAV ? "BAT" : "   ");
-      std::cout << "          ";
+      std::cout << "           ";
+      std::cout << (i.indicator.HOLD ? "HOLD|" : "\033[90mHOLD\033[0m|");
+      std::cout << (i.indicator.REMOTE ? "\033[93mREMOTE\033[0m|" : "\033[90mREMOTE\033[0m|");
+      std::cout << (i.indicator.INSERT ? "INSERT|" : "\033[90mINSERT\033[0m|");
+      std::cout << (i.indicator.ALERT ? "\033[93mALERT\033[0m|" : "\033[90mALERT\033[0m|");
+      std::cout << (i.indicator.CDU_BAT ? "\033[93mBAT\033[0m|" : "\033[90mBAT\033[0m|");
+      std::cout << (i.indicator.WARN ? "\033[91mWARN\033[0m" : "\033[90mWARN\033[0m") << std::endl;
+      std::cout << "                     ";
+      std::cout << (i.indicator.READY_NAV ? "\033[92mREADY NAV\033[0m|" : "\033[90mREADY NAV\033[0m|");
+      std::cout << (i.indicator.MSU_BAT ? "\033[91mBAT\033[0m" : "\033[90mBAT\033[0m");
+      std::cout << "                     ";
+      // 5 missing in second row
+    }
+    else if (it->first.find(MODE_SELECTOR_POS_VAR) != std::string::npos) {
+      std::cout << "                                 ";
+      std::cout << (it->second == 0 ? "OFF|" : "\033[90mOFF\033[0m|");
+      std::cout << (it->second == 1 ? "STBY|" : "\033[90mSTBY\033[0m|");
+      std::cout << (it->second == 2 ? "ALIGN|" : "\033[90mALIGN\033[0m|");
+      std::cout << (it->second == 3 ? "NAV|" : "\033[90mNAV\033[0m|");
+      std::cout << (it->second == 4 ? "ATT" : "\033[90mATT\033[0m");
+
+    }
+    else if (it->first.find(DATA_SELECTOR_POS_VAR) != std::string::npos) {
+      std::cout << (it->second == 0 ? "TK/GS|" : "\033[90mTK/GS\033[0m|");
+      std::cout << (it->second == 1 ? "HDG/DA|" : "\033[90mHDG/DA\033[0m|");
+      std::cout << (it->second == 2 ? "XTK/TKE|" : "\033[90mXTK/TKE\033[0m|");
+      std::cout << (it->second == 3 ? "POS|" : "\033[90mPOS\033[0m|");
+      std::cout << (it->second == 4 ? "WAY PT|" : "\033[90mWAY PT\033[0m|");
+      std::cout << (it->second == 5 ? "DIS/TIME|" : "\033[90mDIS/TIME\033[0m|");
+      std::cout << (it->second == 6 ? "WIND|" : "\033[90mWIND\033[0m|");
+      std::cout << (it->second == 7 ? "DSRTK/STS" : "\033[90mDSRTK/STS\033[0m");
     }
     else {
-      std::cout << std::right << std::setfill(' ') << std::setw(33) << it->second;
+      std::cout << std::right << std::setfill(' ') << std::setw(55) << it->second;
     }
 
     std::cout << " = " << it->first << std::endl;

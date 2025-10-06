@@ -1,9 +1,9 @@
 #ifndef VAR_MANAGER_H
 #define VAR_MANAGER_H
 
-#include <string>
 #include <cstdint>
 #include <map>
+#include <string>
 
 constexpr auto VAR_START = "LIBCIVA_";
 

@@ -81,7 +81,7 @@
       <BasicRuntimeChecks>
       </BasicRuntimeChecks>
       <LanguageStandard>stdcpp14</LanguageStandard>
-      <AdditionalOptions>/clang:-fstack-usage %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/clang:-Wall /clang:-Wextra /clang:-pedantic /clang:-Wno-missing-braces /clang:-Wno-unused-const-variable /clang:-fstack-usage %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -125,7 +125,7 @@
       <DebugInformationFormat>false</DebugInformationFormat>
       <SupportJustMyCode>
       </SupportJustMyCode>
-      <AdditionalOptions>/clang:-fstack-usage %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/clang:-Wall /clang:-Wextra /clang:-pedantic /clang:-Wno-missing-braces /clang:-Wno-unused-const-variable /clang:-fstack-usage %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -156,20 +156,20 @@
   <ItemGroup>
     <ClCompile Include="libcivaMSFS24.cpp" />
     <ClCompile Include="..\libciva\config\config.cpp" />
-    <ClCompile Include="..\libciva\geoutils\geoutils.cpp" />
     <ClCompile Include="..\libciva\ins\modes\align.cpp" />
     <ClCompile Include="..\libciva\ins\ins.cpp" />
     <ClCompile Include="..\libciva\ins\insDisplay.cpp" />
     <ClCompile Include="..\libciva\ins\insEvent.cpp" />
     <ClCompile Include="..\libciva\ins\insSetGet.cpp" />
+    <ClCompile Include="..\libciva\types\types.cpp" />
     <ClCompile Include="..\libciva\varManager\varManager.cpp" />
     <ClCompile Include="..\libciva\libciva.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="libcivaMSFS24.h" />
     <ClCompile Include="..\libciva\config\config.h" />
-    <ClCompile Include="..\libciva\geoutils\geoutils.h" />
     <ClCompile Include="..\libciva\ins\ins.h" />
+    <ClCompile Include="..\libciva\types\types.h" />
     <ClCompile Include="..\libciva\varManager\varManager.h" />
     <ClCompile Include="..\libciva\libciva.h" />
   </ItemGroup>

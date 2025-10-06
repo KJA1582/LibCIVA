@@ -1,19 +1,14 @@
-# WPT Entry
-
 # Other Displays
 
-- HDG/DA inhibit on > MODE 7
-- TK/GS inhibit on > MODE 7
 - XTK/TKE
 - DIS/TIME
+  - Active leg
+  - Non inserted WPT CHG
+  - DME
 - DSRTK
 - TO/FROM
-  - Blinking
-  - WPT and DME mode
-
-# DME entry
- 
- - Zero not settable, shows DME 1
+  - WPT CHNG
+    - Normal and DME
 
 # Navigation
 
@@ -22,7 +17,8 @@
 - Leg switching assumes 30°
   - Configurable?
 - WPT CHG
-  - Contray to FSX, WPT CHG INSERT stays illuminated when data pos is changed. CLEAR clears it 
+  - Contray to FSX, WPT CHG INSERT stays illuminated when data pos is changed. CLEAR clears it
+  - If WPT CHG in DME Mode, exiting clear WPT CHG
 - AUTO/MAN
   - 25.6s min time, only change after that in auto
   - ALERT LAMP

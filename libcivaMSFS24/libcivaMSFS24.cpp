@@ -1,7 +1,6 @@
-﻿// libcivaMSFS24.cpp
+﻿#include "libcivaMSFS24.h"
 
 #include <stdio.h>
-#include "libcivaMSFS24.h"
 
 extern "C" MSFS_CALLBACK void module_init(void)
 {

@@ -26,7 +26,15 @@ static void runner() {
     SetConsoleCursorPosition(handle, coordinates);
 
     winVarManager->dump();
-    std::cout << "dT was " << delta.count() * 1e-6 << "ms" << std::endl;
+    std::cout << "dT was " << delta.count() * 1e-6 << "ms" << std::endl << std::endl;
+    std::cout << "Mode Knob: Arrow left/right" << std::endl;
+    std::cout << "Data Knob: Arrow up/down" << std::endl;
+    std::cout << "WPT sel  : Numpad +/-" << std::endl;
+    std::cout << "INSERT   : Numpad enter" << std::endl;
+    std::cout << "TEST     : T" << std::endl;
+    std::cout << "DME LL   : L" << std::endl;
+    std::cout << "DME FREQ : F" << std::endl;
+    std::cout << "CLEAR    : DEL" << std::endl;
   }
 }
 
@@ -38,7 +46,6 @@ int main() {
   unit1Thread = std::thread(runner);
 
   HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
-  HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
   INPUT_RECORD inp;
   DWORD num_of_events;
 
@@ -49,7 +56,7 @@ int main() {
     switch (inp.EventType) {
       case KEY_EVENT: {
         if (!inp.Event.KeyEvent.bKeyDown) {
-          if (inp.Event.KeyEvent.wVirtualKeyCode == VK_MULTIPLY) {
+          if (inp.Event.KeyEvent.wVirtualKeyCode == 'T') {
             unit1->handleTestButtonState(false);
           }
 
@@ -108,17 +115,24 @@ int main() {
           case VK_SUBTRACT:
             unit1->decWaypointSelectorPos();
             break;
-          case VK_MULTIPLY:
+          case VK_DELETE:
+            unit1->handleClear();
+            break;
+          case 'T':
             unit1->handleTestButtonState(true);
             Sleep(200); //DEBOUNCE;
+            break;
+          case 'L':
+          case 'F':
+            unit1->handleDMEModeEntry((const uint8_t)inp.Event.KeyEvent.wVirtualKeyCode);
             break;
           case VK_ESCAPE:
             __exit = true;
             break;
         }
-      
+
         break;
-      }            
+      }
     }
 
     Sleep(20);

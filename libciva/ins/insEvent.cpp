@@ -9,6 +9,7 @@ static void readLat(DISPLAY &display, uint8_t &read, const uint8_t value) noexce
 
   read++;
 }
+
 static void readLon(DISPLAY &display, uint8_t &read, const uint8_t value) noexcept {
   display.characters.RIGHT_1 = display.characters.RIGHT_2;
   display.characters.RIGHT_2 = display.characters.RIGHT_3;
@@ -20,17 +21,51 @@ static void readLon(DISPLAY &display, uint8_t &read, const uint8_t value) noexce
   read++;
 }
 
+static void readAlt(DISPLAY &display, uint8_t &read, const uint8_t value) noexcept {
+  if (display.characters.LEFT_5 > 0) {
+    display.characters.LEFT_4 = display.characters.LEFT_5;
+  }
+  display.characters.LEFT_5 = value;
+
+  read++;
+}
+
+static void readFreq(DISPLAY &display, uint8_t &read, const uint8_t value) noexcept {
+  display.characters.RIGHT_2 = display.characters.RIGHT_3;
+  display.characters.RIGHT_3 = display.characters.RIGHT_4;
+  display.characters.RIGHT_4 = display.characters.RIGHT_5;
+  display.characters.RIGHT_5 = display.characters.RIGHT_6;
+  display.characters.RIGHT_6 = value;
+
+  read++;
+}
+
+
 static void clearLat(DISPLAY &display) noexcept {
   display.characters.LEFT_1 = display.characters.LEFT_2 = display.characters.LEFT_3 =
     display.characters.LEFT_4 = display.characters.LEFT_5 = 0;
 }
+
 static void clearLon(DISPLAY &display) noexcept {
   display.characters.RIGHT_1 = display.characters.RIGHT_2 = display.characters.RIGHT_3 =
     display.characters.RIGHT_4 = display.characters.RIGHT_5 = display.characters.RIGHT_6 = 0;
 }
 
+static void clearAlt(DISPLAY &display) noexcept {
+  display.characters.LEFT_1 = display.characters.LEFT_2 = display.characters.LEFT_3 =
+    display.characters.LEFT_4 = DISPLAY_CHAR_BLANK;
+  display.characters.LEFT_5 = 0;
+}
+
+static void clearFreq(DISPLAY &display) noexcept {
+  display.characters.RIGHT_1 = DISPLAY_CHAR_BLANK;
+  display.characters.RIGHT_2 = display.characters.RIGHT_3 =
+    display.characters.RIGHT_4 = display.characters.RIGHT_5 = display.characters.RIGHT_6 = 0;
+}
+
+
 static void startLatN(DISPLAY &display, INDICATORS &indicators, uint8_t &read) noexcept {
-indicators.indicator.INSERT = true;
+  indicators.indicator.INSERT = true;
   read = 0;
 
   clearLat(display);
@@ -38,6 +73,7 @@ indicators.indicator.INSERT = true;
   display.characters.N = true;
   display.characters.S = false;
 }
+
 static void startLatS(DISPLAY &display, INDICATORS &indicators, uint8_t &read) noexcept {
   indicators.indicator.INSERT = true;
   read = 0;
@@ -47,6 +83,7 @@ static void startLatS(DISPLAY &display, INDICATORS &indicators, uint8_t &read) n
   display.characters.N = false;
   display.characters.S = true;
 }
+
 static void startLonE(DISPLAY &display, INDICATORS &indicators, uint8_t &read) noexcept {
   indicators.indicator.INSERT = true;
   read = 0;
@@ -56,6 +93,7 @@ static void startLonE(DISPLAY &display, INDICATORS &indicators, uint8_t &read) n
   display.characters.E = true;
   display.characters.W = false;
 }
+
 static void startLonW(DISPLAY &display, INDICATORS &indicators, uint8_t &read) noexcept {
   indicators.indicator.INSERT = true;
   read = 0;
@@ -66,12 +104,32 @@ static void startLonW(DISPLAY &display, INDICATORS &indicators, uint8_t &read) n
   display.characters.W = true;
 }
 
+static void startAlt(DISPLAY &display, INDICATORS &indicators, uint8_t &read) noexcept {
+  indicators.indicator.INSERT = true;
+  read = 0;
+
+  clearAlt(display);
+
+  display.characters.N = display.characters.S = false;
+}
+
+static void startFreq(DISPLAY &display, INDICATORS &indicators, uint8_t &read) noexcept {
+  indicators.indicator.INSERT = true;
+  read = 0;
+
+  clearFreq(display);
+
+  display.characters.E = display.characters.W = false;
+}
+
+
 static double convertLat(DISPLAY &display) noexcept {
   double latD = display.characters.LEFT_1 * 10 + display.characters.LEFT_2;
   double latM = display.characters.LEFT_3 * 10 + display.characters.LEFT_4 +
     (double)display.characters.LEFT_5 / 10.0;
   return (display.characters.N ? 1 : -1) * (latD + latM / 60.0);
 }
+
 static double convertLon(DISPLAY &display) noexcept {
   double lonD = display.characters.RIGHT_1 * 100 + display.characters.RIGHT_2 * 10 +
     display.characters.RIGHT_3;
@@ -80,37 +138,63 @@ static double convertLon(DISPLAY &display) noexcept {
   return (display.characters.E ? 1 : -1) * (lonD + lonM / 60.0);
 }
 
+
 void INS::incDataSelectorPos() noexcept {
   if (dataSelector != DATA_SELECTOR::DSRTKSTS) {
+    if (dataSelector == DATA_SELECTOR::DISTIME) {
+      dmeMode = DME_MODE::INV;
+    }
     dataSelector = (DATA_SELECTOR)((uint8_t)dataSelector + 1);
+    insertMode = INSERT_MODE::INV;
+
+    if (currentINSPosition.isValid()) {
+      indicators.indicator.INSERT = false;
+      displayPerformanceIndex = 0;
+    }
   }
 }
+
 void INS::incModeSelectorPos() noexcept {
   if (modeSelector != MODE_SELECTOR::ATT) {
     modeSelector = (MODE_SELECTOR)((uint8_t)modeSelector + 1);
   }
 }
+
 void INS::incWaypointSelectorPos() noexcept {
-  if (waypointSelector < 9) {
-    waypointSelector += 1;
-  }
+  waypointSelector = (waypointSelector + 1) % 10;
 }
+
 
 void INS::decDataSelectorPos() noexcept {
   if (dataSelector != DATA_SELECTOR::TKGS) {
+    if (dataSelector == DATA_SELECTOR::WPT) {
+      dmeMode = DME_MODE::INV;
+    }
     dataSelector = (DATA_SELECTOR)((uint8_t)dataSelector - 1);
+    insertMode = INSERT_MODE::INV;
+
+    if (currentINSPosition.isValid()) {
+      indicators.indicator.INSERT = false;
+      displayPerformanceIndex = 0;
+    }
   }
 }
-void INS::decWaypointSelectorPos() noexcept {
-  if (waypointSelector > 0) {
-    waypointSelector -= 1;
-  }
-}
+
 void INS::decModeSelectorPos() noexcept {
   if (modeSelector != MODE_SELECTOR::OFF) {
     modeSelector = (MODE_SELECTOR)((uint8_t)modeSelector - 1);
   }
 }
+
+void INS::decWaypointSelectorPos() noexcept {
+  if (waypointSelector > 0) {
+    waypointSelector -= 1;
+  }
+  else {
+    waypointSelector = 9;
+  }
+}
+
 
 void INS::handleNumeric(const uint8_t value) noexcept {
   // cannot enter anything when OFF or ATT
@@ -147,26 +231,56 @@ void INS::handleNumeric(const uint8_t value) noexcept {
       // Waypoint zero is read only for C/DU
       if (waypointSelector < 1) break;
       else if (value == 2 && insertMode == INSERT_MODE::INV) {
-        insertMode = INSERT_MODE::WPT_LAT;
-        startLatS(display, indicators, charactersRead);
+        if (dmeMode == DME_MODE::DME_FREQ) {
+          insertMode = INSERT_MODE::DME_ALT;
+          startAlt(display, indicators, charactersRead);
+        }
+        else {
+          insertMode = INSERT_MODE::WPT_LAT;
+          startLatS(display, indicators, charactersRead);
+        }
       }
       else if (value == 8 && insertMode == INSERT_MODE::INV) {
-        insertMode = INSERT_MODE::WPT_LAT;
-        startLatN(display, indicators, charactersRead);
+        if (dmeMode == DME_MODE::DME_FREQ) {
+          insertMode = INSERT_MODE::DME_ALT;
+          startAlt(display, indicators, charactersRead);
+        }
+        else {
+          insertMode = INSERT_MODE::WPT_LAT;
+          startLatN(display, indicators, charactersRead);
+        }
       }
       else if (insertMode == INSERT_MODE::WPT_LAT && charactersRead < 5) {
         readLat(display, charactersRead, value);
       }
+      else if (insertMode == INSERT_MODE::DME_ALT && charactersRead < 2) {
+        readAlt(display, charactersRead, value);
+      }
       else if (insertMode == INSERT_MODE::INV && value == 4) {
-        insertMode = INSERT_MODE::WPT_LON;
-        startLonW(display, indicators, charactersRead);
+        if (dmeMode == DME_MODE::DME_FREQ) {
+          insertMode = INSERT_MODE::DME_FREQ;
+          startFreq(display, indicators, charactersRead);
+        }
+        else {
+          insertMode = INSERT_MODE::WPT_LON;
+          startLonW(display, indicators, charactersRead);
+        }
       }
       else if (insertMode == INSERT_MODE::INV && value == 6) {
-        insertMode = INSERT_MODE::WPT_LON;
-        startLonE(display, indicators, charactersRead);
+        if (dmeMode == DME_MODE::DME_FREQ) {
+          insertMode = INSERT_MODE::DME_FREQ;
+          startFreq(display, indicators, charactersRead);
+        }
+        else {
+          insertMode = INSERT_MODE::WPT_LON;
+          startLonE(display, indicators, charactersRead);
+        }
       }
       else if (insertMode == INSERT_MODE::WPT_LON && charactersRead < 6) {
         readLon(display, charactersRead, value);
+      }
+      else if (insertMode == INSERT_MODE::DME_FREQ && charactersRead < 5) {
+        readFreq(display, charactersRead, value);
       }
 
       break;
@@ -174,10 +288,14 @@ void INS::handleNumeric(const uint8_t value) noexcept {
     case DATA_SELECTOR::DSRTKSTS: {
       if (state != INS_STATE::NAV && insertMode == INSERT_MODE::INV) break;
 
+      indicators.indicator.INSERT = true;
       insertMode = INSERT_MODE::PERFORMANCE_INDEX;
 
       displayPerformanceIndex = value;
 
+      break;
+    }
+    default: {
       break;
     }
   }
@@ -188,23 +306,23 @@ void INS::handleInsert() noexcept {
   if (state == INS_STATE::OFF || state == INS_STATE::ATT) return;
 
   switch (insertMode) {
+    case INSERT_MODE::INV: {
+      break;
+    }
     case INSERT_MODE::POS_LAT: {
-      if (dataSelector != DATA_SELECTOR::POS) break;
+      if (dataSelector != DATA_SELECTOR::POS) return;
 
       displayPosition.latitude = convertLat(display);
 
       insertMode = INSERT_MODE::PRE_POS_LON;
-
-      break;
+      return;
     }
     case INSERT_MODE::PRE_POS_LON:
     case INSERT_MODE::POS_LON: {
-      if (dataSelector != DATA_SELECTOR::POS) break;
-
-      indicators.indicator.INSERT = false;
+      if (dataSelector != DATA_SELECTOR::POS) return;
 
       displayPosition.longitude = convertLon(display);
-      if (!displayPosition.isValid()) break; // Essential get the user stuck here
+      if (!displayPosition.isValid()) return; // Essential get the user stuck here
 
       if (state == INS_STATE::NAV) {
         // FIXME: Disallow in NAV if not in HOLD mode. Also move to HOLD mode exit
@@ -249,48 +367,93 @@ void INS::handleInsert() noexcept {
         currentINSPosition = initialINSPosition = displayPosition;
       }
 
-      insertMode = INSERT_MODE::INV;
-
       break;
     }
     case INSERT_MODE::WPT_LAT: {
-      if (dataSelector != DATA_SELECTOR::WPT) break;
-
-      indicators.indicator.INSERT = false;
+      if (dataSelector != DATA_SELECTOR::WPT) return;
 
       double lat = convertLat(display);
-      if (lat > 90 || lat < -90) break;
+      if (lat > 90 || lat < -90) return;
 
-      waypoints[waypointSelector].latitude = lat;
+      if (dmeMode == DME_MODE::DME_LL && waypointSelector >= 1) {
+        DMEs[waypointSelector - 1].position.latitude = lat;
 
-      if (waypoints[waypointSelector].longitude == 999) {
-        waypoints[waypointSelector].longitude = 0;
+        if (DMEs[waypointSelector - 1].position.longitude == 999) {
+          DMEs[waypointSelector - 1].position.longitude = 0;
+        }
+        if (activeDME == waypointSelector - 1) {
+          activeDME = 0;
+        }
       }
+      else if (dmeMode == DME_MODE::INV) {
+        waypoints[waypointSelector].latitude = lat;
 
-      insertMode = INSERT_MODE::INV;
+        if (waypoints[waypointSelector].longitude == 999) {
+          waypoints[waypointSelector].longitude = 0;
+        }
+      }
 
       break;
     }
     case INSERT_MODE::WPT_LON: {
-      if (dataSelector != DATA_SELECTOR::WPT) break;
-
-      indicators.indicator.INSERT = false;
+      if (dataSelector != DATA_SELECTOR::WPT) return;
 
       double lon = convertLon(display);
-      if (lon > 180 || lon < -180) break;
+      if (lon > 180 || lon < -180) return;
 
-      waypoints[waypointSelector].longitude = lon;
+      if (dmeMode == DME_MODE::DME_LL && waypointSelector >= 1) {
+        DMEs[waypointSelector - 1].position.longitude = lon;
 
-      if (waypoints[waypointSelector].latitude == 999) {
-        waypoints[waypointSelector].latitude = 0;
+        if (DMEs[waypointSelector - 1].position.latitude == 999) {
+          DMEs[waypointSelector - 1].position.latitude = 0;
+        }
+        if (activeDME == waypointSelector - 1) {
+          activeDME = 0;
+        }
+      }
+      else if (dmeMode == DME_MODE::INV) {
+        waypoints[waypointSelector].longitude = lon;
+
+        if (waypoints[waypointSelector].latitude == 999) {
+          waypoints[waypointSelector].latitude = 0;
+        }
       }
 
-      insertMode = INSERT_MODE::INV;
+      break;
+    }
+    case INSERT_MODE::DME_ALT: {
+      if (dataSelector != DATA_SELECTOR::WPT && dmeMode != DME_MODE::DME_FREQ) return;
+      if (waypointSelector == 0) break;
+
+      uint8_t altT = display.characters.LEFT_4;
+      uint8_t alt = (altT != DISPLAY_CHAR_BLANK ? altT * 10 : 0) + display.characters.LEFT_5;
+
+      if (alt > 15) break;
+
+      DMEs[waypointSelector - 1].altitude = alt;
+
+      break;
+    }
+    case INSERT_MODE::DME_FREQ: {
+      if (dataSelector != DATA_SELECTOR::WPT && dmeMode != DME_MODE::DME_FREQ) return;
+      if (waypointSelector == 0) break;
+
+      uint16_t freq = display.characters.RIGHT_2 * 10000 + display.characters.RIGHT_3 * 1000 +
+        display.characters.RIGHT_4 * 100 + display.characters.RIGHT_5 * 10;
+
+      uint8_t freqO = display.characters.RIGHT_6;
+      if (freqO >= 4 && freqO < 9) {
+        freq += 5;
+      }
+
+      if (freq < 10800 || freq > 13595) break;
+
+      DMEs[waypointSelector - 1].frequency = freq;
 
       break;
     }
     case INSERT_MODE::PERFORMANCE_INDEX: {
-      indicators.indicator.INSERT = false;
+      if (dataSelector != DATA_SELECTOR::DSRTKSTS) return;
 
       // Erradication
       if (displayPerformanceIndex == 1) {
@@ -306,17 +469,23 @@ void INS::handleInsert() noexcept {
         activePerformanceIndex = 5;
       }
 
-      insertMode = INSERT_MODE::INV;
+      displayPerformanceIndex = 0;
 
       break;
     }
   }
+
+  if (currentINSPosition.isValid()) {
+    indicators.indicator.INSERT = false;
+  }
+
+  insertMode = INSERT_MODE::INV;
 }
 
-void INS::handleTestButtonState(const bool state) noexcept {
+void INS::handleTestButtonState(const bool _state) noexcept {
   if (hasActionMalfunctionCode()) {
     // Pressed
-    if (state) {
+    if (_state) {
       if (mafunctionCodeDisplayed) {
         if (getCurrentActionMalfunctionCode() == ACTION_MALFUNCTION_CODE::A04_41) {
           if (removeCurrentActionMalfunctionCode()) {
@@ -334,7 +503,7 @@ void INS::handleTestButtonState(const bool state) noexcept {
     }
   }
   else {
-    if (state) {
+    if (_state) {
       if (!inTestMode) {
         previousIndicators = indicators;
       }
@@ -346,4 +515,34 @@ void INS::handleTestButtonState(const bool state) noexcept {
       inTestMode = false;
     }
   }
+}
+
+void INS::handleDMEModeEntry(const uint8_t value) noexcept {
+  if (dataSelector != DATA_SELECTOR::WPT && dataSelector != DATA_SELECTOR::DISTIME) return;
+
+  if (value == 'L') {
+    dmeMode = DME_MODE::DME_LL;
+  }
+  else if (value == 'F') {
+    dmeMode = DME_MODE::DME_FREQ;
+  }
+}
+
+void INS::handleClear() noexcept {
+  // Only clear INSERT if PPos exists
+  if (currentINSPosition.isValid()) {
+    indicators.indicator.INSERT = false;
+  }
+  // Reset displayed
+  if (insertMode == INSERT_MODE::PRE_POS_LON || insertMode == INSERT_MODE::POS_LON) {
+    if (currentINSPosition.isValid()) {
+      displayPosition = currentINSPosition;
+    }
+    else {
+      displayPosition = config.getLastINSPosisiton();
+    }
+  }
+
+  indicators.indicator.WAYPOINT_CHANGE = false;
+  insertMode = INSERT_MODE::INV;
 }

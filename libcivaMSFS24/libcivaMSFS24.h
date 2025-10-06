@@ -1,6 +1,6 @@
-﻿// libcivaMSFS24.h : Include file for standard system include files,
-// or project specific include files.
-
-#pragma once
+﻿#ifndef LIBCIVAMSFS2024_H
+#define LIBCIVAMSFS2024_H
 
 #include <MSFS/MSFS.h>
+
+#endif

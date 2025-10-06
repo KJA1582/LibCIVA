@@ -30,7 +30,7 @@ void INS::align(const double dTime) noexcept {
       break;
     }
     case ALIGN_SUBMODE::MODE_8: {
-      if (batteryTest == BATTERY_TEST::IDLE && (uint8_t)state != (uint8_t)alignSubmode) {
+      if (batteryTest == BATTERY_TEST::IDLE && (uint8_t)state != (uint8_t)modeSelector) {
         batteryTest = BATTERY_TEST::INHIBITED;
       }
       else if (batteryTest == BATTERY_TEST::IDLE && timeInMode < MAX_BAT_TEST_TIME) {

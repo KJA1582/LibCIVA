@@ -1,24 +1,30 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <cstring>
 #include <fstream>
+#include <string>
 
-#include "geoutils/geoutils.h"
+#include "types/types.h"
 
 class Config {
-  const std::string workDir;
+  const std::string basePath;
   double operatingTempInC = 76;
   double heaterWattage = 2000;
   double heaterEfficiency = 0.7;
   double unitMass = 5;
   double unitSpecificHeat = 900;
   POSITION lastINSPosition = { 999, 999 };
+  DME lastDMEs[9] = {
+    { 999, 999, 0, 0}, { 999, 999, 0, 0 }, { 999, 999, 0, 0 }, { 999, 999, 0, 0 },
+    { 999, 999, 0, 0 }, { 999, 999, 0, 0 }, { 999, 999, 0, 0 } , { 999, 999, 0, 0 } , { 999, 999, 0, 0 }
+  };
 
 public:
   Config(const std::string &workDir) noexcept;
 
   void save() const noexcept;
-  
+
   inline double getOperatingTempInC() const noexcept {
     return operatingTempInC;
   }
@@ -37,15 +43,15 @@ public:
   inline POSITION getLastINSPosisiton() const noexcept {
     return lastINSPosition;
   }
+  inline void getLastDMEs(DME(&DMEs)[9]) const noexcept {
+    std::memcpy(DMEs, lastDMEs, sizeof(lastDMEs));
+  }
 
-  inline void setLastLat(double lat) noexcept {
-    lastINSPosition.latitude = lat;
-  }
-  inline void setLastLon(double lon) noexcept {
-    lastINSPosition.longitude = lon;
-  }
   inline void setLastINSPosition(POSITION pos) noexcept {
     lastINSPosition = pos;
+  }
+  inline void setLastDMEs(const DME (&DMEs)[9]) noexcept {
+    std::memcpy(lastDMEs, DMEs, sizeof(DMEs));
   }
 };
 
