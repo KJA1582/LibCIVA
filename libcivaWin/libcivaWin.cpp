@@ -35,6 +35,7 @@ static void runner() {
     std::cout << "DME LL   : L" << std::endl;
     std::cout << "DME FREQ : F" << std::endl;
     std::cout << "CLEAR    : DEL" << std::endl;
+    std::cout << "WPT CGH  : W" << std::endl;
   }
 }
 
@@ -125,6 +126,9 @@ int main() {
           case 'L':
           case 'F':
             unit1->handleDMEModeEntry((const uint8_t)inp.Event.KeyEvent.wVirtualKeyCode);
+            break;
+          case 'W':
+            unit1->handleWaypointChange();
             break;
           case VK_ESCAPE:
             __exit = true;

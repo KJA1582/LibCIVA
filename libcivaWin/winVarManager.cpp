@@ -70,13 +70,14 @@ void WinVarManager::dump() const noexcept {
     else if (it->first.find(INDICATORS_VAR) != std::string::npos) {
       const INDICATORS i = *reinterpret_cast<const INDICATORS *>(&it->second);
 
-      std::cout << "           ";
+      std::cout << "       ";
       std::cout << (i.indicator.HOLD ? "HOLD|" : "\033[90mHOLD\033[0m|");
       std::cout << (i.indicator.REMOTE ? "\033[93mREMOTE\033[0m|" : "\033[90mREMOTE\033[0m|");
       std::cout << (i.indicator.INSERT ? "INSERT|" : "\033[90mINSERT\033[0m|");
       std::cout << (i.indicator.ALERT ? "\033[93mALERT\033[0m|" : "\033[90mALERT\033[0m|");
       std::cout << (i.indicator.CDU_BAT ? "\033[93mBAT\033[0m|" : "\033[90mBAT\033[0m|");
-      std::cout << (i.indicator.WARN ? "\033[91mWARN\033[0m" : "\033[90mWARN\033[0m") << std::endl;
+      std::cout << (i.indicator.WARN ? "\033[91mWARN\033[0m|" : "\033[90mWARN\033[0m|");
+      std::cout << (i.indicator.WAYPOINT_CHANGE ? "WPT CHG" : "\033[90mWPT CHG\033[0m") << std::endl;
       std::cout << "               ";
       std::cout << (i.indicator.READY_NAV ? "\033[92mREADY NAV\033[0m|" : "\033[90mREADY NAV\033[0m|");
       std::cout << (i.indicator.MSU_BAT ? "\033[91mBAT\033[0m|" : "\033[90mBAT\033[0m|");

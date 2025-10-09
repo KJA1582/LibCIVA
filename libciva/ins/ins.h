@@ -194,6 +194,7 @@ public:
   void handleTestButtonState(const bool state) noexcept;
   void handleDMEModeEntry(const uint8_t value) noexcept;
   void handleClear() noexcept;
+  void handleWaypointChange() noexcept;
 
   #pragma endregion
 };

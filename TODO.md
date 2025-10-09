@@ -2,19 +2,9 @@
 
 - XTK/TKE
   - In non inserted WPT CHG, display from PPOS to indicated legStart to legEnd track
-- DIS/TIME
-  - Active leg
-  - Non inserted WPT CHG
-  - DME
 - DSRTK
-  - Only in NAV
-  - In non inserted WPT CHG, display selected legStart to legEnd track
   - In normal mode, show track from along-tack point to legEnd
     - real importance comes from doing this with an XTK > 0
-- TO/FROM
-  - WPT CHNG
-    - Normal and DME
-    - Insert of PPOS into WP0
 
 # Navigation
 
@@ -29,7 +19,7 @@
   - 25.6s min time, only change after that in auto
   - ALERT LAMP
     - AUTO/MAN 2min
-    - AUTO blink if < 25.6 and past point
+    - AUTO blink if leg time < 25.6s and past point
     - MAN blink if past point
 
 # Other
@@ -47,11 +37,12 @@
 # Updating
 
 - Entry to #4
+- DME Select
 - Manual Update
   - AI to 0 immediate
   - Error when update results in 33nmi shift
 - DME Update
-  - AI trickle down to 0 if ALT INF correct, down to 2 otherwise
+  - AI trickle down to 1 (0 on dual DME) if ALT INF correct, down to 2 otherwise
   - Freq compare entered with tuned
   - Unit 1 connected to NAV 1
   - Unit 2 connected to NAV 2

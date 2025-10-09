@@ -48,23 +48,42 @@ static void formatPos(DISPLAY &display, POSITION &pos) noexcept {
     display.characters.RIGHT_5 * 10;
 }
 
-static void formatQuad(DISPLAY &display, const double value, const bool left) {
+static void formatQuad(DISPLAY &display, const double value, const bool left,
+                       const bool hasDirection, const uint8_t dir, const bool decimal = false) {
   uint8_t valueH = (uint16_t)value / 1000;
   uint8_t valueT = (uint16_t)(value - valueH * 1000) / 100;
   uint8_t valueO = (uint16_t)(value - valueH * 1000 - valueT * 100) / 10;
   uint8_t valueD = (uint8_t)(value - valueH * 1000 - valueT * 100 - valueO * 10);
 
   if (left) {
-    display.characters.LEFT_2 = valueH > 0 ? valueH : DISPLAY_CHAR_BLANK;
-    display.characters.LEFT_3 = valueH > 0 || valueT > 0 ? valueT : DISPLAY_CHAR_BLANK;
-    display.characters.LEFT_4 = valueH > 0 || valueT > 0 || valueO > 0 ? valueO : DISPLAY_CHAR_BLANK;
-    display.characters.LEFT_5 = valueD;
+    if (hasDirection) {
+      display.characters.LEFT_1 = valueH > 0 ? valueH : DISPLAY_CHAR_BLANK;
+      display.characters.LEFT_2 = valueH > 0 || valueT > 0 ? valueT : DISPLAY_CHAR_BLANK;
+      display.characters.LEFT_3 = valueH > 0 || valueT > 0 || valueO > 0 || decimal ? valueO : DISPLAY_CHAR_BLANK;
+      display.characters.LEFT_4 = valueD;
+      display.characters.LEFT_5 = dir;
+    }
+    else {
+      display.characters.LEFT_2 = valueH > 0 ? valueH : DISPLAY_CHAR_BLANK;
+      display.characters.LEFT_3 = valueH > 0 || valueT > 0 ? valueT : DISPLAY_CHAR_BLANK;
+      display.characters.LEFT_4 = valueH > 0 || valueT > 0 || valueO > 0 || decimal ? valueO : DISPLAY_CHAR_BLANK;
+      display.characters.LEFT_5 = valueD;
+    }
   }
   else {
-    display.characters.RIGHT_3 = valueH > 0 ? valueH : DISPLAY_CHAR_BLANK;
-    display.characters.RIGHT_4 = valueH > 0 || valueT > 0 ? valueT : DISPLAY_CHAR_BLANK;
-    display.characters.RIGHT_5 = valueH > 0 || valueT > 0 || valueO > 0 ? valueO : DISPLAY_CHAR_BLANK;
-    display.characters.RIGHT_6 = valueD;
+    if (hasDirection) {
+      display.characters.RIGHT_2 = valueH > 0 ? valueH : DISPLAY_CHAR_BLANK;
+      display.characters.RIGHT_3 = valueH > 0 || valueT > 0 ? valueT : DISPLAY_CHAR_BLANK;
+      display.characters.RIGHT_4 = valueH > 0 || valueT > 0 || valueO > 0 || decimal ? valueO : DISPLAY_CHAR_BLANK;
+      display.characters.RIGHT_5 = valueD;
+      display.characters.RIGHT_6 = dir;
+    }
+    else {
+      display.characters.RIGHT_3 = valueH > 0 ? valueH : DISPLAY_CHAR_BLANK;
+      display.characters.RIGHT_4 = valueH > 0 || valueT > 0 ? valueT : DISPLAY_CHAR_BLANK;
+      display.characters.RIGHT_5 = valueH > 0 || valueT > 0 || valueO > 0 || decimal ? valueO : DISPLAY_CHAR_BLANK;
+      display.characters.RIGHT_6 = valueD;
+    }
   }
 }
 
@@ -229,17 +248,16 @@ void INS::updateDisplay() noexcept {
         display.characters.S = display.characters.E = display.characters.W = false;
       display.characters.LEFT_DEG_2 = display.characters.LEFT_DEC_2 = true;
       display.characters.LEFT_1 = display.characters.LEFT_2 = display.characters.LEFT_3 =
-        display.characters.LEFT_4 = display.characters.RIGHT_1 = display.characters.RIGHT_2 =
-        display.characters.RIGHT_3 = display.characters.RIGHT_4 = display.characters.RIGHT_5 =
-        DISPLAY_CHAR_BLANK;
+        display.characters.RIGHT_1 = display.characters.RIGHT_2 = display.characters.RIGHT_3 =
+        display.characters.RIGHT_4 = display.characters.RIGHT_5 = DISPLAY_CHAR_BLANK;
 
       if (state <= INS_STATE::ALIGN && (alignSubmode > ALIGN_SUBMODE::MODE_7 ||
                                         (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode <= MAX_MODE_7))) {
-        display.characters.LEFT_5 = display.characters.RIGHT_6 = 0;
+        display.characters.LEFT_4 = display.characters.LEFT_5 = display.characters.RIGHT_6 = 0;
       }
       else {
-        formatQuad(display, _track, true);
-        formatQuad(display, gs, false);
+        formatQuad(display, _track, true, false, 0, true);
+        formatQuad(display, gs, false, false, 0);
       }
 
       break;
@@ -268,28 +286,81 @@ void INS::updateDisplay() noexcept {
       display.characters.LEFT_DEG_2 = display.characters.LEFT_DEC_2 =
         display.characters.RIGHT_DEG_2 = true;
       display.characters.LEFT_1 = display.characters.LEFT_2 = display.characters.LEFT_3 =
-        display.characters.LEFT_4 = display.characters.RIGHT_1 = display.characters.RIGHT_2 =
-        display.characters.RIGHT_3 = display.characters.RIGHT_4 = display.characters.RIGHT_5 =
-        DISPLAY_CHAR_BLANK;
+        display.characters.RIGHT_1 = display.characters.RIGHT_2 = display.characters.RIGHT_3 =
+        display.characters.RIGHT_4 = display.characters.RIGHT_5 = DISPLAY_CHAR_BLANK;
 
       if (state <= INS_STATE::ALIGN && (alignSubmode > ALIGN_SUBMODE::MODE_7 ||
                                         (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode <= MAX_MODE_7))) {
-        display.characters.LEFT_5 = display.characters.RIGHT_6 = 0;
+        display.characters.LEFT_4 = display.characters.LEFT_5 = display.characters.RIGHT_6 = 0;
       }
       else {
-        formatQuad(display, heading, true);
+        formatQuad(display, heading, true, false, 0, true);
         formatTri(display, driftAngle, false, true, driftAngleDir);
       }
 
       break;
     }
     case DATA_SELECTOR::XTKTKE: {
-      // TODO: XTK/TKE
-      clearDisplay();
+      uint16_t _track = 0;
+
+      if (!gsValid) {
+        gs = 0;
+
+        if (trueHeadingValid || gs < MIN_GS) {
+          _track = (uint16_t)(std::round(trueHeading));
+        }
+      }
+      else {
+        _track = (uint16_t)(std::round(track));
+      }
+      
+      display.characters.LEFT_DEC_1 = display.characters.LEFT_DEC_2 =
+        display.characters.LEFT_DEG_2 = display.characters.RIGHT_DEC_1 = display.characters.RIGHT_DEC_2 =
+        display.characters.RIGHT_DEG_1 = display.characters.N = display.characters.S =
+        display.characters.E = display.characters.W = false;
+      display.characters.LEFT_DEC_1 = display.characters.RIGHT_DEG_2 = true;
+      display.characters.LEFT_1 = display.characters.LEFT_2 = display.characters.RIGHT_1 = 
+        display.characters.RIGHT_2 = display.characters.RIGHT_3 = display.characters.RIGHT_4 = DISPLAY_CHAR_BLANK;
+      display.characters.LEFT_3 = display.characters.LEFT_4 = display.characters.RIGHT_5 = 0;
+      display.characters.LEFT_5 = display.characters.RIGHT_6 = DISPLAY_CHAR_LEFT;
+
+      if (insertMode == INSERT_MODE::WPT_CHG_FROM || insertMode == INSERT_MODE::WPT_CHG_TO) {
+        int16_t xtk = 0;
+        if (state >= INS_STATE::ALIGN && (alignSubmode < ALIGN_SUBMODE::MODE_7 ||
+                                          (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
+          xtk = (int16_t)std::round(std::min(9999.0,
+                                             currentINSPosition.crossTrackDistance(waypoints[display.characters.FROM],
+                                                                                   waypoints[display.characters.TO]) * 10));
+          uint8_t xtkDir = DISPLAY_CHAR_RIGHT;
+          if (xtk < 0) {
+            xtk *= -1;
+            xtkDir = DISPLAY_CHAR_LEFT;
+          }
+          formatQuad(display, xtk, true, true, xtkDir, true);
+
+          uint16_t crs = (uint16_t)std::round(waypoints[display.characters.FROM].bearingTo(waypoints[display.characters.TO]));
+          int16_t tke = crs - _track;
+          uint8_t tkeDir = DISPLAY_CHAR_LEFT;
+          if (tke < 0) {
+            tke *= -1;
+            tkeDir = DISPLAY_CHAR_RIGHT;
+          }
+          if (tke > 180) {
+            tke = 360 - 242;
+            tkeDir = tkeDir == DISPLAY_CHAR_RIGHT ? DISPLAY_CHAR_LEFT : DISPLAY_CHAR_RIGHT;
+          }
+          formatTri(display, tke, false, true, tkeDir);
+        }
+      }
+      else {
+        // TODO: XTK/TKE nomral behaviour
+        clearDisplay();
+      }
       break;
     }
     case DATA_SELECTOR::POS: {
-      if (insertMode != INSERT_MODE::INV) break;
+      if (insertMode == INSERT_MODE::POS_LAT || insertMode == INSERT_MODE::PRE_POS_LON ||
+          insertMode == INSERT_MODE::POS_LON) break;
 
       display.characters.LEFT_DEG_2 = display.characters.LEFT_DEC_1 =
         display.characters.RIGHT_DEG_2 = display.characters.RIGHT_DEC_1 = false;
@@ -301,7 +372,8 @@ void INS::updateDisplay() noexcept {
       break;
     }
     case DATA_SELECTOR::WPT: {
-      if (insertMode != INSERT_MODE::INV) break;
+      if (insertMode == INSERT_MODE::WPT_LAT || insertMode == INSERT_MODE::WPT_LON ||
+          insertMode == INSERT_MODE::DME_ALT || insertMode == INSERT_MODE::DME_FREQ) break;
 
       display.characters.LEFT_DEG_2 = display.characters.LEFT_DEC_1 =
         display.characters.RIGHT_DEG_2 = display.characters.RIGHT_DEC_1 = false;
@@ -356,6 +428,18 @@ void INS::updateDisplay() noexcept {
         dist = (uint16_t)std::round(std::min(9999.0,
                                              currentINSPosition.distanceTo(DMEs[std::max(0, waypointSelector - 1)].position)));
       }
+      else if (insertMode == INSERT_MODE::WPT_CHG_FROM || insertMode == INSERT_MODE::WPT_CHG_TO) {
+        dist = (uint16_t)std::round(std::min(9999.0,
+                                             waypoints[display.characters.FROM].distanceTo(
+                                               waypoints[display.characters.TO])));
+        if (state >= INS_STATE::ALIGN && (alignSubmode < ALIGN_SUBMODE::MODE_7 ||
+                                          (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
+          time = gsValid && gs > MIN_GS_TIME ? (int16_t)std::round(std::min(9999.0, (dist / gs) * 600)) : 9999;
+        }
+        else {
+          time = 9999;
+        }
+      }
       else {
         dist = (uint16_t)std::round(std::min(9999.0,
                                              waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd])));
@@ -363,11 +447,14 @@ void INS::updateDisplay() noexcept {
                                           (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
           time = gsValid && gs > MIN_GS_TIME ? (int16_t)std::round(std::min(9999.0, (dist / gs) * 600)) : 9999;
         }
+        else {
+          time = 9999;
+        }
       }
 
-      formatQuad(display, dist, true);
+      formatQuad(display, dist, true, false, 0);
       if (time >= 0) {
-        formatQuad(display, time, false);
+        formatQuad(display, time, false, false, 0, true);
       }
       else {
         display.characters.RIGHT_3 = display.characters.RIGHT_4 = display.characters.RIGHT_5 =
@@ -423,8 +510,16 @@ void INS::updateDisplay() noexcept {
       if (currentINSPosition.isValid()) {
         display.characters.LEFT_1 = DISPLAY_CHAR_BLANK;
         display.characters.LEFT_2 = DISPLAY_CHAR_BLANK;
-        // TODO: Desired Track
         display.characters.LEFT_DEG_2 = true;
+
+        if (insertMode == INSERT_MODE::WPT_CHG_FROM || insertMode == INSERT_MODE::WPT_CHG_TO) {
+          uint16_t crs = (uint16_t)std::round(waypoints[display.characters.FROM].bearingTo(waypoints[display.characters.TO]));
+          formatTri(display, crs, true, false, 0);
+        }
+        else {
+          // TODO: Desired Track, from along-track point per. to leg to legEnd
+          display.characters.LEFT_3 = display.characters.LEFT_4 = display.characters.LEFT_5 = DISPLAY_CHAR_BLANK;
+        }
       }
       else {
         display.characters.LEFT_1 = PROG_NUM[0];
@@ -444,7 +539,7 @@ void INS::updateDisplay() noexcept {
 
       formatActionMalfunctionCode(display, getCurrentActionMalfunctionCode(), mafunctionCodeDisplayed);
 
-      if (insertMode == INSERT_MODE::INV) {
+      if (insertMode != INSERT_MODE::PERFORMANCE_INDEX) {
         display.characters.RIGHT_6 = activePerformanceIndex;
       }
 
@@ -460,11 +555,10 @@ void INS::updateDisplay() noexcept {
         indicators.indicator.TO_BLINK = true;
         indicators.indicator.FROM_BLINK = false;
       }
-      else {
+      else if (insertMode != INSERT_MODE::WPT_CHG_FROM && insertMode != INSERT_MODE::WPT_CHG_TO) {
         display.characters.FROM = waypointSelector;
         display.characters.TO = DISPLAY_CHAR_BLANK;
-        indicators.indicator.TO_BLINK = false;
-        indicators.indicator.FROM_BLINK = false;
+        indicators.indicator.TO_BLINK = indicators.indicator.FROM_BLINK = false;
       }
       break;
     }
@@ -476,7 +570,7 @@ void INS::updateDisplay() noexcept {
         indicators.indicator.TO_BLINK = true;
         indicators.indicator.FROM_BLINK = false;
       }
-      else {
+      else if (insertMode != INSERT_MODE::WPT_CHG_FROM && insertMode != INSERT_MODE::WPT_CHG_TO) {
         display.characters.FROM = currentLegStart;
         display.characters.TO = currentLegEnd;
         indicators.indicator.TO_BLINK = indicators.indicator.FROM_BLINK = false;
@@ -484,9 +578,11 @@ void INS::updateDisplay() noexcept {
       break;
     }
     default: {
-      display.characters.FROM = currentLegStart;
-      display.characters.TO = currentLegEnd;
-      indicators.indicator.FROM_BLINK = indicators.indicator.TO_BLINK = false;
+      if (insertMode != INSERT_MODE::WPT_CHG_FROM && insertMode != INSERT_MODE::WPT_CHG_TO) {
+        display.characters.FROM = currentLegStart;
+        display.characters.TO = currentLegEnd;
+        indicators.indicator.FROM_BLINK = indicators.indicator.TO_BLINK = false;
+      }
 
       break;
     }

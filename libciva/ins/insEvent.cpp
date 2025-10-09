@@ -141,13 +141,21 @@ static double convertLon(DISPLAY &display) noexcept {
 
 void INS::incDataSelectorPos() noexcept {
   if (dataSelector != DATA_SELECTOR::DSRTKSTS) {
-    if (dataSelector == DATA_SELECTOR::DISTIME) {
+    if (dmeMode != DME_MODE::INV && dataSelector == DATA_SELECTOR::DISTIME) {
       dmeMode = DME_MODE::INV;
+      insertMode = INSERT_MODE::INV;
+      indicators.indicator.WAYPOINT_CHANGE = false;
+      dataSelector = (DATA_SELECTOR)((uint8_t)dataSelector + 1);
+      
+      return;
     }
     dataSelector = (DATA_SELECTOR)((uint8_t)dataSelector + 1);
-    insertMode = INSERT_MODE::INV;
 
-    if (currentINSPosition.isValid()) {
+    if (insertMode != INSERT_MODE::WPT_CHG_FROM && insertMode != INSERT_MODE::WPT_CHG_TO) {
+      insertMode = INSERT_MODE::INV;
+    }
+    if (currentINSPosition.isValid() && insertMode != INSERT_MODE::WPT_CHG_FROM &&
+        insertMode != INSERT_MODE::WPT_CHG_TO) {
       indicators.indicator.INSERT = false;
     }
   }
@@ -166,13 +174,21 @@ void INS::incWaypointSelectorPos() noexcept {
 
 void INS::decDataSelectorPos() noexcept {
   if (dataSelector != DATA_SELECTOR::TKGS) {
-    if (dataSelector == DATA_SELECTOR::WPT) {
+    if (dmeMode != DME_MODE::INV && dataSelector == DATA_SELECTOR::WPT) {
       dmeMode = DME_MODE::INV;
+      insertMode = INSERT_MODE::INV;
+      indicators.indicator.WAYPOINT_CHANGE = false;
+      dataSelector = (DATA_SELECTOR)((uint8_t)dataSelector - 1);
+      
+      return;
     }
     dataSelector = (DATA_SELECTOR)((uint8_t)dataSelector - 1);
-    insertMode = INSERT_MODE::INV;
 
-    if (currentINSPosition.isValid()) {
+    if (insertMode != INSERT_MODE::WPT_CHG_FROM && insertMode != INSERT_MODE::WPT_CHG_TO) {
+      insertMode = INSERT_MODE::INV;
+    }
+    if (currentINSPosition.isValid() && insertMode != INSERT_MODE::WPT_CHG_FROM &&
+        insertMode != INSERT_MODE::WPT_CHG_TO) {
       indicators.indicator.INSERT = false;
     }
   }
@@ -197,6 +213,20 @@ void INS::decWaypointSelectorPos() noexcept {
 void INS::handleNumeric(const uint8_t value) noexcept {
   // cannot enter anything when OFF or ATT
   if (state <= INS_STATE::OFF || state >= INS_STATE::ATT) return;
+
+  // WPT CHG
+  if (insertMode == INSERT_MODE::WPT_CHG_FROM) {
+    display.characters.FROM = value;
+    insertMode = INSERT_MODE::WPT_CHG_TO;
+
+    return;
+  }
+  else if (insertMode == INSERT_MODE::WPT_CHG_TO) {
+    display.characters.TO = value;
+    insertMode = INSERT_MODE::WPT_CHG_FROM;
+
+    return;
+  }
 
   switch (dataSelector) {
     case DATA_SELECTOR::POS: {
@@ -455,6 +485,16 @@ void INS::handleInsert() noexcept {
 
       break;
     }
+    case INSERT_MODE::WPT_CHG_FROM:
+    case INSERT_MODE::WPT_CHG_TO: {
+      currentLegStart = display.characters.FROM;
+      currentLegEnd = display.characters.TO;
+
+      waypoints[0] = currentINSPosition;
+
+      indicators.indicator.WAYPOINT_CHANGE = false;
+      break;
+    }
   }
 
   if (currentINSPosition.isValid()) {
@@ -527,4 +567,12 @@ void INS::handleClear() noexcept {
 
   indicators.indicator.WAYPOINT_CHANGE = false;
   insertMode = INSERT_MODE::INV;
+}
+
+void INS::handleWaypointChange() noexcept {
+  // Can't in OFF or ATT
+  if (state == INS_STATE::OFF || state == INS_STATE::ATT) return;
+
+  indicators.indicator.WAYPOINT_CHANGE = indicators.indicator.INSERT = true;
+  insertMode = INSERT_MODE::WPT_CHG_FROM;
 }

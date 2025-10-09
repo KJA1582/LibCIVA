@@ -76,9 +76,12 @@ enum class INSERT_MODE: int8_t {
   DME_FREQ,
   DME_ALT,
   PERFORMANCE_INDEX,
+  WPT_CHG_FROM,
+  WPT_CHG_TO,
+
 };
 
-enum class DME_MODE {
+enum class DME_MODE: int8_t {
   INV = -1,
   DME_LL,
   DME_FREQ,
@@ -149,6 +152,9 @@ struct POSITION {
   }
 
   double distanceTo(const POSITION &target) const noexcept;
+  double bearingTo(const POSITION &target) const noexcept;
+  // Negative is LEFT
+  double crossTrackDistance(const POSITION &start, const POSITION &end) const noexcept;
 };
 
 typedef struct {
