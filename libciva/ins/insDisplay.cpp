@@ -203,6 +203,7 @@ static void formatActionMalfunctionCode(DISPLAY &display, const ACTION_MALFUNCTI
   }
 }
 
+
 void INS::updateDisplay() noexcept {
   if (inTestMode) {
     uint64_t d;
@@ -313,49 +314,57 @@ void INS::updateDisplay() noexcept {
       else {
         _track = (uint16_t)(std::round(track));
       }
-      
-      display.characters.LEFT_DEC_1 = display.characters.LEFT_DEC_2 =
+
+      display.characters.LEFT_DEC_1 = display.characters.LEFT_DEC_2 = display.characters.LEFT_DEG_1 =
         display.characters.LEFT_DEG_2 = display.characters.RIGHT_DEC_1 = display.characters.RIGHT_DEC_2 =
         display.characters.RIGHT_DEG_1 = display.characters.N = display.characters.S =
         display.characters.E = display.characters.W = false;
       display.characters.LEFT_DEC_1 = display.characters.RIGHT_DEG_2 = true;
-      display.characters.LEFT_1 = display.characters.LEFT_2 = display.characters.RIGHT_1 = 
+      display.characters.LEFT_1 = display.characters.LEFT_2 = display.characters.RIGHT_1 =
         display.characters.RIGHT_2 = display.characters.RIGHT_3 = display.characters.RIGHT_4 = DISPLAY_CHAR_BLANK;
       display.characters.LEFT_3 = display.characters.LEFT_4 = display.characters.RIGHT_5 = 0;
       display.characters.LEFT_5 = display.characters.RIGHT_6 = DISPLAY_CHAR_LEFT;
 
-      if (insertMode == INSERT_MODE::WPT_CHG_FROM || insertMode == INSERT_MODE::WPT_CHG_TO) {
+      if (state >= INS_STATE::ALIGN && currentINSPosition.isValid() &&
+          (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
         int16_t xtk = 0;
-        if (state >= INS_STATE::ALIGN && (alignSubmode < ALIGN_SUBMODE::MODE_7 ||
-                                          (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
+        uint16_t crs = 0;
+        if (insertMode == INSERT_MODE::WPT_CHG_FROM || insertMode == INSERT_MODE::WPT_CHG_TO) {
           xtk = (int16_t)std::round(std::min(9999.0,
                                              currentINSPosition.crossTrackDistance(waypoints[display.characters.FROM],
                                                                                    waypoints[display.characters.TO]) * 10));
-          uint8_t xtkDir = DISPLAY_CHAR_RIGHT;
-          if (xtk < 0) {
-            xtk *= -1;
-            xtkDir = DISPLAY_CHAR_LEFT;
-          }
-          formatQuad(display, xtk, true, true, xtkDir, true);
-
-          uint16_t crs = (uint16_t)std::round(waypoints[display.characters.FROM].bearingTo(waypoints[display.characters.TO]));
-          int16_t tke = crs - _track;
-          uint8_t tkeDir = DISPLAY_CHAR_LEFT;
-          if (tke < 0) {
-            tke *= -1;
-            tkeDir = DISPLAY_CHAR_RIGHT;
-          }
-          if (tke > 180) {
-            tke = 360 - 242;
-            tkeDir = tkeDir == DISPLAY_CHAR_RIGHT ? DISPLAY_CHAR_LEFT : DISPLAY_CHAR_RIGHT;
-          }
-          formatTri(display, tke, false, true, tkeDir);
+          crs = (uint16_t)std::round(waypoints[display.characters.FROM].bearingTo(waypoints[display.characters.TO]));
         }
+        else {
+          double alongDist = currentINSPosition.alongTrackDistance(waypoints[currentLegStart], waypoints[currentLegEnd]);
+          double legCrs = waypoints[currentLegStart].bearingTo(waypoints[currentLegEnd]);
+          POSITION alongPos = waypoints[currentLegStart].destination(alongDist, legCrs);
+
+          xtk = (int16_t)std::round(std::min(9999.0, currentINSPosition.crossTrackDistance(waypoints[currentLegStart],
+                                                                                           waypoints[currentLegEnd]) * 10));
+          crs = (uint16_t)std::round(legCrs);
+        }
+
+        uint8_t xtkDir = DISPLAY_CHAR_RIGHT;
+        if (xtk <= 0) {
+          xtk *= -1;
+          xtkDir = DISPLAY_CHAR_LEFT;
+        }
+        formatQuad(display, xtk, true, true, xtkDir, true);
+
+        int16_t tke = crs - _track;
+        uint8_t tkeDir = DISPLAY_CHAR_LEFT;
+        if (tke < 0) {
+          tke *= -1;
+          tkeDir = DISPLAY_CHAR_RIGHT;
+        }
+        if (tke > 180) {
+          tke = 360 - 242;
+          tkeDir = tkeDir == DISPLAY_CHAR_RIGHT ? DISPLAY_CHAR_LEFT : DISPLAY_CHAR_RIGHT;
+        }
+        formatTri(display, tke, false, true, tkeDir);
       }
-      else {
-        // TODO: XTK/TKE nomral behaviour
-        clearDisplay();
-      }
+
       break;
     }
     case DATA_SELECTOR::POS: {
@@ -425,8 +434,10 @@ void INS::updateDisplay() noexcept {
       display.characters.LEFT_1 = display.characters.RIGHT_1 = display.characters.RIGHT_2 = DISPLAY_CHAR_BLANK;
 
       if (dmeMode != DME_MODE::INV) {
-        dist = (uint16_t)std::round(std::min(9999.0,
-                                             currentINSPosition.distanceTo(DMEs[std::max(0, waypointSelector - 1)].position)));
+        if (currentINSPosition.isValid()) {
+          dist = (uint16_t)std::round(std::min(9999.0,
+                                               currentINSPosition.distanceTo(DMEs[std::max(0, waypointSelector - 1)].position)));
+        }
       }
       else if (insertMode == INSERT_MODE::WPT_CHG_FROM || insertMode == INSERT_MODE::WPT_CHG_TO) {
         dist = (uint16_t)std::round(std::min(9999.0,
@@ -512,14 +523,25 @@ void INS::updateDisplay() noexcept {
         display.characters.LEFT_2 = DISPLAY_CHAR_BLANK;
         display.characters.LEFT_DEG_2 = true;
 
+        uint16_t crs = 0;
+
         if (insertMode == INSERT_MODE::WPT_CHG_FROM || insertMode == INSERT_MODE::WPT_CHG_TO) {
-          uint16_t crs = (uint16_t)std::round(waypoints[display.characters.FROM].bearingTo(waypoints[display.characters.TO]));
-          formatTri(display, crs, true, false, 0);
+          crs = (uint16_t)std::round(waypoints[display.characters.FROM].bearingTo(waypoints[display.characters.TO]));
         }
         else {
-          // TODO: Desired Track, from along-track point per. to leg to legEnd
-          display.characters.LEFT_3 = display.characters.LEFT_4 = display.characters.LEFT_5 = DISPLAY_CHAR_BLANK;
+          double alongDist = currentINSPosition.alongTrackDistance(waypoints[currentLegStart], waypoints[currentLegEnd]);
+          double legCrs = waypoints[currentLegStart].bearingTo(waypoints[currentLegEnd]);
+          POSITION alongPos = waypoints[currentLegStart].destination(alongDist, legCrs);
+
+          if (alongDist < waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd])) {
+            crs = (uint16_t)std::round(alongPos.bearingTo(waypoints[currentLegEnd]));
+          }
+          else {
+            crs = legCrs;
+          }
         }
+
+        formatTri(display, crs, true, false, 0);
       }
       else {
         display.characters.LEFT_1 = PROG_NUM[0];
@@ -587,5 +609,4 @@ void INS::updateDisplay() noexcept {
       break;
     }
   }
-
 }

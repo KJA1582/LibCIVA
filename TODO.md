@@ -1,11 +1,3 @@
-# Other Displays
-
-- XTK/TKE
-  - In non inserted WPT CHG, display from PPOS to indicated legStart to legEnd track
-- DSRTK
-  - In normal mode, show track from along-tack point to legEnd
-    - real importance comes from doing this with an XTK > 0
-
 # Navigation
 
 - Export of desired track true

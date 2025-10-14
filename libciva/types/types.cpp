@@ -23,10 +23,9 @@ double POSITION::bearingTo(const POSITION &target) const noexcept {
   double y = std::sin(λ2 - λ1) * std::cos(φ2);
   double x = std::cos(φ1) * std::sin(φ2) - std::sin(φ1) * std::cos(φ2) * std::cos(λ2 - λ1);
   double θ = std::atan2(y, x);
- 
- return fmod(θ * 180.0 / M_PI + 360.0, 360.0); // in degrees
-}
 
+  return std::fmod(θ * 180.0 / M_PI + 360.0, 360.0); // in degrees
+}
 
 double POSITION::crossTrackDistance(const POSITION &start, const POSITION &end) const noexcept {
   double d13 = start.distanceTo(*this);
@@ -35,4 +34,27 @@ double POSITION::crossTrackDistance(const POSITION &start, const POSITION &end) 
 
   double δ13 = d13 / R;
   return std::asin(std::sin(δ13) * std::sin(θ13 - θ12)) * R;
+}
+
+double POSITION::alongTrackDistance(const POSITION &start, const POSITION &end) const noexcept {
+  double d13 = start.distanceTo(*this);
+  double θ13 = start.bearingTo(*this) * M_PI / 180;
+  double θ12 = start.bearingTo(end) * M_PI / 180;
+
+  double δ13 = d13 / R;
+  double dXt = std::asin(std::sin(δ13) * std::sin(θ13 - θ12));
+  return std::acos(std::cos(δ13) / std::cos(dXt)) * R;
+}
+
+POSITION POSITION::destination(const double distance, const double bearing) const noexcept {
+  double φ = latitude * M_PI / 180;
+  double λ = longitude * M_PI / 180;
+  double θ = bearing * M_PI / 180;
+
+  double φ2 = std::asin(std::sin(φ) * std::cos(distance / R) +
+                        std::cos(φ) * std::sin(distance / R) * std::cos(θ));
+  double λ2 = λ + std::atan2(std::sin(θ) * std::sin(distance / R) * std::cos(φ),
+                             std::cos(distance / R) - std::sin(φ) * std::sin(φ2));
+
+  return { φ2 * 180.0 / M_PI, std::fmod((λ2 * 180.0 / M_PI) + 540.0, 360.0) - 180.0 };
 }

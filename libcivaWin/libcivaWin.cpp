@@ -35,7 +35,7 @@ static void runner() {
     std::cout << "DME LL   : L" << std::endl;
     std::cout << "DME FREQ : F" << std::endl;
     std::cout << "CLEAR    : DEL" << std::endl;
-    std::cout << "WPT CGH  : W" << std::endl;
+    std::cout << "WPT CHG  : W" << std::endl;
   }
 }
 

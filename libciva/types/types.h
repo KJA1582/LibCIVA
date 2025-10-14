@@ -155,6 +155,8 @@ struct POSITION {
   double bearingTo(const POSITION &target) const noexcept;
   // Negative is LEFT
   double crossTrackDistance(const POSITION &start, const POSITION &end) const noexcept;
+  double alongTrackDistance(const POSITION &start, const POSITION &end) const noexcept;
+  POSITION destination(const double distance, const double bearing) const noexcept;
 };
 
 typedef struct {

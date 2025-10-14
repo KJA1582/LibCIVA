@@ -15,7 +15,6 @@ WinVarManager::WinVarManager() noexcept : VarManager("") {
   setVar(SIM_VAR_AIRSPEED_TRUE, 190);
   setVar(SIM_VAR_GROUND_VELOCITY, 159.4);
   setVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, 249.2);
-  // Expected Drift Angle: 7 left, so HDG > TK (left -> right)
 }
 
 void WinVarManager::dump() const noexcept {

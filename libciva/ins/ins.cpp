@@ -74,6 +74,7 @@ void INS::reset(const bool full) noexcept {
   accuracyIndex = 9;
   timeInMode = 0;
   timeInNAV = INTIAL_TIME_IN_NAV;
+  indicators.indicator.READY_NAV = false;
 }
 
 void INS::calculateTrack() noexcept {
@@ -222,8 +223,6 @@ void INS::update(const double dTime) noexcept {
       break;
     }
   }
-
-
 
   // Display
   if (state > INS_STATE::OFF && state < INS_STATE::ATT) {
