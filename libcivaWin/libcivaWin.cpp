@@ -9,6 +9,8 @@ std::unique_ptr<INS> unit1;
 std::thread unit1Thread;
 std::atomic<bool> __exit;
 
+HANDLE simConnect = 0;
+
 static void runner() {
   auto prev = std::chrono::steady_clock::now();
 
@@ -16,6 +18,8 @@ static void runner() {
     auto now = std::chrono::steady_clock::now();
     std::chrono::nanoseconds delta = now - prev;
     prev = now;
+
+    // If SC, call and process data;
 
     // FIXME: 100 times as fast as IRL (-9)
     unit1->update(delta.count() * 1e-7);
@@ -26,6 +30,9 @@ static void runner() {
     SetConsoleCursorPosition(handle, coordinates);
 
     winVarManager->dump();
+    if (simConnect == NULL) {
+      std::cout << "No SimConnect" <<std::endl;
+    }
     std::cout << "dT was " << delta.count() * 1e-6 << "ms" << std::endl << std::endl;
     std::cout << "Mode Knob: Arrow left/right" << std::endl;
     std::cout << "Data Knob: Arrow up/down" << std::endl;
@@ -39,7 +46,20 @@ static void runner() {
   }
 }
 
+static void setupSimconnect() {
+  HRESULT hr;
+
+  hr = SimConnect_Open(&simConnect, "libcivaWin", NULL, 0, NULL, 0);
+  if (hr != S_OK) return;
+
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "PLANE LATITUDE", "DEGREES");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "PLANE LONGITUDE", "DEGREES");
+  // TODO:SC init
+}
+
 int main() {
+  setupSimconnect();
+
   winVarManager = std::make_unique<WinVarManager>();
 
   unit1 = std::make_unique<INS>(*winVarManager, "UNIT_1", WORK_DIR);
