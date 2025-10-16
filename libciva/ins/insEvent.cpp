@@ -146,7 +146,7 @@ void INS::incDataSelectorPos() noexcept {
       insertMode = INSERT_MODE::INV;
       indicators.indicator.WAYPOINT_CHANGE = false;
       dataSelector = (DATA_SELECTOR)((uint8_t)dataSelector + 1);
-      
+
       return;
     }
     dataSelector = (DATA_SELECTOR)((uint8_t)dataSelector + 1);
@@ -179,7 +179,7 @@ void INS::decDataSelectorPos() noexcept {
       insertMode = INSERT_MODE::INV;
       indicators.indicator.WAYPOINT_CHANGE = false;
       dataSelector = (DATA_SELECTOR)((uint8_t)dataSelector - 1);
-      
+
       return;
     }
     dataSelector = (DATA_SELECTOR)((uint8_t)dataSelector - 1);
@@ -355,7 +355,8 @@ void INS::handleInsert() noexcept {
       if (state == INS_STATE::NAV) {
         // FIXME: Disallow in NAV if not in HOLD mode. Also move to HOLD mode exit
         if (displayPosition.distanceTo(currentINSPosition) > MAX_DEV) {
-          addActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A02_49);
+          actionMalfunctionCodes.codes.A02_49 = true;
+          advanceActionMalfunctionIndex();
           indicators.indicator.WARN = true;
         }
 
@@ -365,20 +366,23 @@ void INS::handleInsert() noexcept {
       else if (state == INS_STATE::ALIGN) {
         // MODE 5 or less, trigger 02-63 and denie nav entry by resetting to mode 6
         if (alignSubmode < ALIGN_SUBMODE::MODE_6) {
-          addActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A02_63);
+          actionMalfunctionCodes.codes.A02_63 = true;
+          advanceActionMalfunctionIndex();
           indicators.indicator.WARN = true;
           indicators.indicator.READY_NAV = false;
           alignSubmode = ALIGN_SUBMODE::MODE_6;
         }
         // MODE 6, trigger 04-41, reset to MODE 6, can continue
         else if (alignSubmode == ALIGN_SUBMODE::MODE_6) {
-          addActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A04_41);
+          actionMalfunctionCodes.codes.A04_41 = true;
+          advanceActionMalfunctionIndex();
           indicators.indicator.WARN = true;
           alignSubmode = ALIGN_SUBMODE::MODE_6;
         }
         // Others, trigger 04-41 if >76nmi from last
         else if (displayPosition.distanceTo(config.getLastINSPosisiton()) > MAX_RAMP_DEV) {
-          addActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A04_41);
+          actionMalfunctionCodes.codes.A04_41 = true;
+          advanceActionMalfunctionIndex();
           indicators.indicator.WARN = true;
         }
 
@@ -388,7 +392,8 @@ void INS::handleInsert() noexcept {
       // Tigger 04-41 if >76nmi from last
       else {
         if (displayPosition.distanceTo(config.getLastINSPosisiton()) > MAX_RAMP_DEV) {
-          addActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A04_41);
+          actionMalfunctionCodes.codes.A04_41 = true;
+          advanceActionMalfunctionIndex();
           indicators.indicator.WARN = true;
         }
 
@@ -505,23 +510,31 @@ void INS::handleInsert() noexcept {
 }
 
 void INS::handleTestButtonState(const bool _state) noexcept {
-  if (hasActionMalfunctionCode()) {
+  if (actionMalfunctionCodes.value != 0) {
     // Pressed
     if (_state) {
       if (mafunctionCodeDisplayed) {
-        if (getCurrentActionMalfunctionCode() == ACTION_MALFUNCTION_CODE::A04_41) {
-          if (removeCurrentActionMalfunctionCode()) {
+        // NOTE: KEEP IN SYNC WITH DISPLAY FUNCTION
+        if (displayActionMalfunctionCodeIndex == 5) {
+          actionMalfunctionCodes.codes.A04_41 = false;
+          config.setLastINSPosition(currentINSPosition);
+
+          if (actionMalfunctionCodes.value == 0) {
             indicators.indicator.WARN = false;
           }
-
-          config.setLastINSPosition(currentINSPosition);
         }
-        else {
-          incCurrentActionMalfunctionCode();
+
+        uint8_t last = displayActionMalfunctionCodeIndex;
+        advanceActionMalfunctionIndex();
+
+        if (last < 5 && displayActionMalfunctionCodeIndex >= 5 ||
+            last >= 5 && displayActionMalfunctionCodeIndex < 5) {
+          mafunctionCodeDisplayed = false;
         }
       }
-
-      mafunctionCodeDisplayed = !mafunctionCodeDisplayed;
+      else {
+        mafunctionCodeDisplayed = true;
+      }
     }
   }
   else {

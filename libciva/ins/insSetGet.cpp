@@ -1,44 +1,64 @@
 #include "ins.h"
 
-void INS::addActionMalfunctionCode(const ACTION_MALFUNCTION_CODE code) noexcept {
-  auto end = actionMalfunctionCodes.end();
+void INS::advanceActionMalfunctionIndex() noexcept {
+  uint8_t index = std::max(1, (displayActionMalfunctionCodeIndex + 1) % 8);
+  while (true) {
+    switch (index) {
+      case 1: {
+        if (actionMalfunctionCodes.codes.A02_31) {
+          displayActionMalfunctionCodeIndex = 1;
+          return;
+        }
+        break;
+      }
+      case 2: {
+        if (actionMalfunctionCodes.codes.A02_42) {
+          displayActionMalfunctionCodeIndex = 2;
+          return;
+        }
+        break;
+      }
+      case 3: {
+        if (actionMalfunctionCodes.codes.A02_49) {
+          displayActionMalfunctionCodeIndex = 3;
+          return;
+        }
+        break;
+      }
+      case 4: {
+        if (actionMalfunctionCodes.codes.A02_63) {
+          displayActionMalfunctionCodeIndex = 4;
+          return;
+        }
+        break;
+      }
+      case 5: {
+        if (actionMalfunctionCodes.codes.A04_41) {
+          displayActionMalfunctionCodeIndex = 5;
+          return;
+        }
+        break;
+      }
+      case 6: {
+        if (actionMalfunctionCodes.codes.A04_43) {
+          displayActionMalfunctionCodeIndex = 6;
+          return;
+        }
+        break;
+      }
+      case 7: {
+        if (actionMalfunctionCodes.codes.A04_57) {
+          displayActionMalfunctionCodeIndex = 7;
+          return;
+        }
+        break;
+      }
+    }
+    index = std::max(1, (index + 1) % 8);
 
-  if (std::find(actionMalfunctionCodes.begin(), end, code) == end) {
-    actionMalfunctionCodes.push_back(code);
+    if (index == displayActionMalfunctionCodeIndex) {
+      displayActionMalfunctionCodeIndex = 0;
+      break;
+    }
   }
-}
-
-bool INS::removeCurrentActionMalfunctionCode() noexcept {
-  actionMalfunctionCodes.erase(actionMalfunctionCodes.begin() + displayActionMalfunctionCodeIndex);
-
-  return actionMalfunctionCodes.empty();
-}
-
-void INS::clearActionMalfunctionCodes() noexcept {
-  actionMalfunctionCodes.clear();
-}
-
-bool INS::hasActionMalfunctionCode(const ACTION_MALFUNCTION_CODE code) const noexcept {
-  auto end = actionMalfunctionCodes.end();
-
-  return std::find(actionMalfunctionCodes.begin(), end, code) != end;
-}
-
-bool INS::hasActionMalfunctionCode() const noexcept {
-  return !actionMalfunctionCodes.empty();
-}
-
-void INS::incCurrentActionMalfunctionCode() noexcept {
-  if (displayActionMalfunctionCodeIndex == actionMalfunctionCodes.size() - 1) {
-    displayActionMalfunctionCodeIndex = 0;
-  }
-  else {
-    displayActionMalfunctionCodeIndex++;
-  }
-}
-
-ACTION_MALFUNCTION_CODE INS::getCurrentActionMalfunctionCode() const noexcept {
-  if (actionMalfunctionCodes.empty()) return ACTION_MALFUNCTION_CODE::INV;
-
-  return actionMalfunctionCodes[displayActionMalfunctionCodeIndex];
 }

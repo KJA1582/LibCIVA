@@ -5,7 +5,7 @@ void INS::align(const double dTime) noexcept {
     // Downmode
     state = INS_STATE::STBY;
     reset(false);
-    clearActionMalfunctionCodes();
+    actionMalfunctionCodes.value = 0;
 
     return;
   }
@@ -53,14 +53,14 @@ void INS::align(const double dTime) noexcept {
       break;
     }
     case ALIGN_SUBMODE::MODE_7: {
-      if (timeInMode >= MAX_MODE_7 && currentINSPosition.isValid() && !hasActionMalfunctionCode()) {
+      if (timeInMode >= MAX_MODE_7 && currentINSPosition.isValid() && actionMalfunctionCodes.value == 0) {
         alignSubmode = ALIGN_SUBMODE::MODE_6;
         timeInMode = 0;
       }
       break;
     }
     case ALIGN_SUBMODE::MODE_6: {
-      if (timeInMode >= MAX_MODE_6 && !hasActionMalfunctionCode()) {
+      if (timeInMode >= MAX_MODE_6 && actionMalfunctionCodes.value == 0) {
         alignSubmode = ALIGN_SUBMODE::MODE_5;
 
         indicators.indicator.READY_NAV = true;

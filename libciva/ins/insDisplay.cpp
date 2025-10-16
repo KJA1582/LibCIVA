@@ -121,88 +121,61 @@ static void formatTri(DISPLAY &display, const double value, const bool left,
   }
 }
 
-static void formatActionMalfunctionCode(DISPLAY &display, const ACTION_MALFUNCTION_CODE malf,
-                                        const bool showingMalf) {
-  if (malf == ACTION_MALFUNCTION_CODE::INV) {
-    display.characters.RIGHT_2 = display.characters.RIGHT_3 = DISPLAY_CHAR_BLANK;
-    return;
+
+void INS::formatActionMalfunctionCode(const bool showingMalf) noexcept {
+  uint8_t action = 0;
+  uint8_t malf = 0;
+
+  switch (displayActionMalfunctionCodeIndex) {
+    case 0:
+      display.characters.RIGHT_2 = display.characters.RIGHT_3 = DISPLAY_CHAR_BLANK;
+      return;
+    case 1: {
+      action = 2;
+      malf = 31;
+      break;
+    }
+    case 2: {
+      action = 2;
+      malf = 42;
+      break;
+    }
+    case 3: {
+      action = 2;
+      malf = 49;
+      break;
+    }
+    case 4: {
+      action = 2;
+      malf = 63;
+      break;
+    }
+    case 5: {
+      action = 4;
+      malf = 41;
+      break;
+    }
+    case 6: {
+      action = 4;
+      malf = 43;
+      break;
+    }
+    case 7: {
+      action = 4;
+      malf = 57;
+      break;
+    }
   }
 
   if (showingMalf) {
-    switch (malf) {
-      case ACTION_MALFUNCTION_CODE::INV: {
-        break;
-      }
-      case ACTION_MALFUNCTION_CODE::A02_31: {
-        display.characters.RIGHT_2 = 3;
-        display.characters.RIGHT_3 = 1;
-
-        break;
-      }
-      case ACTION_MALFUNCTION_CODE::A02_42: {
-        display.characters.RIGHT_2 = 4;
-        display.characters.RIGHT_3 = 2;
-
-        break;
-      }
-      case ACTION_MALFUNCTION_CODE::A02_49: {
-        display.characters.RIGHT_2 = 4;
-        display.characters.RIGHT_3 = 9;
-
-        break;
-      }
-      case ACTION_MALFUNCTION_CODE::A02_63: {
-        display.characters.RIGHT_2 = 6;
-        display.characters.RIGHT_3 = 3;
-
-        break;
-      }
-      case ACTION_MALFUNCTION_CODE::A04_41: {
-        display.characters.RIGHT_2 = 4;
-        display.characters.RIGHT_3 = 1;
-
-        break;
-      }
-      case ACTION_MALFUNCTION_CODE::A04_43: {
-        display.characters.RIGHT_2 = 4;
-        display.characters.RIGHT_3 = 3;
-
-        break;
-      }
-      case ACTION_MALFUNCTION_CODE::A04_57: {
-        display.characters.RIGHT_2 = 5;
-        display.characters.RIGHT_3 = 7;
-
-        break;
-      }
-    }
+    display.characters.RIGHT_2 = malf / 10;
+    display.characters.RIGHT_3 = malf - (malf / 10) * 10;
   }
   else {
-    switch (malf) {
-      case ACTION_MALFUNCTION_CODE::INV: {
-        break;
-      }
-      case ACTION_MALFUNCTION_CODE::A02_31:
-      case ACTION_MALFUNCTION_CODE::A02_42:
-      case ACTION_MALFUNCTION_CODE::A02_49:
-      case ACTION_MALFUNCTION_CODE::A02_63: {
-        display.characters.RIGHT_2 = 0;
-        display.characters.RIGHT_3 = 2;
-
-        break;
-      }
-      case ACTION_MALFUNCTION_CODE::A04_41:
-      case ACTION_MALFUNCTION_CODE::A04_43:
-      case ACTION_MALFUNCTION_CODE::A04_57: {
-        display.characters.RIGHT_2 = 0;
-        display.characters.RIGHT_3 = 4;
-
-        break;
-      }
-    }
+    display.characters.RIGHT_2 = 0;
+    display.characters.RIGHT_3 = action;
   }
 }
-
 
 void INS::updateDisplay() noexcept {
   if (inTestMode) {
@@ -273,11 +246,11 @@ void INS::updateDisplay() noexcept {
         heading = (uint16_t)(std::round(trueHeading * 10));
       }
 
-      int16_t driftAngle = (int16_t)std::round(((heading - (uint16_t)(std::round(track * 10))) % 1800) / 10.0);
-      uint8_t driftAngleDir = DISPLAY_CHAR_LEFT;
-      if (driftAngle < 0) {
+      int16_t driftAngle = (int16_t)std::round(((uint16_t)deltaAngle(heading / 10.0, track) % 180));
+      uint8_t driftAngleDir = DISPLAY_CHAR_RIGHT;
+      if (driftAngle <= 0) {
         driftAngle *= -1;
-        driftAngleDir = DISPLAY_CHAR_RIGHT;
+        driftAngleDir = DISPLAY_CHAR_LEFT;
       }
 
       display.characters.LEFT_DEC_1 = display.characters.LEFT_DEG_1 =
@@ -537,7 +510,7 @@ void INS::updateDisplay() noexcept {
             crs = (uint16_t)std::round(alongPos.bearingTo(waypoints[currentLegEnd]));
           }
           else {
-            crs = legCrs;
+            crs = (uint16_t)legCrs;
           }
         }
 
@@ -559,7 +532,7 @@ void INS::updateDisplay() noexcept {
         display.characters.RIGHT_5 = (uint8_t)alignSubmode;
       }
 
-      formatActionMalfunctionCode(display, getCurrentActionMalfunctionCode(), mafunctionCodeDisplayed);
+      formatActionMalfunctionCode(mafunctionCodeDisplayed);
 
       if (insertMode != INSERT_MODE::PERFORMANCE_INDEX) {
         display.characters.RIGHT_6 = activePerformanceIndex;

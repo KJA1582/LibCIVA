@@ -45,7 +45,7 @@ class INS {
   // Unit ID
   const std::string id;
   // List of active malfunctions
-  std::vector<ACTION_MALFUNCTION_CODE> actionMalfunctionCodes;
+  ACTION_MALFUNCTION_CODES actionMalfunctionCodes;
 
   #pragma region Positions
 
@@ -114,6 +114,7 @@ class INS {
   // Waypoint selector
   uint8_t waypointSelector = 0;
   // Displayed action malfunction code index
+  // MAKE SURE THIS MATCHES actionmalfunctionCodes.code AT ALL TIMES
   uint8_t displayActionMalfunctionCodeIndex = 0;
   // Leg
   uint8_t currentLegStart = 1;
@@ -131,13 +132,7 @@ class INS {
 
   #pragma region Private Getter/Setter
 
-  void addActionMalfunctionCode(const ACTION_MALFUNCTION_CODE code) noexcept;
-  bool removeCurrentActionMalfunctionCode() noexcept;
-  void clearActionMalfunctionCodes() noexcept;
-  void incCurrentActionMalfunctionCode() noexcept;
-  bool hasActionMalfunctionCode(const ACTION_MALFUNCTION_CODE code) const noexcept;
-  bool hasActionMalfunctionCode() const noexcept;
-  ACTION_MALFUNCTION_CODE getCurrentActionMalfunctionCode() const noexcept;
+  void advanceActionMalfunctionIndex() noexcept;
 
   #pragma endregion
 
@@ -148,6 +143,8 @@ class INS {
   void updateDisplay() noexcept;
   void align(const double dTime) noexcept;
   void exportVars() const noexcept;
+
+  void formatActionMalfunctionCode(const bool showingMalf) noexcept;
 
   inline void clearDisplay() noexcept {
     uint64_t d;

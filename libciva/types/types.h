@@ -47,17 +47,6 @@ enum class ALIGN_SUBMODE: uint8_t {
   MODE_9, // STBY, change to 8 if ALIGN entered and warmed up
 };
 
-enum class ACTION_MALFUNCTION_CODE: int8_t {
-  INV = -1,
-  A02_31, // ground speed > 910, non-clearable
-  A02_42, // drift angle > 45, non-clearable
-  A02_49, // pos update in flight > 33, non-clearable
-  A02_63, // self checks failed, non-clearable
-  A04_41, // ramp pos > 76nmi from last pos, clearable
-  A04_43, // ramp pos missmatch between pairs of units, non-clearable
-  A04_57, // taxi during align, non-clearable
-};
-
 enum class BATTERY_TEST: uint8_t {
   IDLE,
   RUNNING,
@@ -86,6 +75,22 @@ enum class DME_MODE: int8_t {
   DME_LL,
   DME_FREQ,
 };
+
+// Use Bitset to set
+// Use value to unset/check if INV
+// Use ENUM of same name to work with
+typedef union {
+  double value; // INV = 0,
+  struct {
+    bool A02_31 : 1; // 1 ground speed > 910, non-clearable
+    bool A02_42 : 1; // 2 drift angle > 45, non-clearable
+    bool A02_49 : 1; // 3 pos update in flight > 33, non-clearable
+    bool A02_63 : 1; // 4 self checks failed, non-clearable
+    bool A04_41 : 1; // 5 ramp pos > 76nmi from last pos, clearable
+    bool A04_43 : 1; // 6 ramp pos missmatch between pairs of units, non-clearable
+    bool A04_57 : 1; // 7 taxi during align, non-clearable
+  } codes;
+} ACTION_MALFUNCTION_CODES;
 
 // Use Bitset to set/reset indicators
 typedef union {
@@ -166,5 +171,14 @@ typedef struct {
   // In thousands of feet
   uint8_t altitude;
 } DME;
+
+#pragma region Helpers
+
+static inline double deltaAngle(const double x, const double y) {
+  constexpr auto c = 180.0;
+  return c - fabs(fmod(fabs(x - y), 2 * c) - c);
+}
+
+#pragma endregion
 
 #endif

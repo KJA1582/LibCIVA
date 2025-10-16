@@ -10,6 +10,69 @@ std::thread unit1Thread;
 std::atomic<bool> __exit;
 
 HANDLE simConnect = 0;
+SIMCONNECT_RECV_OPEN openData;
+
+static void handleSimConnect() {
+  SIMCONNECT_RECV *pData;
+  DWORD cbData;
+
+  HRESULT hr = SimConnect_GetNextDispatch(simConnect, &pData, &cbData);
+  if (SUCCEEDED(hr)) {
+    switch (pData->dwID) {
+      case SIMCONNECT_RECV_ID_OPEN: {
+        openData = *(SIMCONNECT_RECV_OPEN *)pData;
+        break;
+      }
+      case SIMCONNECT_RECV_ID_EVENT: {
+        SIMCONNECT_RECV_EVENT *evt = (SIMCONNECT_RECV_EVENT *)pData;
+        break;
+      }
+      case SIMCONNECT_RECV_ID_EVENT_FILENAME: {
+        SIMCONNECT_RECV_EVENT_FILENAME *evt = (SIMCONNECT_RECV_EVENT_FILENAME *)pData;
+        break;
+      }
+      case SIMCONNECT_RECV_ID_EVENT_OBJECT_ADDREMOVE: {
+        SIMCONNECT_RECV_EVENT_OBJECT_ADDREMOVE *evt = (SIMCONNECT_RECV_EVENT_OBJECT_ADDREMOVE *)pData;
+        break;
+      }
+      case SIMCONNECT_RECV_ID_EVENT_FRAME: {
+        SIMCONNECT_RECV_EVENT_FRAME *evt = (SIMCONNECT_RECV_EVENT_FRAME *)pData;
+        break;
+      }
+      case SIMCONNECT_RECV_ID_SIMOBJECT_DATA: {
+        SIMCONNECT_RECV_SIMOBJECT_DATA *pObjData = (SIMCONNECT_RECV_SIMOBJECT_DATA *)pData;
+        DATA *data = (DATA *)&pObjData->dwData;
+        winVarManager->setVar(SIM_VAR_AIRSPEED_TRUE, data->airspeedTrue);
+        winVarManager->setVar(SIM_VAR_AMBIENT_TEMPERATURE, data->ambiantTemp);
+        winVarManager->setVar(SIM_VAR_AMBIENT_WIND_DIRECTION, data->windDirection);
+        winVarManager->setVar(SIM_VAR_AMBIENT_WIND_VELOCITY, data->windSpeed);
+        winVarManager->setVar(SIM_VAR_GROUND_VELOCITY, data->groundSpeed);
+        winVarManager->setVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, data->headingTrue);
+        winVarManager->setVar(SIM_VAR_PLANE_LATITUDE, data->latitude);
+        winVarManager->setVar(SIM_VAR_PLANE_LONGITUDE, data->longitude);
+        break;
+      }
+      case SIMCONNECT_RECV_ID_SIMOBJECT_DATA_BYTYPE: {
+        SIMCONNECT_RECV_SIMOBJECT_DATA_BYTYPE *pObjData = (SIMCONNECT_RECV_SIMOBJECT_DATA_BYTYPE *)pData;
+        break;
+      }
+      case SIMCONNECT_RECV_ID_QUIT: {
+        break;
+      }
+      case SIMCONNECT_RECV_ID_EXCEPTION: {
+        SIMCONNECT_RECV_EXCEPTION *except = (SIMCONNECT_RECV_EXCEPTION *)pData;
+        break;
+      }
+      case SIMCONNECT_RECV_ID_WEATHER_OBSERVATION: {
+        SIMCONNECT_RECV_WEATHER_OBSERVATION *pWxData = (SIMCONNECT_RECV_WEATHER_OBSERVATION *)pData;
+        const char *pszMETAR = (const char *)(pWxData + 1);
+        break;
+      }
+      default:
+        break;
+    }
+  }
+}
 
 static void runner() {
   auto prev = std::chrono::steady_clock::now();
@@ -20,6 +83,9 @@ static void runner() {
     prev = now;
 
     // If SC, call and process data;
+    if (simConnect != NULL) {
+      handleSimConnect();
+    }
 
     // FIXME: 100 times as fast as IRL (-9)
     unit1->update(delta.count() * 1e-7);
@@ -30,10 +96,15 @@ static void runner() {
     SetConsoleCursorPosition(handle, coordinates);
 
     winVarManager->dump();
+    std::cout << std::endl;
     if (simConnect == NULL) {
-      std::cout << "No SimConnect" <<std::endl;
+      std::cout << "No SimConnect" << std::endl;
     }
-    std::cout << "dT was " << delta.count() * 1e-6 << "ms" << std::endl << std::endl;
+    else {
+      std::cout << "SimConnect " << openData.szApplicationName << " Version " <<
+        openData.dwApplicationVersionMajor << "." << openData.dwApplicationVersionMinor << "." <<
+        openData.dwApplicationBuildMajor << "." << openData.dwApplicationBuildMinor << std::endl << std::endl;
+    }
     std::cout << "Mode Knob: Arrow left/right" << std::endl;
     std::cout << "Data Knob: Arrow up/down" << std::endl;
     std::cout << "WPT sel  : Numpad +/-" << std::endl;
@@ -42,23 +113,34 @@ static void runner() {
     std::cout << "DME LL   : L" << std::endl;
     std::cout << "DME FREQ : F" << std::endl;
     std::cout << "CLEAR    : DEL" << std::endl;
-    std::cout << "WPT CHG  : W" << std::endl;
+    std::cout << "WPT CHG  : W" << std::endl << std::endl;
+
+    std::cout << "dT was " << delta.count() * 1e-6 << "ms" << std::endl;
   }
 }
 
-static void setupSimconnect() {
+static void setupSimConnect() {
   HRESULT hr;
 
   hr = SimConnect_Open(&simConnect, "libcivaWin", NULL, 0, NULL, 0);
-  if (hr != S_OK) return;
+  if (FAILED(hr)) return;
 
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "PLANE LATITUDE", "DEGREES");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "PLANE LONGITUDE", "DEGREES");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_AIRSPEED_TRUE, "KNOT");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_AMBIENT_TEMPERATURE, "CELSIUS");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_AMBIENT_WIND_DIRECTION, "DEGREE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_AMBIENT_WIND_VELOCITY, "KNOT");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_GROUND_VELOCITY, "KNOT");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_PLANE_HEADING_DEGREES_TRUE, "DEGREE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_PLANE_LATITUDE, "DEGREE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_PLANE_LONGITUDE, "DEGREE");
+
+  SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA,
+                                    SIMCONNECT_OBJECT_ID_USER, SIMCONNECT_PERIOD_VISUAL_FRAME);
   // TODO:SC init
 }
 
 int main() {
-  setupSimconnect();
+  setupSimConnect();
 
   winVarManager = std::make_unique<WinVarManager>();
 

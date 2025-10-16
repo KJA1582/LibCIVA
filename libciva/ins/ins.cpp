@@ -65,8 +65,9 @@ void INS::reset(const bool full) noexcept {
     activePerformanceIndex = 5;
     mafunctionCodeDisplayed = inTestMode = false;
     dmeMode = DME_MODE::INV;
+
+    actionMalfunctionCodes.value = 0;
     displayActionMalfunctionCodeIndex = 0;
-    clearActionMalfunctionCodes();
   }
 
   batteryTest = BATTERY_TEST::IDLE;
@@ -115,12 +116,14 @@ void INS::handleOutOfBounds() noexcept {
     trueHeading = 0;
   }
 
-  if (abs(trueHeading - track) > MAX_DRIFT_ANGLE) {
-    addActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A02_42);
+  if (deltaAngle(trueHeading, track) > MAX_DRIFT_ANGLE) {
+    actionMalfunctionCodes.codes.A02_42 = true;
+    advanceActionMalfunctionIndex();
     indicators.indicator.WARN = true;
   }
   if (gs > MAX_GS) {
-    addActionMalfunctionCode(ACTION_MALFUNCTION_CODE::A02_31);
+    actionMalfunctionCodes.codes.A02_31 = true;
+    advanceActionMalfunctionIndex();
     indicators.indicator.WARN = true;
   }
 
