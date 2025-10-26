@@ -230,6 +230,8 @@ void INS::handleNumeric(const uint8_t value) noexcept {
 
   switch (dataSelector) {
     case DATA_SELECTOR::POS: {
+      if (state == INS_STATE::NAV && !inHoldMode) break;;
+
       if (value == 2 && insertMode == INSERT_MODE::INV) {
         insertMode = INSERT_MODE::POS_LAT;
         startLatS(display, indicators, charactersRead);
@@ -352,8 +354,7 @@ void INS::handleInsert() noexcept {
       displayPosition.longitude = convertLon(display);
       if (!displayPosition.isValid()) return; // Essential get the user stuck here
 
-      if (state == INS_STATE::NAV) {
-        // FIXME: Disallow in NAV if not in HOLD mode. Also move to HOLD mode exit
+      if (state == INS_STATE::NAV && inHoldMode) {
         if (displayPosition.distanceTo(currentINSPosition) > MAX_DEV) {
           actionMalfunctionCodes.codes.A02_49 = true;
           advanceActionMalfunctionIndex();
@@ -361,6 +362,8 @@ void INS::handleInsert() noexcept {
         }
 
         currentINSPosition = displayPosition;
+        indicators.indicator.HOLD = false;
+        inHoldMode = false;
       }
       // In ALIGN
       else if (state == INS_STATE::ALIGN) {
@@ -387,6 +390,7 @@ void INS::handleInsert() noexcept {
         }
 
         waypoints[0] = currentINSPosition = initialINSPosition = displayPosition;
+        // TODO: Update delta to actual pos of game
       }
       // Since OFF and ATT are early abort, this is STBY only
       // Tigger 04-41 if >76nmi from last
@@ -398,6 +402,7 @@ void INS::handleInsert() noexcept {
         }
 
         waypoints[0] = currentINSPosition = initialINSPosition = displayPosition;
+        // TODO: Update delta to actual pos of game
       }
 
       break;
@@ -478,6 +483,8 @@ void INS::handleInsert() noexcept {
       if (display.characters.RIGHT_6 == 1) {
         activePerformanceIndex = 5;
         currentINSPosition = initialINSPosition;
+        accuracyIndex = 0;
+        updateSimPosDelta();
       }
       // Aided
       else if (display.characters.RIGHT_6 == 4) {
@@ -528,7 +535,8 @@ void INS::handleTestButtonState(const bool _state) noexcept {
         advanceActionMalfunctionIndex();
 
         if (last < 5 && displayActionMalfunctionCodeIndex >= 5 ||
-            last >= 5 && displayActionMalfunctionCodeIndex < 5) {
+            last >= 5 && displayActionMalfunctionCodeIndex < 5 ||
+            last == displayActionMalfunctionCodeIndex) {
           mafunctionCodeDisplayed = false;
         }
       }
@@ -588,4 +596,22 @@ void INS::handleWaypointChange() noexcept {
 
   indicators.indicator.WAYPOINT_CHANGE = indicators.indicator.INSERT = true;
   insertMode = INSERT_MODE::WPT_CHG_FROM;
+}
+
+void INS::handleHoldButton() noexcept {
+  // Can't in OFF or ATT
+  if (state == INS_STATE::OFF || state == INS_STATE::ATT) return;
+
+  if (inHoldMode) {
+    // TODO: Handle FORCE Update
+    holdINSPosition = holdPosition  = { 999, 999 };
+    inHoldMode = false;
+  }
+  else {
+    holdINSPosition = initialINSPosition;
+    holdPosition = currentINSPosition;
+    inHoldMode = true;
+  }
+
+  indicators.indicator.HOLD = inHoldMode;
 }

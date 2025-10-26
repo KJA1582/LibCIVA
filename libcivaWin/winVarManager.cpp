@@ -15,6 +15,8 @@ WinVarManager::WinVarManager() noexcept : VarManager("") {
   setVar(SIM_VAR_AIRSPEED_TRUE, 190);
   setVar(SIM_VAR_GROUND_VELOCITY, 159.4);
   setVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, 249.2);
+  setVar(SIM_VAR_PLANE_LATITUDE, 50);
+  setVar(SIM_VAR_PLANE_LONGITUDE, 8);
 }
 
 void WinVarManager::dump() const noexcept {

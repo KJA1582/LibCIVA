@@ -16,6 +16,8 @@ void INS::align(const double dTime) noexcept {
       indicators.indicator.READY_NAV = false;
       accuracyIndex = 0;
 
+      updateSimPosDelta();
+
       timeInMode = 0;
       return;
     }

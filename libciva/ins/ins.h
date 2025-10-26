@@ -55,6 +55,11 @@ class INS {
   POSITION initialINSPosition = { 999, 999 };
   // Current INS position with updates
   POSITION currentINSPosition = { 999, 999 };
+  // HOLD mode
+  POSITION holdINSPosition = { 999, 999 };
+  POSITION holdPosition = { 999, 999 };
+  // Delt to actual sim position;
+  POSITION simPosDelta = {999, 999 };
 
   #pragma endregion
 
@@ -127,12 +132,16 @@ class INS {
   bool mafunctionCodeDisplayed = false;
   // Test mode
   bool inTestMode = false;
+  // HOLD
+  bool inHoldMode = false;
+  bool holdModeInserted = false;
 
   #pragma endregion
 
   #pragma region Private Getter/Setter
 
   void advanceActionMalfunctionIndex() noexcept;
+  void updateSimPosDelta() noexcept;
 
   #pragma endregion
 
@@ -192,6 +201,7 @@ public:
   void handleDMEModeEntry(const uint8_t value) noexcept;
   void handleClear() noexcept;
   void handleWaypointChange() noexcept;
+  void handleHoldButton() noexcept;
 
   #pragma endregion
 };

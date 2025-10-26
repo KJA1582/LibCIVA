@@ -57,8 +57,20 @@ void INS::advanceActionMalfunctionIndex() noexcept {
     index = std::max(1, (index + 1) % 8);
 
     if (index == displayActionMalfunctionCodeIndex) {
-      displayActionMalfunctionCodeIndex = 0;
+      displayActionMalfunctionCodeIndex = index != 5 ? index : 0;
       break;
     }
+  }
+}
+
+void INS::updateSimPosDelta() noexcept {
+  double simLat = 999;
+  double simLon = 999;
+  varManager.getVar(SIM_VAR_PLANE_LATITUDE, simLat);
+  varManager.getVar(SIM_VAR_PLANE_LONGITUDE, simLon);
+  POSITION simPos = { simLat, simLon };
+
+  if (simPos.isValid()) {
+    simPosDelta = currentINSPosition - simPos;
   }
 }

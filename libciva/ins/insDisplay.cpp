@@ -188,6 +188,14 @@ void INS::updateDisplay() noexcept {
 
     return;
   }
+  if (insertMode == INSERT_MODE::INV) {
+    if (inHoldMode) {
+      displayPosition = holdPosition;
+    }
+    else {
+      displayPosition = currentINSPosition;
+    }
+  }
 
   double gs;
   bool gsValid = varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs);
@@ -362,7 +370,10 @@ void INS::updateDisplay() noexcept {
       display.characters.LEFT_DEG_1 = display.characters.LEFT_DEC_2 =
         display.characters.RIGHT_DEG_1 = display.characters.RIGHT_DEC_2 = true;
 
-      if (dmeMode == DME_MODE::DME_LL) {
+      if (inHoldMode) {
+        formatPos(display, holdINSPosition);
+      }
+      else if (dmeMode == DME_MODE::DME_LL) {
         formatPos(display, DMEs[std::max(0, waypointSelector - 1)].position);
       }
       else if (dmeMode == DME_MODE::DME_FREQ) {
