@@ -29,6 +29,8 @@ static void formatPos(DISPLAY &display, POSITION &pos) noexcept {
     display.characters.W = false;
   }
 
+  // FIXME: Rollover at 60'
+
   display.characters.LEFT_1 = (uint8_t)pos.latitude / 10;
   display.characters.LEFT_2 = (uint8_t)pos.latitude - display.characters.LEFT_1 * 10;
   double minutes = std::round((pos.latitude - (uint8_t)pos.latitude) * 600);
@@ -188,7 +190,9 @@ void INS::updateDisplay() noexcept {
 
     return;
   }
-  if (insertMode == INSERT_MODE::INV) {
+  if (insertMode == INSERT_MODE::INV || insertMode == INSERT_MODE::WPT_CHG_TO ||
+      insertMode == INSERT_MODE::WPT_CHG_FROM) {
+    // TODO: Tripple mix display
     if (inHoldMode) {
       displayPosition = holdPosition;
     }

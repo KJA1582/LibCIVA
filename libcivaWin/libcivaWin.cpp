@@ -7,6 +7,7 @@ std::unique_ptr<WinVarManager> winVarManager;
 std::unique_ptr<INS> unit1;
 
 std::thread unit1Thread;
+std::mutex lock;
 std::atomic<bool> __exit;
 
 HANDLE simConnect = 0;
@@ -88,7 +89,10 @@ static void runner() {
     }
 
     // FIXME: 100 times as fast as IRL (-9)
-    unit1->update(delta.count() * 1e-7);
+    {
+      std::lock_guard<std::mutex> guard(lock);
+      unit1->update(delta.count() * 1e-7);
+    }
 
     HANDLE handle;
     handle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -156,6 +160,8 @@ int main() {
   // Mainloop
   while (!__exit) {
     ReadConsoleInput(hIn, &inp, 1, &num_of_events);
+
+    std::lock_guard<std::mutex> guard(lock);
 
     switch (inp.EventType) {
       case KEY_EVENT: {

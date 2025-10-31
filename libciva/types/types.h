@@ -67,7 +67,6 @@ enum class INSERT_MODE: int8_t {
   PERFORMANCE_INDEX,
   WPT_CHG_FROM,
   WPT_CHG_TO,
-
 };
 
 enum class DME_MODE: int8_t {
@@ -170,6 +169,14 @@ struct POSITION {
   // Not bound checked
   inline POSITION operator-(const POSITION &rhs) const noexcept {
     return { latitude - rhs.latitude, longitude - rhs.longitude };
+  }
+
+  inline void bound() noexcept {
+    if (latitude > 90) latitude = 90 - (latitude - 90);
+    if (latitude < -90) latitude = -90 - (90 + latitude);
+
+    if (longitude > 180) longitude = 180 - (longitude - 180);
+    if (longitude < -180) longitude = -180 - (180 + longitude);
   }
 };
 

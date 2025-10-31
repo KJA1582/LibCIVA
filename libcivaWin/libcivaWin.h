@@ -6,6 +6,7 @@
 #include <windows.h>
 
 #include <iostream>
+#include <mutex>
 #include <thread>
 
 #include <SimConnect.h>

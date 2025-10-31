@@ -79,12 +79,11 @@ void INS::align(const double dTime) noexcept {
         alignSubmode = (ALIGN_SUBMODE)((uint8_t)alignSubmode - 1);
         timeInMode = 0;
       }
-
-      timeInNAV = std::max(0.0, timeInNAV - dTime * INTIAL_TIME_IN_NAV / (5.0 * MODE_5_TO_0));
+      initialTimeInNAV = timeInNAV = std::max(0.0, timeInNAV - dTime * INTIAL_TIME_IN_NAV / (5.0 * MODE_5_TO_0));
       break;
     }
     case ALIGN_SUBMODE::MODE_0: {
-      timeInNAV = 0;
+      initialTimeInNAV = timeInNAV = 0;
       break;
     }
   }

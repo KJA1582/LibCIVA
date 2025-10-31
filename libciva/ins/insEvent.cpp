@@ -361,6 +361,8 @@ void INS::handleInsert() noexcept {
           indicators.indicator.WARN = true;
         }
 
+        currentError = { 0, 0 };
+        timeInNAV = 0;
         currentINSPosition = displayPosition;
         indicators.indicator.HOLD = false;
         inHoldMode = false;
@@ -390,7 +392,6 @@ void INS::handleInsert() noexcept {
         }
 
         waypoints[0] = currentINSPosition = initialINSPosition = displayPosition;
-        // TODO: Update delta to actual pos of game
       }
       // Since OFF and ATT are early abort, this is STBY only
       // Tigger 04-41 if >76nmi from last
@@ -402,7 +403,6 @@ void INS::handleInsert() noexcept {
         }
 
         waypoints[0] = currentINSPosition = initialINSPosition = displayPosition;
-        // TODO: Update delta to actual pos of game
       }
 
       break;
@@ -604,7 +604,7 @@ void INS::handleHoldButton() noexcept {
 
   if (inHoldMode) {
     // TODO: Handle FORCE Update
-    holdINSPosition = holdPosition  = { 999, 999 };
+    holdINSPosition = holdPosition = { 999, 999 };
     inHoldMode = false;
   }
   else {

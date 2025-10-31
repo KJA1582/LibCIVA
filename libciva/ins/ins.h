@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -58,8 +59,11 @@ class INS {
   // HOLD mode
   POSITION holdINSPosition = { 999, 999 };
   POSITION holdPosition = { 999, 999 };
-  // Delt to actual sim position;
-  POSITION simPosDelta = {999, 999 };
+  // Delta to actual sim position
+  POSITION simPosDelta = { 0, 0 };
+  // Error
+  POSITION initialError = { 0, 0 };
+  POSITION currentError = { 0, 0 };
 
   #pragma endregion
 
@@ -94,6 +98,8 @@ class INS {
   double ovenTemperature = 0;
   // Current time in mode
   double timeInMode = 0;
+  // Uncorrected time in NAV, starts at AI 5 value, ticks down in algin after AI 5, ticks up in NAV
+  double initialTimeInNAV = INTIAL_TIME_IN_NAV;
   // Current time in NAV, starts at AI 5 value, ticks down in algin after AI 5, ticks up in NAV
   double timeInNAV = INTIAL_TIME_IN_NAV;
   // Current track
@@ -142,6 +148,7 @@ class INS {
 
   void advanceActionMalfunctionIndex() noexcept;
   void updateSimPosDelta() noexcept;
+  void updateCurrentINSPosition(const double dTime) noexcept;
 
   #pragma endregion
 

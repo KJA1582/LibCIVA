@@ -30,14 +30,14 @@ void INS::temperatureSim(const double dTime) noexcept {
 
   double ambient = 0;
   if (varManager.getVar(SIM_VAR_AMBIENT_TEMPERATURE, ambient)) {
-    // Exit if at operating tem or ambiant in case of heating or no heating
-    if (shouldHeat && ovenTemperature >= config.getOperatingTempInC()) return;
-    if (!shouldHeat && ovenTemperature <= ambient + 0.1)  return;
+    // Exit if at operating tem or ambient in case of heating or no heating
+    if (shouldHeat && ovenTemperature >= config.getOperatingTempInC())
+      return;
 
-    double cooling = 0.02;
+    double cooling = shouldHeat ? 0.0 : 0.02;
     double loss = cooling * (ovenTemperature - ambient) * (dTime / config.getUnitMass());
 
-    // Pure cooling down
+    // Ambient following
     if (!shouldHeat) {
       ovenTemperature -= loss;
       return;
@@ -74,7 +74,8 @@ void INS::reset(const bool full) noexcept {
   alignSubmode = ALIGN_SUBMODE::MODE_9;
   accuracyIndex = 9;
   timeInMode = 0;
-  timeInNAV = INTIAL_TIME_IN_NAV;
+  initialTimeInNAV = timeInNAV = INTIAL_TIME_IN_NAV;
+  initialError = currentError = { 0, 0 };
   indicators.indicator.READY_NAV = false;
 }
 
@@ -101,8 +102,8 @@ void INS::calculateTrack() noexcept {
     double _windDir = std::fmod(windDir + 180, 360) * M_PI / 180;
 
     track = std::fmod(360 + (std::atan2(tas * std::sin(_trueHeading) + windSpeed * std::sin(_windDir),
-                              tas * std::cos(_trueHeading) + windSpeed * std::cos(_windDir))) *
-                 180 / M_PI, 360);
+                                        tas * std::cos(_trueHeading) + windSpeed * std::cos(_windDir))) *
+                      180 / M_PI, 360);
   }
 }
 
@@ -207,10 +208,12 @@ void INS::update(const double dTime) noexcept {
         // Downmode
         state = INS_STATE::ALIGN;
         alignSubmode = ALIGN_SUBMODE::MODE_9;
-        timeInNAV = INTIAL_TIME_IN_NAV;
+        initialTimeInNAV = timeInNAV = INTIAL_TIME_IN_NAV;
+        initialError = currentError = { 0, 0 };
       }
 
       // TODO: NAV flow
+      updateCurrentINSPosition(dTime);
 
       // AI
       if (timeInMode >= TIME_PER_AI && accuracyIndex < 9) {
@@ -218,6 +221,7 @@ void INS::update(const double dTime) noexcept {
         timeInMode = 0;
       }
 
+      initialTimeInNAV += dTime;
       timeInNAV += dTime;
       break;
     }

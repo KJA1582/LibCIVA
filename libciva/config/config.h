@@ -11,7 +11,7 @@ class Config {
   const std::string basePath;
   double operatingTempInC = 76;
   double heaterWattage = 2000;
-  double heaterEfficiency = 0.7;
+  double heaterEfficiency = 0.9;
   double unitMass = 5;
   double unitSpecificHeat = 900;
   POSITION lastINSPosition = { 999, 999 };

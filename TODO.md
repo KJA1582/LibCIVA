@@ -1,15 +1,9 @@
-# Display
-- HOLD
-
 # Navigation
 
 - Export of desired track true
 - Export of desired heading true
 - Leg switching assumes 30°
   - Configurable?
-- WPT CHG
-  - Contray to FSX, WPT CHG INSERT stays illuminated when data pos is changed. CLEAR clears it
-  - If WPT CHG in DME Mode, exiting clear WPT CHG
 - AUTO/MAN
   - 25.6s min time, only change after that in auto
   - ALERT LAMP
@@ -23,19 +17,12 @@
   - BAT CDU Lamp when on bat
   - BAT MSU lamp when auto shutdown due to low bat
 - TAXI in ALIGN error
-- HOLD button behaviour
-  - No effect in any but POS/WPT
-    - Still illuminated
-  - POS -> freeze
-  - WPT -> show INS pos (the one w/o updated)
 
 # Updating
 
 - Entry to #4
 - DME Select
-- Manual Update
-  - AI to 0 immediate
-  - Error when update results in 33nmi shift
+  - WP CHG button  
 - DME Update
   - AI trickle down to 1 (0 on dual DME) if ALT INF correct, down to 2 otherwise
   - Freq compare entered with tuned
