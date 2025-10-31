@@ -30,6 +30,7 @@ constexpr auto MAX_TAS_WIND = 606;
 constexpr auto MAX_RAMP_DEV = 76;
 constexpr auto MAX_DEV = 33;
 constexpr auto MAX_GS = 910;
+constexpr auto DRIFT_GS = 500;
 constexpr auto MAX_GS_DISPLAY = 2400;
 constexpr auto MAX_DRIFT_ANGLE = 45;
 constexpr auto INTIAL_TIME_IN_NAV = 5400;

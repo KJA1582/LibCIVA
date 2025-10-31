@@ -78,11 +78,13 @@ void INS::updateSimPosDelta() noexcept {
 void INS::updateCurrentINSPosition(const double dTime) noexcept {
   double simLat = 999;
   double simLon = 999;
+  double groundSpeed = 0;
   varManager.getVar(SIM_VAR_PLANE_LATITUDE, simLat);
   varManager.getVar(SIM_VAR_PLANE_LONGITUDE, simLon);
+  
   POSITION simPos = { simLat, simLon };
 
-  if (!simPos.isValid() || initialTimeInNAV == 0) return;
+  if (!simPos.isValid() || initialTimeInNAV == 0 || !varManager.getVar(SIM_VAR_GROUND_VELOCITY, groundSpeed)) return;
   std::random_device rd;  // Will be used to obtain a seed for the random number engine
   std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
   std::uniform_real_distribution<> disRad(0.0, 360.0);
@@ -94,7 +96,7 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
   // Spread is constructed so that sum over many dT adheres to the 3sigma of the unit
   // Ex: timeInNav is 10800 (3h), dTime is 3600 (1h) -> spread of 3
   // Ex: timeInNav is 3600 (1h), dTime is 0.1s (100ms) -> spread 0.00002777777
-  double err = std::abs(disDist(gen));
+  double err = std::abs(disDist(gen)) * std::min(0.1, groundSpeed / DRIFT_GS);
   double initialDist = err * (initialTimeInNAV / 3600) * (dTime / 3600);
   double dist = err * (timeInNAV / 3600) * (dTime / 3600);
 
