@@ -1,7 +1,5 @@
 # Navigation
 
-- Export of desired track true
-- Export of desired heading true
 - Leg switching assumes 30°
   - Configurable?
 - AUTO/MAN

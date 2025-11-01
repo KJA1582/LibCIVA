@@ -142,6 +142,11 @@ class INS {
   // HOLD
   bool inHoldMode = false;
   bool holdModeInserted = false;
+  // Exported nav metrics
+  // Cross track distance, positive is right, nmi
+  double crossTrackError = 0;
+  // Desirecd track
+  double desiredTrack = 0;
 
   #pragma endregion
 
@@ -150,6 +155,7 @@ class INS {
   void advanceActionMalfunctionIndex() noexcept;
   void updateSimPosDelta() noexcept;
   void updateCurrentINSPosition(const double dTime) noexcept;
+  void updateMetrics() noexcept;
 
   #pragma endregion
 

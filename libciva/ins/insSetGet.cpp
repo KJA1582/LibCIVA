@@ -81,14 +81,14 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
   double groundSpeed = 0;
   varManager.getVar(SIM_VAR_PLANE_LATITUDE, simLat);
   varManager.getVar(SIM_VAR_PLANE_LONGITUDE, simLon);
-  
+
   POSITION simPos = { simLat, simLon };
 
   if (!simPos.isValid() || initialTimeInNAV == 0 || !varManager.getVar(SIM_VAR_GROUND_VELOCITY, groundSpeed)) return;
   std::random_device rd;  // Will be used to obtain a seed for the random number engine
   std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
   std::uniform_real_distribution<> disRad(0.0, 360.0);
-  
+
   std::normal_distribution<> disDist(0);
 
   static double rad = disRad(gen);
@@ -107,4 +107,40 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
   currentINSPosition.bound();
   initialINSPosition = simPos + simPosDelta + initialError;
   initialINSPosition.bound();
+}
+
+void INS::updateMetrics() noexcept {
+  double gs;
+  bool gsValid = varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs);
+  double trueHeading;
+  bool trueHeadingValid = varManager.getVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, trueHeading);
+
+  uint16_t _track = 0;
+  if (!gsValid) {
+    gs = 0;
+
+    if (trueHeadingValid || gs < MIN_GS) {
+      _track = (uint16_t)(std::round(trueHeading));
+    }
+  }
+  else {
+    _track = (uint16_t)(std::round(track));
+  }
+
+  double alongDist = currentINSPosition.alongTrackDistance(waypoints[currentLegStart], waypoints[currentLegEnd]);
+  double legCrs = waypoints[currentLegStart].bearingTo(waypoints[currentLegEnd]);
+  POSITION alongPos = waypoints[currentLegStart].destination(alongDist, legCrs);
+
+  /* XTK */
+
+  crossTrackError = currentINSPosition.crossTrackDistance(waypoints[currentLegStart], waypoints[currentLegEnd]);
+
+  /* DSRTK */
+
+  if (alongDist < waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd])) {
+    desiredTrack = std::round(alongPos.bearingTo(waypoints[currentLegEnd]));
+  }
+  else {
+    desiredTrack = legCrs;
+  }
 }

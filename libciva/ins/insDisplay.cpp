@@ -321,12 +321,9 @@ void INS::updateDisplay() noexcept {
           crs = (uint16_t)std::round(waypoints[display.characters.FROM].bearingTo(waypoints[display.characters.TO]));
         }
         else {
-          double alongDist = currentINSPosition.alongTrackDistance(waypoints[currentLegStart], waypoints[currentLegEnd]);
           double legCrs = waypoints[currentLegStart].bearingTo(waypoints[currentLegEnd]);
-          POSITION alongPos = waypoints[currentLegStart].destination(alongDist, legCrs);
 
-          xtk = (int16_t)std::round(std::min(9999.0, currentINSPosition.crossTrackDistance(waypoints[currentLegStart],
-                                                                                           waypoints[currentLegEnd]) * 10));
+          xtk = (int16_t)std::round(std::min(9999.0, crossTrackError * 10));
           crs = (uint16_t)std::round(legCrs);
         }
 
@@ -517,16 +514,7 @@ void INS::updateDisplay() noexcept {
           crs = (uint16_t)std::round(waypoints[display.characters.FROM].bearingTo(waypoints[display.characters.TO]));
         }
         else {
-          double alongDist = currentINSPosition.alongTrackDistance(waypoints[currentLegStart], waypoints[currentLegEnd]);
-          double legCrs = waypoints[currentLegStart].bearingTo(waypoints[currentLegEnd]);
-          POSITION alongPos = waypoints[currentLegStart].destination(alongDist, legCrs);
-
-          if (alongDist < waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd])) {
-            crs = (uint16_t)std::round(alongPos.bearingTo(waypoints[currentLegEnd]));
-          }
-          else {
-            crs = (uint16_t)legCrs;
-          }
+          crs = (uint16_t)desiredTrack;
         }
 
         formatTri(display, crs, true, false, 0);
