@@ -504,7 +504,7 @@ void INS::handleInsert() noexcept {
 
       waypoints[0] = currentINSPosition;
 
-      indicators.indicator.WAYPOINT_CHANGE = false;
+      indicators.indicator.WAYPOINT_CHANGE = indicators.indicator.ALERT  = false;
       break;
     }
   }
@@ -614,4 +614,8 @@ void INS::handleHoldButton() noexcept {
   }
 
   indicators.indicator.HOLD = inHoldMode;
+}
+
+void INS::handleAutoMan() noexcept {
+  autoMode = !autoMode;
 }

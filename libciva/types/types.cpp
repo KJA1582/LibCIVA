@@ -58,3 +58,16 @@ POSITION POSITION::destination(const double distance, const double bearing) cons
 
   return { φ2 * 180.0 / M_PI, std::fmod((λ2 * 180.0 / M_PI) + 540.0, 360.0) - 180.0 };
 }
+
+void POSITION::bound() noexcept {
+  if (latitude > 90) latitude = 90 - (latitude - 90);
+  if (latitude < -90) latitude = -90 - (90 + latitude);
+
+  if (longitude > 180) longitude = 180 - (longitude - 180);
+  if (longitude < -180) longitude = -180 - (180 + longitude);
+}
+
+bool POSITION::inFront(const POSITION &pos, const double track) const noexcept {
+  double brg = this->bearingTo(pos);
+  return std::abs(std::fmod(brg - track + 540, 360) - 180) < 90;
+}

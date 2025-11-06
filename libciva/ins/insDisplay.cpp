@@ -586,3 +586,40 @@ void INS::updateDisplay() noexcept {
     }
   }
 }
+
+void INS::alertLamp(const double dTime) noexcept {
+  static double flashTime = 0;
+
+  double gs = 0;
+  bool gsValid = varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs);
+
+  if (gsValid) {
+    double legDist = waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd]);
+    double remDist = currentINSPosition.distanceTo(waypoints[currentLegEnd]);
+
+    double legTime = (legDist / gs) * 3600;
+    double remTime = (remDist / gs) * 3600;
+
+    if (!waypoints[currentLegStart].inFront(currentINSPosition, track)) {
+      // We passed
+      if ((autoMode && legTime < MIN_LEG_TIME) || !autoMode) {
+        // Either in manula mode or leg time is < 25.6 in auto mode
+        if (flashTime < 0.5) {
+          indicators.indicator.ALERT = true;
+          flashTime += dTime;
+        }
+        else if (flashTime < 1) {
+          indicators.indicator.ALERT = false;
+          flashTime += dTime;
+        }
+        else {
+          flashTime = 0;
+        }
+      }
+    }
+    else if (remTime <= LEG_TIME_ALERT) {
+      // 2min alert
+      indicators.indicator.ALERT = true;
+    }
+  }
+}

@@ -161,6 +161,8 @@ struct POSITION {
   double crossTrackDistance(const POSITION &start, const POSITION &end) const noexcept;
   double alongTrackDistance(const POSITION &start, const POSITION &end) const noexcept;
   POSITION destination(const double distance, const double bearing) const noexcept;
+  void bound() noexcept;
+  bool inFront(const POSITION &pos, const double track) const noexcept;
 
   // Not bound checked
   inline POSITION operator+(const POSITION &rhs) const noexcept {
@@ -169,14 +171,6 @@ struct POSITION {
   // Not bound checked
   inline POSITION operator-(const POSITION &rhs) const noexcept {
     return { latitude - rhs.latitude, longitude - rhs.longitude };
-  }
-
-  inline void bound() noexcept {
-    if (latitude > 90) latitude = 90 - (latitude - 90);
-    if (latitude < -90) latitude = -90 - (90 + latitude);
-
-    if (longitude > 180) longitude = 180 - (longitude - 180);
-    if (longitude < -180) longitude = -180 - (180 + longitude);
   }
 };
 

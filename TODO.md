@@ -4,10 +4,6 @@
   - Configurable?
 - AUTO/MAN
   - 25.6s min time, only change after that in auto
-  - ALERT LAMP
-    - AUTO/MAN 2min
-    - AUTO blink if leg time < 25.6s and past point
-    - MAN blink if past point
 
 # Other
 

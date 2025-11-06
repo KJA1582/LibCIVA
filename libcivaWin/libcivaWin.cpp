@@ -118,7 +118,8 @@ static void runner() {
     std::cout << "DME FREQ : F" << std::endl;
     std::cout << "CLEAR    : DEL" << std::endl;
     std::cout << "WPT CHG  : W" << std::endl;
-    std::cout << "HOLD     : H" << std::endl << std::endl;
+    std::cout << "HOLD     : H" << std::endl;
+    std::cout << "AUTO/MAN : A" << std::endl << std::endl;
 
     std::cout << "dT was " << delta.count() * 1e-6 << "ms" << std::endl;
   }
@@ -241,6 +242,9 @@ int main() {
             break;
           case 'H':
             unit1->handleHoldButton();
+            break;
+          case 'A':
+            unit1->handleAutoMan();
             break;
           case VK_ESCAPE:
             __exit = true;

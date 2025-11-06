@@ -34,6 +34,8 @@ constexpr auto DRIFT_GS = 500;
 constexpr auto MAX_GS_DISPLAY = 2400;
 constexpr auto MAX_DRIFT_ANGLE = 45;
 constexpr auto INTIAL_TIME_IN_NAV = 5400;
+constexpr auto MIN_LEG_TIME = 25.6;
+constexpr auto LEG_TIME_ALERT = 120;
 
 constexpr auto DISPLAY_CHAR_RIGHT = 10;
 constexpr auto DISPLAY_CHAR_LEFT = 11;
@@ -105,6 +107,10 @@ class INS {
   double timeInNAV = INTIAL_TIME_IN_NAV;
   // Current track
   double track = 0;
+  // Cross track distance, positive is right, nmi
+  double crossTrackError = 0;
+  // Desirecd track
+  double desiredTrack = 0;
   // Current INS State
   INS_STATE state = INS_STATE::OFF;
   // Current align submode
@@ -142,11 +148,8 @@ class INS {
   // HOLD
   bool inHoldMode = false;
   bool holdModeInserted = false;
-  // Exported nav metrics
-  // Cross track distance, positive is right, nmi
-  double crossTrackError = 0;
-  // Desirecd track
-  double desiredTrack = 0;
+  // AUTO/MAN
+  bool autoMode = true;
 
   #pragma endregion
 
@@ -180,6 +183,7 @@ public:
   ~INS() noexcept;
 
   void update(const double dTime) noexcept;
+  void alertLamp(const double dTime) noexcept;
 
   #pragma region Public Getter/Setter
 
@@ -216,6 +220,7 @@ public:
   void handleClear() noexcept;
   void handleWaypointChange() noexcept;
   void handleHoldButton() noexcept;
+  void handleAutoMan() noexcept;
 
   #pragma endregion
 };

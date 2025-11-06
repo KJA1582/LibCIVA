@@ -137,6 +137,7 @@ void INS::exportVars() const noexcept {
   varManager.setVar(std::string(VAR_START) + MODE_SELECTOR_POS_VAR + id, (double)modeSelector);
   varManager.setVar(std::string(VAR_START) + DATA_SELECTOR_POS_VAR + id, (double)dataSelector);
   varManager.setVar(std::string(VAR_START) + WAYPOINT_SELECTOR_POS_VAR + id, (double)waypointSelector);
+  varManager.setVar(std::string(VAR_START) + AUTO_MAN_POS_VAR + id, (double)autoMode);
   varManager.setVar(std::string(VAR_START) + OUTPUT_CROSS_TRACK_ERROR + id, crossTrackError);
   varManager.setVar(std::string(VAR_START) + OUTPUT_DESIRED_TRACK + id, desiredTrack);
 }
@@ -217,6 +218,7 @@ void INS::update(const double dTime) noexcept {
       // TODO: NAV flow
       updateCurrentINSPosition(dTime);
       updateMetrics();
+      alertLamp(dTime);
 
       // AI
       if (timeInMode >= TIME_PER_AI && accuracyIndex < 9) {
