@@ -355,15 +355,18 @@ void INS::handleInsert() noexcept {
       if (!displayPosition.isValid()) return; // Essential get the user stuck here
 
       if (state == INS_STATE::NAV && inHoldMode) {
+        // Reject
         if (displayPosition.distanceTo(currentINSPosition) > MAX_DEV) {
           actionMalfunctionCodes.codes.A02_49 = true;
           advanceActionMalfunctionIndex();
-          indicators.indicator.WARN = true;
+          indicators.indicator.WARN = holdRequiresForce = true;
+          break;
         }
 
         currentError = { 0, 0 };
         timeInNAV = 0;
         currentINSPosition = displayPosition;
+        updateSimPosDelta();
         indicators.indicator.HOLD = false;
         inHoldMode = false;
       }
@@ -530,6 +533,13 @@ void INS::handleTestButtonState(const bool _state) noexcept {
             indicators.indicator.WARN = false;
           }
         }
+        if (displayActionMalfunctionCodeIndex == 3) {
+          actionMalfunctionCodes.codes.A02_49 = false;
+
+          if (actionMalfunctionCodes.value == 0) {
+            indicators.indicator.WARN = false;
+          }
+        }
 
         uint8_t last = displayActionMalfunctionCodeIndex;
         advanceActionMalfunctionIndex();
@@ -603,9 +613,15 @@ void INS::handleHoldButton() noexcept {
   if (state == INS_STATE::OFF || state == INS_STATE::ATT) return;
 
   if (inHoldMode) {
-    // TODO: Handle FORCE Update
+    if (holdRequiresForce) {
+      currentError = { 0, 0 };
+      timeInNAV = 0;
+      currentINSPosition = displayPosition;
+      updateSimPosDelta();
+    }
+
     holdINSPosition = holdPosition = { 999, 999 };
-    inHoldMode = false;
+    inHoldMode = holdRequiresForce = false;
   }
   else {
     holdINSPosition = initialINSPosition;

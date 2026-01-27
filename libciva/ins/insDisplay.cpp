@@ -29,21 +29,30 @@ static void formatPos(DISPLAY &display, POSITION &pos) noexcept {
     display.characters.W = false;
   }
 
-  // FIXME: Rollover at 60'
-
-  display.characters.LEFT_1 = (uint8_t)pos.latitude / 10;
-  display.characters.LEFT_2 = (uint8_t)pos.latitude - display.characters.LEFT_1 * 10;
+  double degrees = std::trunc(pos.latitude);
   double minutes = std::round((pos.latitude - (uint8_t)pos.latitude) * 600);
+  if (minutes >= 600) {
+    minutes -= 600;
+    degrees += 1;
+  }
+
+  display.characters.LEFT_1 = (uint8_t)degrees / 10;
+  display.characters.LEFT_2 = (uint8_t)degrees - display.characters.LEFT_1 * 10;
   display.characters.LEFT_3 = (uint16_t)minutes / 100;
   display.characters.LEFT_4 = (uint16_t)minutes / 10 - display.characters.LEFT_3 * 10;
   display.characters.LEFT_5 = (uint16_t)minutes - display.characters.LEFT_3 * 100 -
     display.characters.LEFT_4 * 10;
-
-  display.characters.RIGHT_1 = (uint16_t)pos.longitude / 100;
-  display.characters.RIGHT_2 = (uint16_t)pos.longitude / 10 - display.characters.RIGHT_1 * 10;
-  display.characters.RIGHT_3 = (uint16_t)pos.longitude - display.characters.RIGHT_1 * 100 -
-    display.characters.RIGHT_2 * 10;
+  
+  degrees = std::trunc(pos.longitude);
   minutes = std::round((pos.longitude - (uint16_t)pos.longitude) * 600);
+  if (minutes >= 600) {
+    minutes -= 600;
+    degrees += 1;
+  }
+  display.characters.RIGHT_1 = (uint16_t)degrees / 100;
+  display.characters.RIGHT_2 = (uint16_t)degrees / 10 - display.characters.RIGHT_1 * 10;
+  display.characters.RIGHT_3 = (uint16_t)degrees - display.characters.RIGHT_1 * 100 -
+    display.characters.RIGHT_2 * 10;
   display.characters.RIGHT_4 = (uint16_t)minutes / 100;
   display.characters.RIGHT_5 = (uint16_t)minutes / 10 - display.characters.RIGHT_4 * 10;
   display.characters.RIGHT_6 = (uint16_t)minutes - display.characters.RIGHT_4 * 100 -
@@ -193,10 +202,10 @@ void INS::updateDisplay() noexcept {
   if (insertMode == INSERT_MODE::INV || insertMode == INSERT_MODE::WPT_CHG_TO ||
       insertMode == INSERT_MODE::WPT_CHG_FROM) {
     // TODO: Tripple mix display
-    if (inHoldMode) {
+    if (inHoldMode && !holdRequiresForce) {
       displayPosition = holdPosition;
     }
-    else {
+    else if (!holdRequiresForce) {
       displayPosition = currentINSPosition;
     }
   }

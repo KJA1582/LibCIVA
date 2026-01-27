@@ -20,6 +20,7 @@
 - DME Update
   - AI trickle down to 1 (0 on dual DME) if ALT INF correct, down to 2 otherwise
   - Freq compare entered with tuned
+    - Not a thing IRL
   - Unit 1 connected to NAV 1
   - Unit 2 connected to NAV 2
   - Unit 3 gets data form Units 1 and 2

@@ -83,7 +83,7 @@ typedef union {
   struct {
     bool A02_31 : 1; // 1 ground speed > 910, non-clearable
     bool A02_42 : 1; // 2 drift angle > 45, non-clearable
-    bool A02_49 : 1; // 3 pos update in flight > 33, non-clearable
+    bool A02_49 : 1; // 3 pos update in flight > 33, clearable
     bool A02_63 : 1; // 4 self checks failed, non-clearable
     bool A04_41 : 1; // 5 ramp pos > 76nmi from last pos, clearable
     bool A04_43 : 1; // 6 ramp pos missmatch between pairs of units, non-clearable

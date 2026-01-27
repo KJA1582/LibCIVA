@@ -147,7 +147,7 @@ class INS {
   bool inTestMode = false;
   // HOLD
   bool inHoldMode = false;
-  bool holdModeInserted = false;
+  bool holdRequiresForce = false;
   // AUTO/MAN
   bool autoMode = true;
 
