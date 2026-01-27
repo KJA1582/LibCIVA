@@ -2,8 +2,6 @@
 
 - Leg switching assumes 30°
   - Configurable?
-- AUTO/MAN
-  - 25.6s min time, only change after that in auto
 
 # Other
 
@@ -11,6 +9,7 @@
   - BAT CDU Lamp when on bat
   - BAT MSU lamp when auto shutdown due to low bat
 - TAXI in ALIGN error
+- Unit IDing for Configs
 
 # Updating
 

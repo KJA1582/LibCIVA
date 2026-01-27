@@ -612,7 +612,7 @@ void INS::alertLamp(const double dTime) noexcept {
     if (!waypoints[currentLegStart].inFront(currentINSPosition, track)) {
       // We passed
       if ((autoMode && legTime < MIN_LEG_TIME) || !autoMode) {
-        // Either in manula mode or leg time is < 25.6 in auto mode
+        // Either in manual mode or leg time is < 25.6 in auto mode
         if (flashTime < 0.5) {
           indicators.indicator.ALERT = true;
           flashTime += dTime;

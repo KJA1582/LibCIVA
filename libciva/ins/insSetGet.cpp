@@ -144,3 +144,43 @@ void INS::updateMetrics() noexcept {
     desiredTrack = legCrs;
   }
 }
+
+void INS::updateNav(const double dTime) noexcept {
+  // Skip if not in auto
+  if (!autoMode) return;
+  
+  static double spentTime = 0;
+
+  double gs;
+  bool gsValid = varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs);
+
+  // Invalid/slow speed, skip
+  if (!gsValid || gs <= 1) return;
+
+  double legCrs = waypoints[currentLegStart].bearingTo(waypoints[currentLegEnd]);
+  double nextCrs = waypoints[currentLegEnd].bearingTo(waypoints[(currentLegEnd % 9) + 1]);
+  double dist = currentINSPosition.distanceTo(waypoints[currentLegEnd]);
+  double legTime = waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd]) / gs;
+
+  // Leg time less than min and not yet flown min leg time
+  if (legTime < MIN_LEG_TIME && spentTime < MIN_LEG_TIME) {
+    spentTime += dTime;
+    return;
+  }
+
+  double turnRadius = (gs * gs) / (11.26 * std::tan(config.getExpectedBankAngle() * M_PI / 180.0));
+  double delta = nextCrs - legCrs;
+  while (delta < -180.0) delta += 360.0;
+  while (delta >= 180.0) delta -= 360.0;
+  double turnDist = turnRadius * std::tan((std::abs(delta) * M_PI / 180.0) / 2.0);
+
+  // Turn point hit, advance leg
+  if (dist <= turnDist) {
+    currentLegStart = currentLegEnd;
+    currentLegEnd = (currentLegEnd % 9) + 1;
+    spentTime = 0;
+    return;
+  }
+
+  spentTime += dTime;
+}

@@ -159,6 +159,7 @@ class INS {
   void updateSimPosDelta() noexcept;
   void updateCurrentINSPosition(const double dTime) noexcept;
   void updateMetrics() noexcept;
+  void updateNav(const double dTime) noexcept;
 
   #pragma endregion
 

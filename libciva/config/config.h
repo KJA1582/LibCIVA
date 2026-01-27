@@ -12,13 +12,14 @@ class Config {
   double operatingTempInC = 76;
   double heaterWattage = 2000;
   double heaterEfficiency = 0.9;
-  double unitMass = 5;
+  double unitMassInKG = 5;
   double unitSpecificHeat = 900;
   POSITION lastINSPosition = { 999, 999 };
   DME lastDMEs[9] = {
     { 0, 0, 0, 0}, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 },
     { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }
   };
+  char expectedBankAngle = 30;
 
 public:
   Config(const std::string &workDir) noexcept;
@@ -35,7 +36,7 @@ public:
     return heaterEfficiency;
   }
   inline double getUnitMass() const noexcept {
-    return unitMass;
+    return unitMassInKG;
   }
   inline double getUnitSpecificHeat() const noexcept {
     return unitSpecificHeat;
@@ -45,6 +46,9 @@ public:
   }
   inline void getLastDMEs(DME(&DMEs)[9]) const noexcept {
     std::memcpy(DMEs, lastDMEs, sizeof(lastDMEs));
+  }
+  inline char getExpectedBankAngle() const noexcept {
+    return expectedBankAngle;
   }
 
   inline void setLastINSPosition(POSITION pos) noexcept {

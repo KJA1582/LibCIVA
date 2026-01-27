@@ -215,7 +215,7 @@ void INS::update(const double dTime) noexcept {
         initialError = currentError = { 0, 0 };
       }
 
-      // TODO: NAV flow
+      updateNav(dTime);
       updateCurrentINSPosition(dTime);
       updateMetrics();
       alertLamp(dTime);

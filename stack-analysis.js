@@ -5,6 +5,8 @@ const BASE_DIR = "libcivaMSFS24";
 const output = fs.openSync(path.join(BASE_DIR, "stack-analysis.su"), "w");
 const THRESHOLD = parseInt(process.argv[2] ?? 1024);
 
+console.log(`Threshold at ${THRESHOLD} bytes`);
+
 let functions = [];
 
 let files = fs.readdirSync(BASE_DIR);
