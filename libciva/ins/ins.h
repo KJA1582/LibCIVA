@@ -98,6 +98,13 @@ class INS {
 
   #pragma endregion
 
+  #pragma region Multi Unit
+
+  std::shared_ptr<INS> unit2;
+  std::shared_ptr<INS> unit3;
+
+  #pragma endregion
+
   #pragma region States
 
   // Current oven temperature
@@ -163,27 +170,25 @@ class INS {
 
   #pragma endregion
 
-  #pragma region Private Getter/Setter
-
   void advanceActionMalfunctionIndex() noexcept;
+
   void updateSimPosDelta() noexcept;
   void updateCurrentINSPosition(const double dTime) noexcept;
   void updateMetrics(POSITION pos) noexcept;
   void updateNav(POSITION pos, const double dTime) noexcept;
-
-  #pragma endregion
+  void updateDisplay(POSITION pos) noexcept;
 
   void temperatureSim(const double dTime) noexcept;
-  void reset(const bool full) noexcept;
+  void align(const double dTime) noexcept;
   void calculateTrack() noexcept;
   void handleOutOfBounds() noexcept;
-  void updateDisplay(POSITION pos) noexcept;
-  void align(const double dTime) noexcept;
+
   void exportVars() const noexcept;
-  void alertLamp(POSITION pos, const double dTime) noexcept;
 
   void formatActionMalfunctionCode(const bool showingMalf) noexcept;
+  void alertLamp(POSITION pos, const double dTime) noexcept;
 
+  void reset(const bool full) noexcept;
   inline void clearDisplay() noexcept {
     uint64_t d;
     d = 0x00CCCCCCCC0CCCCC;
@@ -205,12 +210,24 @@ public:
   inline void setModeSelectorPos(const MODE_SELECTOR pos) noexcept {
     modeSelector = pos;
   }
+  inline void connectUnit2(std::shared_ptr<INS> &unit) noexcept {
+    unit2 = unit;
+  }
+  inline void connectUnit3(std::shared_ptr<INS> &unit) noexcept {
+    unit3 = unit;
+  }
 
   inline DATA_SELECTOR getDataSelectorPos() const noexcept {
     return dataSelector;
   }
   inline MODE_SELECTOR getModeSelectorPos() const noexcept {
     return modeSelector;
+  }
+  inline bool isAided() const noexcept {
+    return activePerformanceIndex == 4;
+  }
+  inline POSITION getINSPosition() const noexcept {
+    return initialINSPosition;
   }
 
   #pragma endregion

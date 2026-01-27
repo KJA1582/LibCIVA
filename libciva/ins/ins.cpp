@@ -134,7 +134,23 @@ void INS::handleOutOfBounds() noexcept {
     indicators.indicator.WARN = true;
   }
 
-  // TODO: Inter system compare
+  // Inter system compare trigger 04-43
+  if (state == INS_STATE::ALIGN) {
+    if (unit2) {
+      if (unit2->getINSPosition().distanceTo(initialINSPosition) > 0.1) {
+        actionMalfunctionCodes.codes.A04_43 = true;
+        advanceActionMalfunctionIndex();
+        indicators.indicator.WARN = true;
+      }
+    }
+    if (unit3) {
+      if (unit3->getINSPosition().distanceTo(initialINSPosition) > 0.1) {
+        actionMalfunctionCodes.codes.A04_43 = true;
+        advanceActionMalfunctionIndex();
+        indicators.indicator.WARN = true;
+      }
+    }
+  }
 }
 
 void INS::exportVars() const noexcept {

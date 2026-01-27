@@ -14,6 +14,7 @@
 # Updating
 
 - Entry to #4
+- DME receiver connections
 - DME Update
   - AI trickle down to 1 (0 on dual DME) if ALT INF correct, down to 2 otherwise
   - Freq compare entered with tuned

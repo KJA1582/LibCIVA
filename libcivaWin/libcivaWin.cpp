@@ -4,9 +4,9 @@
 #include "libcivaWin.h"
 
 std::unique_ptr<WinVarManager> winVarManager;
-std::unique_ptr<INS> unit1;
-std::unique_ptr<INS> unit2;
-std::unique_ptr<INS> unit3;
+std::shared_ptr<INS> unit1;
+std::shared_ptr<INS> unit2;
+std::shared_ptr<INS> unit3;
 
 std::thread unit1Thread;
 std::mutex lock;
@@ -163,9 +163,18 @@ int main() {
 
   winVarManager = std::make_unique<WinVarManager>();
 
-  unit1 = std::make_unique<INS>(*winVarManager, "UNIT_1", "1", WORK_DIR);
-  unit2 = std::make_unique<INS>(*winVarManager, "UNIT_2", "2", WORK_DIR);
-  unit3 = std::make_unique<INS>(*winVarManager, "UNIT_3", "3", WORK_DIR);
+  unit1 = std::make_shared<INS>(*winVarManager, "UNIT_1", "1", WORK_DIR);
+  unit2 = std::make_shared<INS>(*winVarManager, "UNIT_2", "2", WORK_DIR);
+  unit3 = std::make_shared<INS>(*winVarManager, "UNIT_3", "3", WORK_DIR);
+
+  unit1->connectUnit2(unit2);
+  unit1->connectUnit3(unit3);
+
+  unit2->connectUnit2(unit1);
+  unit2->connectUnit3(unit3);
+
+  unit3->connectUnit2(unit1);
+  unit3->connectUnit3(unit2);
 
   unit1Thread = std::thread(runner);
 
