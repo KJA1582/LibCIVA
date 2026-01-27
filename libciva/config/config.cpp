@@ -1,7 +1,7 @@
 #include "config.h"
 
-Config::Config(const std::string &basePath) noexcept : basePath(basePath) {
-  std::ifstream file(basePath + "config", std::ios::binary);
+Config::Config(const std::string &basePath, const std::string &id) noexcept : basePath(basePath), id(id) {
+  std::ifstream file(basePath + "config_" + id, std::ios::binary);
   if (file) {
     file.read((char *)&operatingTempInC, sizeof(operatingTempInC));
     file.read((char *)&heaterWattage, sizeof(heaterWattage));
@@ -19,7 +19,7 @@ Config::Config(const std::string &basePath) noexcept : basePath(basePath) {
 }
 
 void Config::save() const noexcept {
-  std::ofstream file(basePath + "config", std::ios::binary);
+  std::ofstream file(basePath + "config_" + id, std::ios::binary);
   if (file) {
     file.write((const char *)&operatingTempInC, sizeof(operatingTempInC));
     file.write((const char *)&heaterWattage, sizeof(heaterWattage));

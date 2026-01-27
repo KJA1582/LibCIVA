@@ -85,23 +85,20 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
   POSITION simPos = { simLat, simLon };
 
   if (!simPos.isValid() || initialTimeInNAV == 0 || !varManager.getVar(SIM_VAR_GROUND_VELOCITY, groundSpeed)) return;
-  std::random_device rd;  // Will be used to obtain a seed for the random number engine
-  std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
-  std::uniform_real_distribution<> disRad(0.0, 360.0);
 
-  std::normal_distribution<> disDist(0);
+  // TODO: DME Update error and time adjustments
 
-  static double rad = disRad(gen);
   // Increase spread based on timeInNav, scaled by dT
   // Spread is constructed so that sum over many dT adheres to the 3sigma of the unit
   // Ex: timeInNav is 10800 (3h), dTime is 3600 (1h) -> spread of 3
   // Ex: timeInNav is 3600 (1h), dTime is 0.1s (100ms) -> spread 0.00002777777
-  double err = std::abs(disDist(gen)) * std::min(0.1, groundSpeed / DRIFT_GS);
+  std::normal_distribution<> disDist(0);
+  double err = std::abs(disDist(*randomGenerator)) * std::min(0.1, groundSpeed / DRIFT_GS);
   double initialDist = err * (initialTimeInNAV / 3600) * (dTime / 3600);
   double dist = err * (timeInNAV / 3600) * (dTime / 3600);
 
-  initialError = initialError.destination(initialDist, rad);
-  currentError = currentError.destination(dist, rad);
+  initialError = initialError.destination(initialDist, errorRadial);
+  currentError = currentError.destination(dist, errorRadial);
 
   currentINSPosition = simPos + simPosDelta + currentError;
   currentINSPosition.bound();
@@ -109,7 +106,7 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
   initialINSPosition.bound();
 }
 
-void INS::updateMetrics() noexcept {
+void INS::updateMetrics(POSITION pos) noexcept {
   double gs;
   bool gsValid = varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs);
   double trueHeading;
@@ -127,13 +124,13 @@ void INS::updateMetrics() noexcept {
     _track = (uint16_t)(std::round(track));
   }
 
-  double alongDist = currentINSPosition.alongTrackDistance(waypoints[currentLegStart], waypoints[currentLegEnd]);
+  double alongDist = pos.alongTrackDistance(waypoints[currentLegStart], waypoints[currentLegEnd]);
   double legCrs = waypoints[currentLegStart].bearingTo(waypoints[currentLegEnd]);
   POSITION alongPos = waypoints[currentLegStart].destination(alongDist, legCrs);
 
   /* XTK */
 
-  crossTrackError = currentINSPosition.crossTrackDistance(waypoints[currentLegStart], waypoints[currentLegEnd]);
+  crossTrackError = pos.crossTrackDistance(waypoints[currentLegStart], waypoints[currentLegEnd]);
 
   /* DSRTK */
 
@@ -145,7 +142,7 @@ void INS::updateMetrics() noexcept {
   }
 }
 
-void INS::updateNav(const double dTime) noexcept {
+void INS::updateNav(POSITION pos, const double dTime) noexcept {
   // Skip if not in auto
   if (!autoMode) return;
 
@@ -155,9 +152,9 @@ void INS::updateNav(const double dTime) noexcept {
   // Invalid/slow speed, skip
   if (!gsValid || gs <= 1) return;
 
-  double crsToEnd = currentINSPosition.bearingTo(waypoints[currentLegEnd]);
+  double crsToEnd = pos.bearingTo(waypoints[currentLegEnd]);
   double nextCrs = waypoints[currentLegEnd].bearingTo(waypoints[(currentLegEnd % 9) + 1]);
-  double dist = currentINSPosition.distanceTo(waypoints[currentLegEnd]);
+  double dist = pos.distanceTo(waypoints[currentLegEnd]);
   double legTime = (waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd]) / gs) * 3600;
 
   // Leg time less than min and not yet flown min leg time

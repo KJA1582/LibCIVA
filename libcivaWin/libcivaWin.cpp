@@ -5,6 +5,8 @@
 
 std::unique_ptr<WinVarManager> winVarManager;
 std::unique_ptr<INS> unit1;
+std::unique_ptr<INS> unit2;
+std::unique_ptr<INS> unit3;
 
 std::thread unit1Thread;
 std::mutex lock;
@@ -93,7 +95,13 @@ static void runner() {
     // FIXME: 100 times as fast as IRL (-9)
     {
       std::lock_guard<std::mutex> guard(lock);
-      unit1->update(delta.count() * 1e-9);
+      unit1->updatePreMix(delta.count() * 1e-7);
+      unit2->updatePreMix(delta.count() * 1e-7);
+      unit3->updatePreMix(delta.count() * 1e-7);
+      // TODO: Mix
+      unit1->updatePostMix(delta.count() * 1e-7);
+      unit2->updatePostMix(delta.count() * 1e-7);
+      unit3->updatePostMix(delta.count() * 1e-7);
     }
 
     HANDLE handle;
@@ -155,7 +163,9 @@ int main() {
 
   winVarManager = std::make_unique<WinVarManager>();
 
-  unit1 = std::make_unique<INS>(*winVarManager, "UNIT_1", WORK_DIR);
+  unit1 = std::make_unique<INS>(*winVarManager, "UNIT_1", "1", WORK_DIR);
+  unit2 = std::make_unique<INS>(*winVarManager, "UNIT_2", "2", WORK_DIR);
+  unit3 = std::make_unique<INS>(*winVarManager, "UNIT_3", "3", WORK_DIR);
 
   unit1Thread = std::thread(runner);
 
@@ -182,77 +192,125 @@ int main() {
         switch (inp.Event.KeyEvent.wVirtualKeyCode) {
           case VK_UP:
             unit1->incDataSelectorPos();
+            unit2->incDataSelectorPos();
+            unit3->incDataSelectorPos();
             break;
           case VK_DOWN:
             unit1->decDataSelectorPos();
+            unit2->decDataSelectorPos();
+            unit3->decDataSelectorPos();
             break;
           case VK_LEFT:
             unit1->decModeSelectorPos();
+            unit2->decModeSelectorPos();
+            unit3->decModeSelectorPos();
             break;
           case VK_RIGHT:
             unit1->incModeSelectorPos();
+            unit2->incModeSelectorPos();
+            unit3->incModeSelectorPos();
             break;
           case VK_NUMPAD0:
             unit1->handleNumeric(0);
+            unit2->handleNumeric(0);
+            unit3->handleNumeric(0);
             break;
           case VK_NUMPAD1:
             unit1->handleNumeric(1);
+            unit2->handleNumeric(1);
+            unit3->handleNumeric(1);
             break;
           case VK_NUMPAD2:
             unit1->handleNumeric(2);
+            unit2->handleNumeric(2);
+            unit3->handleNumeric(2);
             break;
           case VK_NUMPAD3:
             unit1->handleNumeric(3);
+            unit2->handleNumeric(3);
+            unit3->handleNumeric(3);
             break;
           case VK_NUMPAD4:
             unit1->handleNumeric(4);
+            unit2->handleNumeric(4);
+            unit3->handleNumeric(4);
             break;
           case VK_NUMPAD5:
             unit1->handleNumeric(5);
+            unit2->handleNumeric(5);
+            unit3->handleNumeric(5);
             break;
           case VK_NUMPAD6:
             unit1->handleNumeric(6);
+            unit2->handleNumeric(6);
+            unit3->handleNumeric(6);
             break;
           case VK_NUMPAD7:
             unit1->handleNumeric(7);
+            unit2->handleNumeric(7);
+            unit3->handleNumeric(7);
             break;
           case VK_NUMPAD8:
             unit1->handleNumeric(8);
+            unit2->handleNumeric(8);
+            unit3->handleNumeric(8);
             break;
           case VK_NUMPAD9:
             unit1->handleNumeric(9);
+            unit2->handleNumeric(9);
+            unit3->handleNumeric(9);
             break;
           case VK_RETURN:
             unit1->handleInsert();
+            unit2->handleInsert();
+            unit3->handleInsert();
             break;
           case VK_ADD:
             unit1->incWaypointSelectorPos();
+            unit2->incWaypointSelectorPos();
+            unit3->incWaypointSelectorPos();
             break;
           case VK_SUBTRACT:
             unit1->decWaypointSelectorPos();
+            unit2->decWaypointSelectorPos();
+            unit3->decWaypointSelectorPos();
             break;
           case VK_DELETE:
             unit1->handleClear();
+            unit2->handleClear();
+            unit3->handleClear();
             break;
           case 'T':
             unit1->handleTestButtonState(true);
+            unit2->handleTestButtonState(true);
+            unit3->handleTestButtonState(true);
             Sleep(200); //DEBOUNCE;
             break;
           case 'L':
           case 'F':
             unit1->handleDMEModeEntry((const uint8_t)inp.Event.KeyEvent.wVirtualKeyCode);
+            unit2->handleDMEModeEntry((const uint8_t)inp.Event.KeyEvent.wVirtualKeyCode);
+            unit3->handleDMEModeEntry((const uint8_t)inp.Event.KeyEvent.wVirtualKeyCode);
             break;
           case 'W':
             unit1->handleWaypointChange();
+            unit2->handleWaypointChange();
+            unit3->handleWaypointChange();
             break;
           case 'H':
             unit1->handleHoldButton();
+            unit2->handleHoldButton();
+            unit3->handleHoldButton();
             break;
           case 'A':
             unit1->handleAutoMan();
+            unit2->handleAutoMan();
+            unit3->handleAutoMan();
             break;
           case 'I':
             unit1->handleInstantAlign();
+            unit2->handleInstantAlign();
+            unit3->handleInstantAlign();
             break;
           case VK_ESCAPE:
             __exit = true;

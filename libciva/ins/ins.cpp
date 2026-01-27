@@ -2,8 +2,8 @@
 
 #pragma region Lifecycle
 
-INS::INS(VarManager &varManager, const std::string &id, const std::string &workDir) noexcept :
-  varManager(varManager), config(Config(workDir)), id(id), actionMalfunctionCodes() {
+INS::INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir) noexcept :
+  varManager(varManager), config(Config(workDir, configID)), id(id), actionMalfunctionCodes() {
   clearDisplay();
 
   // Init all things from global vars
@@ -11,6 +11,12 @@ INS::INS(VarManager &varManager, const std::string &id, const std::string &workD
 
   // Init exports
   exportVars();
+
+  // Setup random
+  std::random_device rd;
+  randomGenerator = std::make_unique<std::mt19937>(rd());
+  std::uniform_real_distribution<> disRad(0.0, 360.0);
+  errorRadial = disRad(*randomGenerator);
 }
 
 INS::~INS() noexcept {
@@ -142,7 +148,7 @@ void INS::exportVars() const noexcept {
   varManager.setVar(std::string(VAR_START) + OUTPUT_DESIRED_TRACK + id, desiredTrack);
 }
 
-void INS::update(const double dTime) noexcept {
+void INS::updatePreMix(const double dTime) noexcept {
   // Oven
   temperatureSim(dTime);
   // Aux data
@@ -216,9 +222,6 @@ void INS::update(const double dTime) noexcept {
       }
 
       updateCurrentINSPosition(dTime);
-      alertLamp(dTime);
-      updateMetrics();
-      updateNav(dTime);
 
       // AI
       if (timeInMode >= TIME_PER_AI && accuracyIndex < 9) {
@@ -235,10 +238,19 @@ void INS::update(const double dTime) noexcept {
       break;
     }
   }
+}
+
+void INS::updatePostMix(const double dTime) noexcept {
+  // NAV
+  if (state == INS_STATE::NAV) {
+    alertLamp(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition, dTime);
+    updateMetrics(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition);
+    updateNav(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition, dTime);
+  }
 
   // Display
   if (state > INS_STATE::OFF && state < INS_STATE::ATT) {
-    updateDisplay();
+    updateDisplay(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition);
   }
 
   // Exports

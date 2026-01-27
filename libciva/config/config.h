@@ -9,6 +9,7 @@
 
 class Config {
   const std::string basePath;
+  const std::string id;
   double operatingTempInC = 76;
   double heaterWattage = 2000;
   double heaterEfficiency = 0.9;
@@ -22,7 +23,7 @@ class Config {
   char expectedBankAngle = 30;
 
 public:
-  Config(const std::string &workDir) noexcept;
+  Config(const std::string &workDir, const std::string &id) noexcept;
 
   void save() const noexcept;
 

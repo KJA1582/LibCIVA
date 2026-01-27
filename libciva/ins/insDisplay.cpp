@@ -188,7 +188,7 @@ void INS::formatActionMalfunctionCode(const bool showingMalf) noexcept {
   }
 }
 
-void INS::updateDisplay() noexcept {
+void INS::updateDisplay(POSITION pos) noexcept {
   if (inTestMode) {
     uint64_t d;
     d = 0xFF88888888F88888;
@@ -201,12 +201,11 @@ void INS::updateDisplay() noexcept {
   }
   if (insertMode == INSERT_MODE::INV || insertMode == INSERT_MODE::WPT_CHG_TO ||
       insertMode == INSERT_MODE::WPT_CHG_FROM) {
-    // TODO: Tripple mix display
     if (inHoldMode && !holdRequiresForce) {
       displayPosition = holdPosition;
     }
     else if (!holdRequiresForce) {
-      displayPosition = currentINSPosition;
+      displayPosition = pos;
     }
   }
 
@@ -319,14 +318,14 @@ void INS::updateDisplay() noexcept {
       display.characters.LEFT_3 = display.characters.LEFT_4 = display.characters.RIGHT_5 = 0;
       display.characters.LEFT_5 = display.characters.RIGHT_6 = DISPLAY_CHAR_LEFT;
 
-      if (state >= INS_STATE::ALIGN && currentINSPosition.isValid() &&
+      if (state >= INS_STATE::ALIGN && pos.isValid() &&
           (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
         int16_t xtk = 0;
         uint16_t crs = 0;
         if (insertMode == INSERT_MODE::WPT_CHG_FROM || insertMode == INSERT_MODE::WPT_CHG_TO) {
           xtk = (int16_t)std::round(std::min(9999.0,
-                                             currentINSPosition.crossTrackDistance(waypoints[display.characters.FROM],
-                                                                                   waypoints[display.characters.TO]) * 10));
+                                             pos.crossTrackDistance(waypoints[display.characters.FROM],
+                                                                    waypoints[display.characters.TO]) * 10));
           crs = (uint16_t)std::round(waypoints[display.characters.FROM].bearingTo(waypoints[display.characters.TO]));
         }
         else {
@@ -428,14 +427,14 @@ void INS::updateDisplay() noexcept {
       display.characters.LEFT_1 = display.characters.RIGHT_1 = display.characters.RIGHT_2 = DISPLAY_CHAR_BLANK;
 
       if (dmeMode != DME_MODE::INV) {
-        if (currentINSPosition.isValid()) {
-          dist = currentINSPosition.distanceTo(DMEs[std::max(0, waypointSelector - 1)].position);
+        if (pos.isValid()) {
+          dist = pos.distanceTo(DMEs[std::max(0, waypointSelector - 1)].position);
         }
       }
       else if (insertMode == INSERT_MODE::WPT_CHG_FROM || insertMode == INSERT_MODE::WPT_CHG_TO) {
         dist = waypoints[display.characters.FROM].distanceTo(waypoints[display.characters.TO]);
         if (state >= INS_STATE::ALIGN && (alignSubmode < ALIGN_SUBMODE::MODE_7 ||
-                                          (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
+                                         (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
           time = gsValid && gs > MIN_GS_TIME ? (int16_t)std::round(std::min(9999.0, (dist / gs) * 600)) : 9999;
         }
         else {
@@ -443,9 +442,9 @@ void INS::updateDisplay() noexcept {
         }
       }
       else {
-        dist = currentINSPosition.distanceTo(waypoints[currentLegEnd]);
+        dist = pos.distanceTo(waypoints[currentLegEnd]);
         if (state >= INS_STATE::ALIGN && (alignSubmode < ALIGN_SUBMODE::MODE_7 ||
-                                          (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
+                                         (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
           time = gsValid && gs > MIN_GS_TIME ? (int16_t)std::round(std::min(9999.0, (dist / gs) * 600)) : 9999;
         }
         else {
@@ -508,7 +507,7 @@ void INS::updateDisplay() noexcept {
         display.characters.S = display.characters.E = display.characters.W = false;
       display.characters.LEFT_3 = display.characters.RIGHT_4 = DISPLAY_CHAR_BLANK;
 
-      if (currentINSPosition.isValid()) {
+      if (pos.isValid()) {
         display.characters.LEFT_1 = DISPLAY_CHAR_BLANK;
         display.characters.LEFT_2 = DISPLAY_CHAR_BLANK;
         display.characters.LEFT_DEG_2 = true;
@@ -554,8 +553,8 @@ void INS::updateDisplay() noexcept {
     case DATA_SELECTOR::WPT: {
       if (dmeMode != DME_MODE::INV) {
         display.characters.FROM = DISPLAY_CHAR_BLANK;
-        display.characters.TO = activeDME;
-        indicators.indicator.TO_BLINK = true;
+        if (insertMode == INSERT_MODE::INV) display.characters.TO = activeDME;
+        indicators.indicator.TO_BLINK = insertMode != INSERT_MODE::WPT_CHG_TO ? true : false;
         indicators.indicator.FROM_BLINK = false;
       }
       else if (insertMode != INSERT_MODE::WPT_CHG_FROM && insertMode != INSERT_MODE::WPT_CHG_TO) {
@@ -569,8 +568,8 @@ void INS::updateDisplay() noexcept {
     {
       if (dmeMode != DME_MODE::INV) {
         display.characters.FROM = DISPLAY_CHAR_BLANK;
-        display.characters.TO = activeDME;
-        indicators.indicator.TO_BLINK = true;
+        if (insertMode == INSERT_MODE::INV) display.characters.TO = activeDME;
+        indicators.indicator.TO_BLINK = insertMode != INSERT_MODE::WPT_CHG_TO ? true : false;;
         indicators.indicator.FROM_BLINK = false;
       }
       else if (insertMode != INSERT_MODE::WPT_CHG_FROM && insertMode != INSERT_MODE::WPT_CHG_TO) {
@@ -592,7 +591,7 @@ void INS::updateDisplay() noexcept {
   }
 }
 
-void INS::alertLamp(const double dTime) noexcept {
+void INS::alertLamp(POSITION pos, const double dTime) noexcept {
   static double flashTime = 0;
 
   double gs = 0;
@@ -600,12 +599,12 @@ void INS::alertLamp(const double dTime) noexcept {
 
   if (gsValid) {
     double legDist = waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd]);
-    double remDist = currentINSPosition.distanceTo(waypoints[currentLegEnd]);
+    double remDist = pos.distanceTo(waypoints[currentLegEnd]);
 
     double legTime = (legDist / gs) * 3600;
     double remTime = (remDist / gs) * 3600;
 
-    if (!waypoints[currentLegStart].inFront(currentINSPosition, track)) {
+    if (!waypoints[currentLegStart].inFront(pos, track)) {
       // We passed
       if ((autoMode && legTime < MIN_LEG_TIME) || !autoMode) {
         // Either in manual mode or leg time is < 25.6 in auto mode

@@ -223,7 +223,7 @@ void INS::handleNumeric(const uint8_t value) noexcept {
   }
   else if (insertMode == INSERT_MODE::WPT_CHG_TO) {
     display.characters.TO = value;
-    insertMode = INSERT_MODE::WPT_CHG_FROM;
+    if (dmeMode == DME_MODE::INV) insertMode = INSERT_MODE::WPT_CHG_FROM;
 
     return;
   }
@@ -496,6 +496,7 @@ void INS::handleInsert() noexcept {
       // Aided
       else if (display.characters.RIGHT_6 == 4) {
         activePerformanceIndex = 4;
+        //TODO: Start DME update
       }
       // Unaided
       else {
@@ -506,15 +507,21 @@ void INS::handleInsert() noexcept {
     }
     case INSERT_MODE::WPT_CHG_FROM:
     case INSERT_MODE::WPT_CHG_TO: {
-      // TODO: DME designation
-      
-      currentLegStart = display.characters.FROM;
-      currentLegEnd = display.characters.TO;
+      if (dmeMode != DME_MODE::INV) {
+        activeDME = display.characters.TO;
+        timeInDME = 0;
+        //TODO: Start DME update
+      }
+      else {
+        currentLegStart = display.characters.FROM;
+        currentLegEnd = display.characters.TO;
 
-      waypoints[0] = currentINSPosition;
-      timeInLeg = 0;
+        waypoints[0] = currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition;
+        timeInLeg = 0;
+      }
 
-      indicators.indicator.WAYPOINT_CHANGE = indicators.indicator.ALERT  = false;
+      indicators.indicator.WAYPOINT_CHANGE = indicators.indicator.ALERT = false;
+
       break;
     }
   }
@@ -595,7 +602,10 @@ void INS::handleClear() noexcept {
   }
   // Reset displayed
   if (insertMode == INSERT_MODE::PRE_POS_LON || insertMode == INSERT_MODE::POS_LON) {
-    if (currentINSPosition.isValid()) {
+    if (currentTrippleMixPosition.isValid()) {
+      displayPosition = currentTrippleMixPosition;
+    }
+    else if (currentINSPosition.isValid()) {
       displayPosition = currentINSPosition;
     }
     else {
@@ -611,8 +621,14 @@ void INS::handleWaypointChange() noexcept {
   // Can't in OFF or ATT
   if (state == INS_STATE::OFF || state == INS_STATE::ATT) return;
 
-  indicators.indicator.WAYPOINT_CHANGE = indicators.indicator.INSERT = true;
-  insertMode = INSERT_MODE::WPT_CHG_FROM;
+  if (dmeMode != DME_MODE::INV) {
+    indicators.indicator.WAYPOINT_CHANGE = indicators.indicator.INSERT = true;
+    insertMode = INSERT_MODE::WPT_CHG_TO;
+  }
+  else {
+    indicators.indicator.WAYPOINT_CHANGE = indicators.indicator.INSERT = true;
+    insertMode = INSERT_MODE::WPT_CHG_FROM;
+  }
 }
 
 void INS::handleHoldButton() noexcept {

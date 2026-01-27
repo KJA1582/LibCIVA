@@ -60,6 +60,8 @@ class INS {
   POSITION initialINSPosition = { 999, 999 };
   // Current INS position with updates
   POSITION currentINSPosition = { 999, 999 };
+  // Current INS tripple mix position with updates
+  POSITION currentTrippleMixPosition = { 999, 999 };
   // HOLD mode
   POSITION holdINSPosition = { 999, 999 };
   POSITION holdPosition = { 999, 999 };
@@ -106,14 +108,19 @@ class INS {
   double initialTimeInNAV = INTIAL_TIME_IN_NAV;
   // Current time in NAV, starts at AI 5 value, ticks down in align after AI 5, ticks up in NAV
   double timeInNAV = INTIAL_TIME_IN_NAV;
+  // Time spent in current leg
+  double timeInLeg = 0;
+  // Time spent in DME update mode
+  double timeInDME = 0;
   // Current track
   double track = 0;
   // Cross track distance, positive is plane right of track, nmi
   double crossTrackError = 0;
   // Desirecd track
   double desiredTrack = 0;
-  // Time sepnt in current leg
-  double timeInLeg = 0;
+  // Random generators for drift
+  std::unique_ptr<std::mt19937> randomGenerator;
+  double errorRadial = 0;
   // Current INS State
   INS_STATE state = INS_STATE::OFF;
   // Current align submode
@@ -161,8 +168,8 @@ class INS {
   void advanceActionMalfunctionIndex() noexcept;
   void updateSimPosDelta() noexcept;
   void updateCurrentINSPosition(const double dTime) noexcept;
-  void updateMetrics() noexcept;
-  void updateNav(const double dTime) noexcept;
+  void updateMetrics(POSITION pos) noexcept;
+  void updateNav(POSITION pos, const double dTime) noexcept;
 
   #pragma endregion
 
@@ -170,9 +177,10 @@ class INS {
   void reset(const bool full) noexcept;
   void calculateTrack() noexcept;
   void handleOutOfBounds() noexcept;
-  void updateDisplay() noexcept;
+  void updateDisplay(POSITION pos) noexcept;
   void align(const double dTime) noexcept;
   void exportVars() const noexcept;
+  void alertLamp(POSITION pos, const double dTime) noexcept;
 
   void formatActionMalfunctionCode(const bool showingMalf) noexcept;
 
@@ -183,11 +191,11 @@ class INS {
   }
 
 public:
-  INS(VarManager &varManager, const std::string &id, const std::string &workDir) noexcept;
+  INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir) noexcept;
   ~INS() noexcept;
 
-  void update(const double dTime) noexcept;
-  void alertLamp(const double dTime) noexcept;
+  void updatePreMix(const double dTime) noexcept;
+  void updatePostMix(const double dTime) noexcept;
 
   #pragma region Public Getter/Setter
 

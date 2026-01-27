@@ -9,14 +9,11 @@
   - BAT CDU Lamp when on bat
   - BAT MSU lamp when auto shutdown due to low bat
 - TAXI in ALIGN error
-- Unit IDing for Configs
 - SB Import (ADEU)
 
 # Updating
 
 - Entry to #4
-- DME Select
-  - WP CHG button  
 - DME Update
   - AI trickle down to 1 (0 on dual DME) if ALT INF correct, down to 2 otherwise
   - Freq compare entered with tuned
