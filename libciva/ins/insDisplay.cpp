@@ -416,7 +416,7 @@ void INS::updateDisplay() noexcept {
       break;
     }
     case DATA_SELECTOR::DISTIME: {
-      uint16_t dist = 0;
+      double dist = 0;
       int16_t time = -1;
 
       display.characters.LEFT_DEC_1 = display.characters.LEFT_DEC_2 =
@@ -429,14 +429,11 @@ void INS::updateDisplay() noexcept {
 
       if (dmeMode != DME_MODE::INV) {
         if (currentINSPosition.isValid()) {
-          dist = (uint16_t)std::round(std::min(9999.0,
-                                               currentINSPosition.distanceTo(DMEs[std::max(0, waypointSelector - 1)].position)));
+          dist = currentINSPosition.distanceTo(DMEs[std::max(0, waypointSelector - 1)].position);
         }
       }
       else if (insertMode == INSERT_MODE::WPT_CHG_FROM || insertMode == INSERT_MODE::WPT_CHG_TO) {
-        dist = (uint16_t)std::round(std::min(9999.0,
-                                             waypoints[display.characters.FROM].distanceTo(
-                                               waypoints[display.characters.TO])));
+        dist = waypoints[display.characters.FROM].distanceTo(waypoints[display.characters.TO]);
         if (state >= INS_STATE::ALIGN && (alignSubmode < ALIGN_SUBMODE::MODE_7 ||
                                           (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
           time = gsValid && gs > MIN_GS_TIME ? (int16_t)std::round(std::min(9999.0, (dist / gs) * 600)) : 9999;
@@ -446,8 +443,7 @@ void INS::updateDisplay() noexcept {
         }
       }
       else {
-        dist = (uint16_t)std::round(std::min(9999.0,
-                                             waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd])));
+        dist = currentINSPosition.distanceTo(waypoints[currentLegEnd]);
         if (state >= INS_STATE::ALIGN && (alignSubmode < ALIGN_SUBMODE::MODE_7 ||
                                           (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
           time = gsValid && gs > MIN_GS_TIME ? (int16_t)std::round(std::min(9999.0, (dist / gs) * 600)) : 9999;
@@ -457,7 +453,7 @@ void INS::updateDisplay() noexcept {
         }
       }
 
-      formatQuad(display, dist, true, false, 0);
+      formatQuad(display, (uint16_t)std::round(std::min(9999.0, dist)), true, false, 0);
       if (time >= 0) {
         formatQuad(display, time, false, false, 0, true);
       }

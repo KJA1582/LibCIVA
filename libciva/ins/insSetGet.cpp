@@ -138,7 +138,7 @@ void INS::updateMetrics() noexcept {
   /* DSRTK */
 
   if (alongDist < waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd])) {
-    desiredTrack = std::round(alongPos.bearingTo(waypoints[currentLegEnd]));
+    desiredTrack = alongPos.bearingTo(waypoints[currentLegEnd]);
   }
   else {
     desiredTrack = legCrs;
@@ -148,8 +148,6 @@ void INS::updateMetrics() noexcept {
 void INS::updateNav(const double dTime) noexcept {
   // Skip if not in auto
   if (!autoMode) return;
-  
-  static double spentTime = 0;
 
   double gs;
   bool gsValid = varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs);
@@ -157,30 +155,36 @@ void INS::updateNav(const double dTime) noexcept {
   // Invalid/slow speed, skip
   if (!gsValid || gs <= 1) return;
 
-  double legCrs = waypoints[currentLegStart].bearingTo(waypoints[currentLegEnd]);
+  double crsToEnd = currentINSPosition.bearingTo(waypoints[currentLegEnd]);
   double nextCrs = waypoints[currentLegEnd].bearingTo(waypoints[(currentLegEnd % 9) + 1]);
   double dist = currentINSPosition.distanceTo(waypoints[currentLegEnd]);
-  double legTime = waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd]) / gs;
+  double legTime = (waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd]) / gs) * 3600;
 
   // Leg time less than min and not yet flown min leg time
-  if (legTime < MIN_LEG_TIME && spentTime < MIN_LEG_TIME) {
-    spentTime += dTime;
+  if (legTime < MIN_LEG_TIME || timeInLeg < MIN_LEG_TIME) {
+    timeInLeg += dTime;
     return;
   }
 
   double turnRadius = (gs * gs) / (11.26 * std::tan(config.getExpectedBankAngle() * M_PI / 180.0));
-  double delta = nextCrs - legCrs;
+  double delta = nextCrs - track;
   while (delta < -180.0) delta += 360.0;
   while (delta >= 180.0) delta -= 360.0;
   double turnDist = turnRadius * std::tan((std::abs(delta) * M_PI / 180.0) / 2.0);
+  turnDist /= 6076.1154856;
 
-  // Turn point hit, advance leg
-  if (dist <= turnDist) {
+  // Turn point hit, advance leg (must be <2deg delta between track and dirto crs)
+  if (dist <= turnDist && std::abs(crsToEnd - track) < 2) {
+    //FIXME: DEBUG ENTRY
+    Logger::GetInstance() << "LEG changed at " << dist << "/" << turnDist << " remaining from " <<
+      (int)currentLegStart << " along " << track << " to " << (int)currentLegEnd << " along " << nextCrs << "\n";
+
     currentLegStart = currentLegEnd;
     currentLegEnd = (currentLegEnd % 9) + 1;
-    spentTime = 0;
+    indicators.indicator.ALERT = false;
+    timeInLeg = 0;
     return;
   }
 
-  spentTime += dTime;
+  timeInLeg += dTime;
 }

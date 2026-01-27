@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "config/config.h"
+#include "logger/logger.h"
 #include "types/types.h"
 #include "varManager/varManager.h"
 
@@ -101,16 +102,18 @@ class INS {
   double ovenTemperature = 0;
   // Current time in mode
   double timeInMode = 0;
-  // Uncorrected time in NAV, starts at AI 5 value, ticks down in algin after AI 5, ticks up in NAV
+  // Uncorrected time in NAV, starts at AI 5 value, ticks down in align after AI 5, ticks up in NAV
   double initialTimeInNAV = INTIAL_TIME_IN_NAV;
-  // Current time in NAV, starts at AI 5 value, ticks down in algin after AI 5, ticks up in NAV
+  // Current time in NAV, starts at AI 5 value, ticks down in align after AI 5, ticks up in NAV
   double timeInNAV = INTIAL_TIME_IN_NAV;
   // Current track
   double track = 0;
-  // Cross track distance, positive is right, nmi
+  // Cross track distance, positive is plane right of track, nmi
   double crossTrackError = 0;
   // Desirecd track
   double desiredTrack = 0;
+  // Time sepnt in current leg
+  double timeInLeg = 0;
   // Current INS State
   INS_STATE state = INS_STATE::OFF;
   // Current align submode
@@ -222,6 +225,7 @@ public:
   void handleWaypointChange() noexcept;
   void handleHoldButton() noexcept;
   void handleAutoMan() noexcept;
+  void handleInstantAlign() noexcept;
 
   #pragma endregion
 };

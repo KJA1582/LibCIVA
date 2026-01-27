@@ -215,10 +215,10 @@ void INS::update(const double dTime) noexcept {
         initialError = currentError = { 0, 0 };
       }
 
-      updateNav(dTime);
       updateCurrentINSPosition(dTime);
-      updateMetrics();
       alertLamp(dTime);
+      updateMetrics();
+      updateNav(dTime);
 
       // AI
       if (timeInMode >= TIME_PER_AI && accuracyIndex < 9) {

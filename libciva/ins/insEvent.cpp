@@ -356,7 +356,7 @@ void INS::handleInsert() noexcept {
 
       if (state == INS_STATE::NAV && inHoldMode) {
         // Reject
-        if (displayPosition.distanceTo(currentINSPosition) > MAX_DEV) {
+        if (displayPosition.distanceTo(initialINSPosition) > MAX_DEV) {
           actionMalfunctionCodes.codes.A02_49 = true;
           advanceActionMalfunctionIndex();
           indicators.indicator.WARN = holdRequiresForce = true;
@@ -365,14 +365,18 @@ void INS::handleInsert() noexcept {
 
         currentError = { 0, 0 };
         timeInNAV = 0;
-        currentINSPosition = displayPosition;
+
+        // Get delta of reference entered and what froze
+        POSITION delta = holdPosition - displayPosition;
+        // Set updated position to be w/e currently is + delta
+        currentINSPosition = currentINSPosition + delta;
         updateSimPosDelta();
         indicators.indicator.HOLD = false;
         inHoldMode = false;
       }
       // In ALIGN
       else if (state == INS_STATE::ALIGN) {
-        // MODE 5 or less, trigger 02-63 and denie nav entry by resetting to mode 6
+        // MODE 5 or less, trigger 02-63 and deny nav entry by resetting to mode 6
         if (alignSubmode < ALIGN_SUBMODE::MODE_6) {
           actionMalfunctionCodes.codes.A02_63 = true;
           advanceActionMalfunctionIndex();
@@ -502,10 +506,13 @@ void INS::handleInsert() noexcept {
     }
     case INSERT_MODE::WPT_CHG_FROM:
     case INSERT_MODE::WPT_CHG_TO: {
+      // TODO: DME designation
+      
       currentLegStart = display.characters.FROM;
       currentLegEnd = display.characters.TO;
 
       waypoints[0] = currentINSPosition;
+      timeInLeg = 0;
 
       indicators.indicator.WAYPOINT_CHANGE = indicators.indicator.ALERT  = false;
       break;
@@ -622,6 +629,8 @@ void INS::handleHoldButton() noexcept {
 
     holdINSPosition = holdPosition = { 999, 999 };
     inHoldMode = holdRequiresForce = false;
+    indicators.indicator.INSERT = false;
+    insertMode = INSERT_MODE::INV;
   }
   else {
     holdINSPosition = initialINSPosition;
@@ -634,4 +643,12 @@ void INS::handleHoldButton() noexcept {
 
 void INS::handleAutoMan() noexcept {
   autoMode = !autoMode;
+}
+
+void INS::handleInstantAlign() noexcept {
+  if (modeSelector != MODE_SELECTOR::ALIGN) return;
+
+  alignSubmode = ALIGN_SUBMODE::MODE_0;
+  indicators.indicator.READY_NAV = true;
+  initialTimeInNAV =  timeInNAV = timeInMode = 0;
 }

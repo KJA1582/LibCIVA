@@ -10,6 +10,7 @@
   - BAT MSU lamp when auto shutdown due to low bat
 - TAXI in ALIGN error
 - Unit IDing for Configs
+- SB Import (ADEU)
 
 # Updating
 
@@ -31,6 +32,7 @@
 # Multi Unit
 
 - Unit intercom
+  - Remote key
 - Tripple Mix
 
 # Sim specific
