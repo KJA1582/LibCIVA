@@ -36,4 +36,6 @@ struct DATA {
   double headingTrue;
   double latitude;
   double longitude;
+  double navDME1;
+  double navDME2;
 };

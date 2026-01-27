@@ -51,6 +51,8 @@ static void handleSimConnect() {
         winVarManager->setVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, data->headingTrue);
         winVarManager->setVar(SIM_VAR_PLANE_LATITUDE, data->latitude);
         winVarManager->setVar(SIM_VAR_PLANE_LONGITUDE, data->longitude);
+        winVarManager->setVar(SIM_VAR_NAV_DME_1, data->navDME1);
+        winVarManager->setVar(SIM_VAR_NAV_DME_2, data->navDME2);
         break;
       }
       case SIMCONNECT_RECV_ID_SIMOBJECT_DATA_BYTYPE: {
@@ -91,7 +93,7 @@ static void runner() {
     // FIXME: 100 times as fast as IRL (-9)
     {
       std::lock_guard<std::mutex> guard(lock);
-      unit1->update(delta.count() * 1e-7);
+      unit1->update(delta.count() * 1e-9);
     }
 
     HANDLE handle;
@@ -119,7 +121,8 @@ static void runner() {
     std::cout << "CLEAR    : DEL" << std::endl;
     std::cout << "WPT CHG  : W" << std::endl;
     std::cout << "HOLD     : H" << std::endl;
-    std::cout << "AUTO/MAN : A" << std::endl << std::endl;
+    std::cout << "AUTO/MAN : A" << std::endl;
+    std::cout << "INST ALIG: I" << std::endl << std::endl;
 
     std::cout << "dT was " << delta.count() * 1e-6 << "ms" << std::endl;
   }
@@ -139,6 +142,8 @@ static void setupSimConnect() {
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_PLANE_HEADING_DEGREES_TRUE, "DEGREE");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_PLANE_LATITUDE, "DEGREE");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_PLANE_LONGITUDE, "DEGREE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_NAV_DME_1, "NAUTICAL MILE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_NAV_DME_2, "NAUTICAL MILE");
 
   SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA,
                                     SIMCONNECT_OBJECT_ID_USER, SIMCONNECT_PERIOD_VISUAL_FRAME);
@@ -245,6 +250,9 @@ int main() {
             break;
           case 'A':
             unit1->handleAutoMan();
+            break;
+          case 'I':
+            unit1->handleInstantAlign();
             break;
           case VK_ESCAPE:
             __exit = true;
