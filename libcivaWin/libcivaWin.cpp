@@ -4,11 +4,9 @@
 #include "libcivaWin.h"
 
 std::unique_ptr<WinVarManager> winVarManager;
-std::shared_ptr<INS> unit1;
-std::shared_ptr<INS> unit2;
-std::shared_ptr<INS> unit3;
+std::shared_ptr<INSContainer> ins;
 
-std::thread unit1Thread;
+std::thread INSThread;
 std::mutex lock;
 std::atomic<bool> __exit;
 
@@ -95,13 +93,7 @@ static void runner() {
     // FIXME: 100 times as fast as IRL (-9)
     {
       std::lock_guard<std::mutex> guard(lock);
-      unit1->updatePreMix(delta.count() * 1e-7);
-      unit2->updatePreMix(delta.count() * 1e-7);
-      unit3->updatePreMix(delta.count() * 1e-7);
-      // TODO: Mix
-      unit1->updatePostMix(delta.count() * 1e-7);
-      unit2->updatePostMix(delta.count() * 1e-7);
-      unit3->updatePostMix(delta.count() * 1e-7);
+      ins->update(delta.count() * 1e-7);
     }
 
     HANDLE handle;
@@ -163,20 +155,9 @@ int main() {
 
   winVarManager = std::make_unique<WinVarManager>();
 
-  unit1 = std::make_shared<INS>(*winVarManager, "UNIT_1", "1", WORK_DIR);
-  unit2 = std::make_shared<INS>(*winVarManager, "UNIT_2", "2", WORK_DIR);
-  unit3 = std::make_shared<INS>(*winVarManager, "UNIT_3", "3", WORK_DIR);
+  ins = std::make_unique<INSContainer>(*winVarManager, UNIT_COUNT::THREE, UNIT_HAS_DME::BOTH, "");
 
-  unit1->connectUnit2(unit2);
-  unit1->connectUnit3(unit3);
-
-  unit2->connectUnit2(unit1);
-  unit2->connectUnit3(unit3);
-
-  unit3->connectUnit2(unit1);
-  unit3->connectUnit3(unit2);
-
-  unit1Thread = std::thread(runner);
+  INSThread = std::thread(runner);
 
   HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
   INPUT_RECORD inp;
@@ -188,152 +169,156 @@ int main() {
 
     std::lock_guard<std::mutex> guard(lock);
 
-    switch (inp.EventType) {
-      case KEY_EVENT: {
-        if (!inp.Event.KeyEvent.bKeyDown) {
-          if (inp.Event.KeyEvent.wVirtualKeyCode == 'T') {
-            unit1->handleTestButtonState(false);
+    ins->handleEvent([inp](auto unit1, auto unit2, auto unit3) {
+      switch (inp.EventType) {
+        case KEY_EVENT: {
+          if (!inp.Event.KeyEvent.bKeyDown) {
+            if (inp.Event.KeyEvent.wVirtualKeyCode == 'T') {
+              unit1->handleTestButtonState(false);
+              if (unit2) unit2->handleTestButtonState(false);
+              if (unit3) unit3->handleTestButtonState(false);
+            }
+
+            break;
+          }
+
+          switch (inp.Event.KeyEvent.wVirtualKeyCode) {
+            case VK_UP:
+              unit1->incDataSelectorPos();
+              if (unit2) unit2->incDataSelectorPos();
+              if (unit3) unit3->incDataSelectorPos();
+              break;
+            case VK_DOWN:
+              unit1->decDataSelectorPos();
+              if (unit2) unit2->decDataSelectorPos();
+              if (unit3) unit3->decDataSelectorPos();
+              break;
+            case VK_LEFT:
+              unit1->decModeSelectorPos();
+              if (unit2) unit2->decModeSelectorPos();
+              if (unit3) unit3->decModeSelectorPos();
+              break;
+            case VK_RIGHT:
+              unit1->incModeSelectorPos();
+              if (unit2) unit2->incModeSelectorPos();
+              if (unit3) unit3->incModeSelectorPos();
+              break;
+            case VK_NUMPAD0:
+              unit1->handleNumeric(0);
+              if (unit2) unit2->handleNumeric(0);
+              if (unit3) unit3->handleNumeric(0);
+              break;
+            case VK_NUMPAD1:
+              unit1->handleNumeric(1);
+              if (unit2) unit2->handleNumeric(1);
+              if (unit3) unit3->handleNumeric(1);
+              break;
+            case VK_NUMPAD2:
+              unit1->handleNumeric(2);
+              if (unit2) unit2->handleNumeric(2);
+              if (unit3) unit3->handleNumeric(2);
+              break;
+            case VK_NUMPAD3:
+              unit1->handleNumeric(3);
+              if (unit2) unit2->handleNumeric(3);
+              if (unit3) unit3->handleNumeric(3);
+              break;
+            case VK_NUMPAD4:
+              unit1->handleNumeric(4);
+              if (unit2) unit2->handleNumeric(4);
+              if (unit3) unit3->handleNumeric(4);
+              break;
+            case VK_NUMPAD5:
+              unit1->handleNumeric(5);
+              if (unit2) unit2->handleNumeric(5);
+              if (unit3) unit3->handleNumeric(5);
+              break;
+            case VK_NUMPAD6:
+              unit1->handleNumeric(6);
+              if (unit2) unit2->handleNumeric(6);
+              if (unit3) unit3->handleNumeric(6);
+              break;
+            case VK_NUMPAD7:
+              unit1->handleNumeric(7);
+              if (unit2) unit2->handleNumeric(7);
+              if (unit3) unit3->handleNumeric(7);
+              break;
+            case VK_NUMPAD8:
+              unit1->handleNumeric(8);
+              if (unit2) unit2->handleNumeric(8);
+              if (unit3) unit3->handleNumeric(8);
+              break;
+            case VK_NUMPAD9:
+              unit1->handleNumeric(9);
+              if (unit2) unit2->handleNumeric(9);
+              if (unit3) unit3->handleNumeric(9);
+              break;
+            case VK_RETURN:
+              unit1->handleInsert();
+              if (unit2) unit2->handleInsert();
+              if (unit3) unit3->handleInsert();
+              break;
+            case VK_ADD:
+              unit1->incWaypointSelectorPos();
+              if (unit2) unit2->incWaypointSelectorPos();
+              if (unit3) unit3->incWaypointSelectorPos();
+              break;
+            case VK_SUBTRACT:
+              unit1->decWaypointSelectorPos();
+              if (unit2) unit2->decWaypointSelectorPos();
+              if (unit3) unit3->decWaypointSelectorPos();
+              break;
+            case VK_DELETE:
+              unit1->handleClear();
+              if (unit2) unit2->handleClear();
+              if (unit3) unit3->handleClear();
+              break;
+            case 'T':
+              unit1->handleTestButtonState(true);
+              if (unit2) unit2->handleTestButtonState(true);
+              if (unit3) unit3->handleTestButtonState(true);
+              Sleep(200); //DEBOUNCE;
+              break;
+            case 'L':
+            case 'F':
+              unit1->handleDMEModeEntry((const uint8_t)inp.Event.KeyEvent.wVirtualKeyCode);
+              if (unit2) unit2->handleDMEModeEntry((const uint8_t)inp.Event.KeyEvent.wVirtualKeyCode);
+              if (unit3) unit3->handleDMEModeEntry((const uint8_t)inp.Event.KeyEvent.wVirtualKeyCode);
+              break;
+            case 'W':
+              unit1->handleWaypointChange();
+              if (unit2) unit2->handleWaypointChange();
+              if (unit3) unit3->handleWaypointChange();
+              break;
+            case 'H':
+              unit1->handleHoldButton();
+              if (unit2) unit2->handleHoldButton();
+              if (unit3) unit3->handleHoldButton();
+              break;
+            case 'A':
+              unit1->handleAutoMan();
+              if (unit2) unit2->handleAutoMan();
+              if (unit3) unit3->handleAutoMan();
+              break;
+            case 'I':
+              unit1->handleInstantAlign();
+              if (unit2) unit2->handleInstantAlign();
+              if (unit3) unit3->handleInstantAlign();
+              break;
+            case VK_ESCAPE:
+              __exit = true;
+              break;
           }
 
           break;
         }
-
-        switch (inp.Event.KeyEvent.wVirtualKeyCode) {
-          case VK_UP:
-            unit1->incDataSelectorPos();
-            unit2->incDataSelectorPos();
-            unit3->incDataSelectorPos();
-            break;
-          case VK_DOWN:
-            unit1->decDataSelectorPos();
-            unit2->decDataSelectorPos();
-            unit3->decDataSelectorPos();
-            break;
-          case VK_LEFT:
-            unit1->decModeSelectorPos();
-            unit2->decModeSelectorPos();
-            unit3->decModeSelectorPos();
-            break;
-          case VK_RIGHT:
-            unit1->incModeSelectorPos();
-            unit2->incModeSelectorPos();
-            unit3->incModeSelectorPos();
-            break;
-          case VK_NUMPAD0:
-            unit1->handleNumeric(0);
-            unit2->handleNumeric(0);
-            unit3->handleNumeric(0);
-            break;
-          case VK_NUMPAD1:
-            unit1->handleNumeric(1);
-            unit2->handleNumeric(1);
-            unit3->handleNumeric(1);
-            break;
-          case VK_NUMPAD2:
-            unit1->handleNumeric(2);
-            unit2->handleNumeric(2);
-            unit3->handleNumeric(2);
-            break;
-          case VK_NUMPAD3:
-            unit1->handleNumeric(3);
-            unit2->handleNumeric(3);
-            unit3->handleNumeric(3);
-            break;
-          case VK_NUMPAD4:
-            unit1->handleNumeric(4);
-            unit2->handleNumeric(4);
-            unit3->handleNumeric(4);
-            break;
-          case VK_NUMPAD5:
-            unit1->handleNumeric(5);
-            unit2->handleNumeric(5);
-            unit3->handleNumeric(5);
-            break;
-          case VK_NUMPAD6:
-            unit1->handleNumeric(6);
-            unit2->handleNumeric(6);
-            unit3->handleNumeric(6);
-            break;
-          case VK_NUMPAD7:
-            unit1->handleNumeric(7);
-            unit2->handleNumeric(7);
-            unit3->handleNumeric(7);
-            break;
-          case VK_NUMPAD8:
-            unit1->handleNumeric(8);
-            unit2->handleNumeric(8);
-            unit3->handleNumeric(8);
-            break;
-          case VK_NUMPAD9:
-            unit1->handleNumeric(9);
-            unit2->handleNumeric(9);
-            unit3->handleNumeric(9);
-            break;
-          case VK_RETURN:
-            unit1->handleInsert();
-            unit2->handleInsert();
-            unit3->handleInsert();
-            break;
-          case VK_ADD:
-            unit1->incWaypointSelectorPos();
-            unit2->incWaypointSelectorPos();
-            unit3->incWaypointSelectorPos();
-            break;
-          case VK_SUBTRACT:
-            unit1->decWaypointSelectorPos();
-            unit2->decWaypointSelectorPos();
-            unit3->decWaypointSelectorPos();
-            break;
-          case VK_DELETE:
-            unit1->handleClear();
-            unit2->handleClear();
-            unit3->handleClear();
-            break;
-          case 'T':
-            unit1->handleTestButtonState(true);
-            unit2->handleTestButtonState(true);
-            unit3->handleTestButtonState(true);
-            Sleep(200); //DEBOUNCE;
-            break;
-          case 'L':
-          case 'F':
-            unit1->handleDMEModeEntry((const uint8_t)inp.Event.KeyEvent.wVirtualKeyCode);
-            unit2->handleDMEModeEntry((const uint8_t)inp.Event.KeyEvent.wVirtualKeyCode);
-            unit3->handleDMEModeEntry((const uint8_t)inp.Event.KeyEvent.wVirtualKeyCode);
-            break;
-          case 'W':
-            unit1->handleWaypointChange();
-            unit2->handleWaypointChange();
-            unit3->handleWaypointChange();
-            break;
-          case 'H':
-            unit1->handleHoldButton();
-            unit2->handleHoldButton();
-            unit3->handleHoldButton();
-            break;
-          case 'A':
-            unit1->handleAutoMan();
-            unit2->handleAutoMan();
-            unit3->handleAutoMan();
-            break;
-          case 'I':
-            unit1->handleInstantAlign();
-            unit2->handleInstantAlign();
-            unit3->handleInstantAlign();
-            break;
-          case VK_ESCAPE:
-            __exit = true;
-            break;
-        }
-
-        break;
       }
-    }
+                     });
 
     Sleep(20);
   }
 
-  unit1Thread.join();
+  INSThread.join();
 
   return 0;
 }

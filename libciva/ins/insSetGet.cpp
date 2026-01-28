@@ -172,9 +172,12 @@ void INS::updateNav(POSITION pos, const double dTime) noexcept {
 
   // Turn point hit, advance leg (must be <2deg delta between track and dirto crs)
   if (dist <= turnDist && std::abs(crsToEnd - track) < 2) {
-    //FIXME: DEBUG ENTRY
-    Logger::GetInstance() << "LEG changed at " << dist << "/" << turnDist << " remaining from " <<
-      (int)currentLegStart << " along " << track << " to " << (int)currentLegEnd << " along " << nextCrs << "\n";
+
+#ifndef NDEBUG
+    Logger::GetInstance() << "Leg changed at " << dist << "/" << turnDist << " remaining from WPT " <<
+      (int)currentLegStart << " along " << track << " to WPT " << (int)currentLegEnd << ". Next crs " <<
+      nextCrs << "to WPT " << (int)((currentLegEnd % 9) + 1) << "\n";
+#endif
 
     currentLegStart = currentLegEnd;
     currentLegEnd = (currentLegEnd % 9) + 1;

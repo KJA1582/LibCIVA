@@ -6,6 +6,19 @@
 #include <cmath>
 #include <cstdint>
 
+enum class UNIT_COUNT: uint8_t {
+  ONE,
+  TWO,
+  THREE,
+};
+
+enum class UNIT_HAS_DME: uint8_t {
+  NONE,
+  ONE,
+  TWO,
+  BOTH,
+};
+
 enum class DATA_SELECTOR: uint8_t {
   TKGS,
   HDGDA,

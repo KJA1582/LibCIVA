@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <functional>
 #include <random>
 #include <string>
 #include <vector>
@@ -167,6 +168,8 @@ class INS {
   bool holdRequiresForce = false;
   // AUTO/MAN
   bool autoMode = true;
+  // If DME is connected
+  bool hasDME = false;
 
   #pragma endregion
 
@@ -196,7 +199,8 @@ class INS {
   }
 
 public:
-  INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir) noexcept;
+  INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir,
+      const bool hasDME) noexcept;
   ~INS() noexcept;
 
   void updatePreMix(const double dTime) noexcept;
@@ -254,5 +258,44 @@ public:
 
   #pragma endregion
 };
+
+class INSContainer {
+  std::shared_ptr<INS> unit1;
+  std::shared_ptr<INS> unit2;
+  std::shared_ptr<INS> unit3;
+
+public:
+  inline INSContainer(VarManager &varManager, UNIT_COUNT count, UNIT_HAS_DME dme, const std::string &configBaseID) noexcept {
+    unit1 = std::make_shared<INS>(varManager, "UNIT_1", "_1", WORK_DIR, dme == UNIT_HAS_DME::ONE || dme == UNIT_HAS_DME::BOTH);
+
+    if (count > UNIT_COUNT::ONE) unit2 = std::make_shared<INS>(varManager, "UNIT_2", configBaseID + "_2", WORK_DIR,
+                                                               dme == UNIT_HAS_DME::TWO || dme == UNIT_HAS_DME::BOTH);
+    if (count == UNIT_COUNT::THREE) unit3 = std::make_shared<INS>(varManager, "UNIT_3", configBaseID + "_3", WORK_DIR, false);
+
+    if (count > UNIT_COUNT::ONE) unit1->connectUnit2(unit2);
+    if (count == UNIT_COUNT::THREE) unit1->connectUnit3(unit3);
+
+    if (count > UNIT_COUNT::ONE) unit2->connectUnit2(unit1);
+    if (count == UNIT_COUNT::THREE) unit2->connectUnit3(unit3);
+
+    if (count == UNIT_COUNT::THREE) unit3->connectUnit2(unit1);
+    if (count == UNIT_COUNT::THREE) unit3->connectUnit3(unit2);
+  }
+
+  inline void update(const double dTime) const noexcept {
+    unit1->updatePreMix(dTime);
+    if (unit2) unit2->updatePreMix(dTime);
+    if (unit3) unit3->updatePreMix(dTime);
+    // TODO: Mix
+    unit1->updatePostMix(dTime);
+    if (unit2) unit2->updatePostMix(dTime);
+    if (unit3) unit3->updatePostMix(dTime);
+  }
+
+  inline void handleEvent(std::function<void(std::shared_ptr<INS>, std::shared_ptr<INS>, std::shared_ptr<INS>)> callback) {
+    callback(unit1, unit2, unit3);
+  }
+};
+
 
 #endif

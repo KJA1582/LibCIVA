@@ -2,8 +2,9 @@
 
 #pragma region Lifecycle
 
-INS::INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir) noexcept :
-  varManager(varManager), config(Config(workDir, configID)), id(id), actionMalfunctionCodes() {
+INS::INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir,
+         const bool hasDME) noexcept :
+  varManager(varManager), config(Config(workDir, configID)), id(id), actionMalfunctionCodes(), hasDME(hasDME) {
   clearDisplay();
 
   // Init all things from global vars
