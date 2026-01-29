@@ -162,11 +162,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\civaMSFS2024.cpp" />
-    <ClCompile Include="src\varManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\civaMSFS2024.h" />
-    <ClInclude Include="src\varManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -539,7 +539,7 @@ void INS::updateDisplay(POSITION pos) noexcept {
         display.characters.RIGHT_5 = (uint8_t)alignSubmode;
       }
 
-      formatActionMalfunctionCode(mafunctionCodeDisplayed);
+      formatActionMalfunctionCode(malfunctionCodeDisplayed);
 
       if (insertMode != INSERT_MODE::PERFORMANCE_INDEX) {
         display.characters.RIGHT_6 = activePerformanceIndex;

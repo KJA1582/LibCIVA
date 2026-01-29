@@ -39,7 +39,7 @@
   - NAV equations use current pos of slaved unit / tripple mix pos if avail
   - Current pos is the only one that has drift errors getting reduced
   - Initial position stays w/o any updates (Eradication behaviour highlight)
-  - In order to "reduce" drift, SIM position must be used to determin original "offset" of current/initial pos
+  - In order to "reduce" drift, SIM position must be used to determine original "offset" of current/initial pos
     - Updates reduce both error rate and delta of actual SIM pos and display pos
   - Entering NAV at 5 starts with higher error rate
   - Running NAV on ground will increase error, but very slowly
@@ -58,21 +58,13 @@ Notes on PI:
     - 0.3% of the time, AI1 -> > 1nmi deviation
   - Impl: https://en.cppreference.com/w/cpp/numeric/random/normal_distribution.html
     - At unit power up, pick random number for error rate in lat/lon
-    - Ensure that in 3sigma, the error rates at AI X create Xnmi radial error
-    - Error per dTime is dependant on GS (technially accel but meh)
+    - Ensure that in 3sigma, the error rates at AI X create X nmi radial error
+    - Error per dTime is dependant on GS (technically accel but meh)
       - Stationary still incurs penalty, but very little (integrator errors)
 
 # MSFS Unit specific
 
-- Setup via VarManager (no of units, export options, heading steering)
-- Controllable via EVENT
-  - MapClientEvent
-  - Use Custom.Event event strings
-    - Document in README
+- Controllable via LVAR
+  - Document in README
 
 # Documentation
-
-- Build instructions
-  - PC and MSFS
-- Event handling
-  - PC and MSFS

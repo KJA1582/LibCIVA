@@ -70,7 +70,7 @@ void INS::reset(const bool full) noexcept {
 
     insertMode = INSERT_MODE::INV;
     activePerformanceIndex = 5;
-    mafunctionCodeDisplayed = inTestMode = false;
+    malfunctionCodeDisplayed = inTestMode = false;
     dmeMode = DME_MODE::INV;
 
     actionMalfunctionCodes.value = 0;
@@ -81,7 +81,7 @@ void INS::reset(const bool full) noexcept {
   alignSubmode = ALIGN_SUBMODE::MODE_9;
   accuracyIndex = 9;
   timeInMode = 0;
-  initialTimeInNAV = timeInNAV = INTIAL_TIME_IN_NAV;
+  initialTimeInNAV = timeInNAV = INITIAL_TIME_IN_NAV;
   initialError = currentError = { 0, 0 };
   indicators.indicator.READY_NAV = false;
 }
@@ -155,14 +155,14 @@ void INS::handleOutOfBounds() noexcept {
 }
 
 void INS::exportVars() const noexcept {
-  varManager.setVar(std::string(VAR_START) + DISPLAY_VAR + id, display.value);
-  varManager.setVar(std::string(VAR_START) + INDICATORS_VAR + id, indicators.value);
-  varManager.setVar(std::string(VAR_START) + MODE_SELECTOR_POS_VAR + id, (double)modeSelector);
-  varManager.setVar(std::string(VAR_START) + DATA_SELECTOR_POS_VAR + id, (double)dataSelector);
-  varManager.setVar(std::string(VAR_START) + WAYPOINT_SELECTOR_POS_VAR + id, (double)waypointSelector);
-  varManager.setVar(std::string(VAR_START) + AUTO_MAN_POS_VAR + id, (double)autoMode);
-  varManager.setVar(std::string(VAR_START) + OUTPUT_CROSS_TRACK_ERROR + id, crossTrackError);
-  varManager.setVar(std::string(VAR_START) + OUTPUT_DESIRED_TRACK + id, desiredTrack);
+  varManager.setVar(DISPLAY_VAR + id, display.value);
+  varManager.setVar(INDICATORS_VAR + id, indicators.value);
+  varManager.setVar(MODE_SELECTOR_POS_VAR + id, (double)modeSelector);
+  varManager.setVar(DATA_SELECTOR_POS_VAR + id, (double)dataSelector);
+  varManager.setVar(WAYPOINT_SELECTOR_POS_VAR + id, (double)waypointSelector);
+  varManager.setVar(AUTO_MAN_POS_VAR + id, (double)autoMode);
+  varManager.setVar(OUTPUT_CROSS_TRACK_ERROR + id, crossTrackError);
+  varManager.setVar(OUTPUT_DESIRED_TRACK + id, desiredTrack);
 }
 
 void INS::updatePreMix(const double dTime) noexcept {
@@ -203,7 +203,7 @@ void INS::updatePreMix(const double dTime) noexcept {
       if (modeSelector != MODE_SELECTOR::OFF) {
         // Upmode
         state = INS_STATE::STBY;
-        displayPosition = config.getLastINSPosisiton();
+        displayPosition = config.getLastINSPosition();
         config.getLastDMEs(DMEs);
         indicators.indicator.INSERT = true;
         dmeMode = DME_MODE::INV;
@@ -234,7 +234,7 @@ void INS::updatePreMix(const double dTime) noexcept {
         // Downmode
         state = INS_STATE::ALIGN;
         alignSubmode = ALIGN_SUBMODE::MODE_9;
-        initialTimeInNAV = timeInNAV = INTIAL_TIME_IN_NAV;
+        initialTimeInNAV = timeInNAV = INITIAL_TIME_IN_NAV;
         initialError = currentError = { 0, 0 };
       }
 

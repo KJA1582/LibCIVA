@@ -8,7 +8,7 @@ static uint8_t convertCharacter(uint8_t c) {
   return 48 + c;
 }
 
-WinVarManager::WinVarManager() noexcept : VarManager("") {
+WinVarManager::WinVarManager() noexcept : VarManager() {
   setVar(SIM_VAR_AMBIENT_TEMPERATURE, 15);
   setVar(SIM_VAR_AMBIENT_WIND_DIRECTION, 284);
   setVar(SIM_VAR_AMBIENT_WIND_VELOCITY, 36);
@@ -26,7 +26,7 @@ void WinVarManager::dump() const noexcept {
   for (auto it = store.begin(); it != store.end(); ++it) {
     if (it->first.find(DISPLAY_VAR) != std::string::npos) {
       const DISPLAY v = *reinterpret_cast<const DISPLAY *>(&it->second);
-      auto iIt = store.lower_bound(std::string(VAR_START) + INDICATORS_VAR);
+      auto iIt = store.lower_bound(INDICATORS_VAR);
       if (iIt == store.end()) continue;
       const INDICATORS i = *reinterpret_cast<const INDICATORS *>(&iIt->second);
 

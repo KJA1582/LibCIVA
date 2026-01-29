@@ -287,7 +287,7 @@ int main() {
           break;
         }
       }
-                     });
+    });
 
     Sleep(20);
   }

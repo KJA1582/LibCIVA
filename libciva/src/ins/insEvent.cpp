@@ -392,7 +392,7 @@ void INS::handleInsert() noexcept {
           alignSubmode = ALIGN_SUBMODE::MODE_6;
         }
         // Others, trigger 04-41 if >76nmi from last
-        else if (displayPosition.distanceTo(config.getLastINSPosisiton()) > MAX_RAMP_DEV) {
+        else if (displayPosition.distanceTo(config.getLastINSPosition()) > MAX_RAMP_DEV) {
           actionMalfunctionCodes.codes.A04_41 = true;
           advanceActionMalfunctionIndex();
           indicators.indicator.WARN = true;
@@ -403,7 +403,7 @@ void INS::handleInsert() noexcept {
       // Since OFF and ATT are early abort, this is STBY only
       // Tigger 04-41 if >76nmi from last
       else {
-        if (displayPosition.distanceTo(config.getLastINSPosisiton()) > MAX_RAMP_DEV) {
+        if (displayPosition.distanceTo(config.getLastINSPosition()) > MAX_RAMP_DEV) {
           actionMalfunctionCodes.codes.A04_41 = true;
           advanceActionMalfunctionIndex();
           indicators.indicator.WARN = true;
@@ -537,7 +537,7 @@ void INS::handleTestButtonState(const bool _state) noexcept {
   if (actionMalfunctionCodes.value != 0) {
     // Pressed
     if (_state) {
-      if (mafunctionCodeDisplayed) {
+      if (malfunctionCodeDisplayed) {
         // NOTE: KEEP IN SYNC WITH DISPLAY FUNCTION
         if (displayActionMalfunctionCodeIndex == 5) {
           actionMalfunctionCodes.codes.A04_41 = false;
@@ -561,11 +561,11 @@ void INS::handleTestButtonState(const bool _state) noexcept {
         if ((last < 5 && displayActionMalfunctionCodeIndex >= 5) ||
             (last >= 5 && displayActionMalfunctionCodeIndex < 5) ||
             last == displayActionMalfunctionCodeIndex) {
-          mafunctionCodeDisplayed = false;
+          malfunctionCodeDisplayed = false;
         }
       }
       else {
-        mafunctionCodeDisplayed = true;
+        malfunctionCodeDisplayed = true;
       }
     }
   }
@@ -609,7 +609,7 @@ void INS::handleClear() noexcept {
       displayPosition = currentINSPosition;
     }
     else {
-      displayPosition = config.getLastINSPosisiton();
+      displayPosition = config.getLastINSPosition();
     }
   }
 

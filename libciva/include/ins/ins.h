@@ -45,9 +45,12 @@ constexpr auto MAX_GS = 910;
 constexpr auto DRIFT_GS = 500;
 constexpr auto MAX_GS_DISPLAY = 2400;
 constexpr auto MAX_DRIFT_ANGLE = 45;
-constexpr auto INTIAL_TIME_IN_NAV = 5400;
+constexpr auto INITIAL_TIME_IN_NAV = 5400;
 constexpr auto MIN_LEG_TIME = 25.6;
 constexpr auto LEG_TIME_ALERT = 120;
+constexpr auto MIN_DME_TIME = 12; // After this, DME indicator can go green
+constexpr auto MAX_SINGLE_DME_TIME_UNTIL_VALID = 150; // Stop DME update if not valid below this
+constexpr auto MAX_DUAL_DME_TIME_UNTIL_VALID = 300; // Stop DME update if nopt valid below this
 
 constexpr auto DISPLAY_CHAR_RIGHT = 10;
 constexpr auto DISPLAY_CHAR_LEFT = 11;
@@ -123,9 +126,9 @@ class INS {
   // Current time in mode
   double timeInMode = 0;
   // Uncorrected time in NAV, starts at AI 5 value, ticks down in align after AI 5, ticks up in NAV
-  double initialTimeInNAV = INTIAL_TIME_IN_NAV;
+  double initialTimeInNAV = INITIAL_TIME_IN_NAV;
   // Current time in NAV, starts at AI 5 value, ticks down in align after AI 5, ticks up in NAV
-  double timeInNAV = INTIAL_TIME_IN_NAV;
+  double timeInNAV = INITIAL_TIME_IN_NAV;
   // Time spent in current leg
   double timeInLeg = 0;
   // Time spent in DME update mode
@@ -134,7 +137,7 @@ class INS {
   double track = 0;
   // Cross track distance, positive is plane right of track, nmi
   double crossTrackError = 0;
-  // Desirecd track
+  // Desired track
   double desiredTrack = 0;
   // Random generators for drift
   std::unique_ptr<std::mt19937> randomGenerator;
@@ -160,7 +163,7 @@ class INS {
   // Waypoint selector
   uint8_t waypointSelector = 0;
   // Displayed action malfunction code index
-  // MAKE SURE THIS MATCHES actionmalfunctionCodes.code AT ALL TIMES
+  // MAKE SURE THIS MATCHES actionMalfunctionCodes.code AT ALL TIMES
   uint8_t displayActionMalfunctionCodeIndex = 0;
   // Leg
   uint8_t currentLegStart = 1;
@@ -170,7 +173,7 @@ class INS {
   // DME mode
   DME_MODE dmeMode = DME_MODE::INV;
   // Malfunction code displayed if true, action code otherwise
-  bool mafunctionCodeDisplayed = false;
+  bool malfunctionCodeDisplayed = false;
   // Test mode
   bool inTestMode = false;
   // HOLD

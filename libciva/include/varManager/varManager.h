@@ -15,17 +15,15 @@
 #include <map>
 #include <string>
 
-constexpr auto VAR_START = "LIBCIVA_";
+constexpr auto DISPLAY_VAR = "LIBCIVA_DISPLAY_";
+constexpr auto INDICATORS_VAR = "LIBCIVA_INDICATORS_";
+constexpr auto DATA_SELECTOR_POS_VAR = "LIBCIVA_DATA_SELECTOR_POS_";
+constexpr auto MODE_SELECTOR_POS_VAR = "LIBCIVA_MODE_SELECTOR_POS_";
+constexpr auto WAYPOINT_SELECTOR_POS_VAR = "LIBCIVA_WAYPOINT_SELECTOR_POS_";
+constexpr auto AUTO_MAN_POS_VAR = "LIBCIVA_AUTO_MAN_POS_";
 
-constexpr auto DISPLAY_VAR = "DISPLAY_";
-constexpr auto INDICATORS_VAR = "INDICATORS_";
-constexpr auto DATA_SELECTOR_POS_VAR = "DATA_SELECTOR_POS_";
-constexpr auto MODE_SELECTOR_POS_VAR = "MODE_SELECTOR_POS_";
-constexpr auto WAYPOINT_SELECTOR_POS_VAR = "WAYPOINT_SELECTOR_POS_";
-constexpr auto AUTO_MAN_POS_VAR = "AUTO_MAN_POS_";
-
-constexpr auto OUTPUT_CROSS_TRACK_ERROR = "OUTPUT_CROSS_TRACK_ERROR_";
-constexpr auto OUTPUT_DESIRED_TRACK = "OUTPUT_DESIRED_TRACK_";
+constexpr auto OUTPUT_CROSS_TRACK_ERROR = "LIBCIVA_OUTPUT_CROSS_TRACK_ERROR_";
+constexpr auto OUTPUT_DESIRED_TRACK = "LIBCIVA_OUTPUT_DESIRED_TRACK_";
 
 constexpr auto SIM_VAR_AIRSPEED_TRUE = "AIRSPEED TRUE";
 constexpr auto SIM_VAR_AMBIENT_TEMPERATURE = "AMBIENT TEMPERATURE";
@@ -40,13 +38,11 @@ constexpr auto SIM_VAR_NAV_DME_2 = "NAV DME:2";
 constexpr auto SIM_VAR_SIMULATION_RATE = "SIMULATION RATE";
 
 class VarManager {
-  const std::string prefix;
-
 protected:
   std::map<std::string, double> store;
 
 public:
-  VarManager(const std::string &prefix) noexcept : prefix(prefix) { }
+  VarManager() noexcept;
   virtual ~VarManager() noexcept { }
 
   virtual void setVar(const std::string &name, double value) noexcept;

@@ -52,7 +52,7 @@ public:
   inline double getUnitSpecificHeat() const noexcept {
     return unitSpecificHeat;
   }
-  inline POSITION getLastINSPosisiton() const noexcept {
+  inline POSITION getLastINSPosition() const noexcept {
     return lastINSPosition;
   }
   inline void getLastDMEs(DME(&DMEs)[9]) const noexcept {

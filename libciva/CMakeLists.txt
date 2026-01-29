@@ -11,13 +11,16 @@ endif()
 
 project ("libciva")
 
-add_library(libciva
-	"include/config/config.h"
+option(SHARED "Shared" OFF)
+
+set(header
+  "include/config/config.h"
 	"include/ins/ins.h"
 	"include/logger/logger.h"
 	"include/types/types.h"
 	"include/varManager/varManager.h"
-
+)
+set(sources
 	"src/config/config.cpp"
 	"src/ins/ins.cpp"
 	"src/ins/insSetGet.cpp"
@@ -28,6 +31,13 @@ add_library(libciva
 	"src/types/types.cpp"
 	"src/varManager/varManager.cpp"
 )
+
+if(SHARED)
+	message("Building shared")
+	add_library(libciva SHARED ${sources} ${headers})
+else()
+	add_library(libciva ${sources} ${headers})
+endif()
 set_property(TARGET libciva PROPERTY CXX_STANDARD 14)
 target_compile_definitions(libciva PRIVATE WORK_DIR="./")
 target_include_directories(libciva PRIVATE "include")
