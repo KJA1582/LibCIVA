@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36811.4
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "msfs", "msfs.vcxproj", "{7EC92233-171F-4CC6-8638-75A469C78D7C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "msfs2024", "msfs2024.vcxproj", "{56EF6324-242D-49CF-A2CC-D40C4BC2973E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|MSFS = Debug|MSFS
+		Release|MSFS = Release|MSFS
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7EC92233-171F-4CC6-8638-75A469C78D7C}.Debug|MSFS.ActiveCfg = Debug|MSFS
+		{7EC92233-171F-4CC6-8638-75A469C78D7C}.Debug|MSFS.Build.0 = Debug|MSFS
+		{7EC92233-171F-4CC6-8638-75A469C78D7C}.Release|MSFS.ActiveCfg = Release|MSFS
+		{7EC92233-171F-4CC6-8638-75A469C78D7C}.Release|MSFS.Build.0 = Release|MSFS
+		{56EF6324-242D-49CF-A2CC-D40C4BC2973E}.Debug|MSFS.ActiveCfg = Debug|MSFS
+		{56EF6324-242D-49CF-A2CC-D40C4BC2973E}.Debug|MSFS.Build.0 = Debug|MSFS
+		{56EF6324-242D-49CF-A2CC-D40C4BC2973E}.Release|MSFS.ActiveCfg = Release|MSFS
+		{56EF6324-242D-49CF-A2CC-D40C4BC2973E}.Release|MSFS.Build.0 = Release|MSFS
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {45296D2D-2442-4079-BCA8-8A8168546E36}
+	EndGlobalSection
+EndGlobal

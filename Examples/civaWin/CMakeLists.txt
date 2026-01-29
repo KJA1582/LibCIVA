@@ -1,0 +1,26 @@
+﻿# CMakeList.txt : CMake project for civaWin, include source and define
+# project specific logic here.
+#
+cmake_minimum_required (VERSION 3.13)
+
+# Enable Hot Reload for MSVC compilers if supported.
+if (POLICY CMP0141)
+	cmake_policy(SET CMP0141 NEW)
+	set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+endif()
+
+project ("civaWin")
+
+add_executable(civaWin "civaWin.cpp" "varManager.cpp")
+set_property(TARGET civaWin PROPERTY CXX_STANDARD 14)
+target_include_directories(civaWin PRIVATE "../../libciva" "F:/SteamLibrary/steamapps/common/FSX/SDK/Core Utilities Kit/SimConnect SDK/inc")
+
+
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+	target_link_directories(civaWin PRIVATE "../../libciva/out/Win32/Release" "F:/SteamLibrary/steamapps/common/FSX/SDK/Core Utilities Kit/SimConnect SDK/lib")
+else()
+	target_link_directories(civaWin PRIVATE "../../libciva/out/Win32/Debug" "F:/SteamLibrary/steamapps/common/FSX/SDK/Core Utilities Kit/SimConnect SDK/lib")
+endif()
+
+target_link_libraries(civaWin PRIVATE libciva SimConnect.lib)
+target_compile_definitions(civaWin PRIVATE WORK_DIR="./")

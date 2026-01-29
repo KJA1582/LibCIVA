@@ -1,6 +1,4 @@
-﻿// libciva.cpp : Defines the entry point for the application.
-
-#include "libcivaWin.h"
+﻿#include "civaWin.h"
 
 std::unique_ptr<WinVarManager> winVarManager;
 std::unique_ptr<INSContainer> ins;
@@ -27,7 +25,7 @@ static void handleSimConnect() {
         SIMCONNECT_RECV_SIMOBJECT_DATA *pObjData = (SIMCONNECT_RECV_SIMOBJECT_DATA *)pData;
         DATA *data = (DATA *)&pObjData->dwData;
         winVarManager->setVar(SIM_VAR_AIRSPEED_TRUE, data->airspeedTrue);
-        winVarManager->setVar(SIM_VAR_AMBIENT_TEMPERATURE, data->ambiantTemp);
+        winVarManager->setVar(SIM_VAR_AMBIENT_TEMPERATURE, data->ambientTemp);
         winVarManager->setVar(SIM_VAR_AMBIENT_WIND_DIRECTION, data->windDirection);
         winVarManager->setVar(SIM_VAR_AMBIENT_WIND_VELOCITY, data->windSpeed);
         winVarManager->setVar(SIM_VAR_GROUND_VELOCITY, data->groundSpeed);
@@ -106,7 +104,7 @@ static void runner() {
 static void setupSimConnect() {
   HRESULT hr;
 
-  hr = SimConnect_Open(&simConnect, "libcivaWin", NULL, 0, NULL, 0);
+  hr = SimConnect_Open(&simConnect, "civaWin", NULL, 0, NULL, 0);
   if (FAILED(hr)) return;
 
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_AIRSPEED_TRUE, "KNOT");
@@ -119,6 +117,7 @@ static void setupSimConnect() {
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_PLANE_LONGITUDE, "DEGREE");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_NAV_DME_1, "NAUTICAL MILE");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_NAV_DME_2, "NAUTICAL MILE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_SIMULATION_RATE, "NUMBER");
 
   SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA,
                                     SIMCONNECT_OBJECT_ID_USER, SIMCONNECT_PERIOD_VISUAL_FRAME);

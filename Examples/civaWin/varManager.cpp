@@ -1,4 +1,4 @@
-#include "winVarManager.h"
+#include "varManager.h"
 
 static uint8_t convertCharacter(uint8_t c) {
   if (c == 10) return 'R';

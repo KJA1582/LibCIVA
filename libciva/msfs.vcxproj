@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|MSFS">
+      <Configuration>Debug</Configuration>
+      <Platform>MSFS</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|MSFS">
+      <Configuration>Release</Configuration>
+      <Platform>MSFS</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{7EC92233-171F-4CC6-8638-75A469C78D7C}</ProjectGuid>
+    <RootNamespace>Module</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|MSFS'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>MSFS</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|MSFS'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>MSFS</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|MSFS'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|MSFS'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|MSFS'">
+    <TargetExt>.a</TargetExt>
+    <GenerateManifest />
+    <LinkIncremental />
+    <IncludePath>$(MSFS_IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)\out\MSFS\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\out\MSFS\$(Configuration)\</IntDir>
+    <TargetName>libciva</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|MSFS'">
+    <TargetExt>.a</TargetExt>
+    <IncludePath>$(MSFS_IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)\out\MSFS\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\out\MSFS\$(Configuration)\</IntDir>
+    <TargetName>libciva</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|MSFS'">
+    <ClCompile>
+      <WarningLevel>
+      </WarningLevel>
+      <Optimization>
+      </Optimization>
+      <SDLCheck>
+      </SDLCheck>
+      <ConformanceMode>
+      </ConformanceMode>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+        __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_WINDLL;WORK_DIR="./work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ShowIncludes>false</ShowIncludes>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>
+      </RuntimeTypeInfo>
+      <SupportJustMyCode>
+      </SupportJustMyCode>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BasicRuntimeChecks>
+      </BasicRuntimeChecks>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <AdditionalOptions>/clang:-Wall /clang:-Wextra /clang:-pedantic /clang:-Wno-missing-braces
+        /clang:-Wno-unused-const-variable /clang:-fstack-usage %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
+      <NoEntryPoint>true</NoEntryPoint>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <RandomizedBaseAddress>
+      </RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>
+      </ProgramDatabaseFile>
+      <ImportLibrary>
+      </ImportLibrary>
+      <ProfileGuidedDatabase>
+      </ProfileGuidedDatabase>
+      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <Manifest>
+      <AdditionalOptions>
+      </AdditionalOptions>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|MSFS'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+        __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_WINDLL;WORK_DIR="./work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>false</DebugInformationFormat>
+      <SupportJustMyCode>
+      </SupportJustMyCode>
+      <AdditionalOptions>/clang:-Wall /clang:-Wextra /clang:-pedantic /clang:-Wno-missing-braces
+        /clang:-Wno-unused-const-variable /clang:-fstack-usage %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <NoEntryPoint>true</NoEntryPoint>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include=".\config\config.cpp" />
+    <ClCompile Include=".\ins\modes\align.cpp" />
+    <ClCompile Include=".\ins\ins.cpp" />
+    <ClCompile Include=".\ins\insDisplay.cpp" />
+    <ClCompile Include=".\ins\insEvent.cpp" />
+    <ClCompile Include=".\ins\insSetGet.cpp" />
+    <ClCompile Include=".\logger\logger.cpp" />
+    <ClCompile Include=".\types\types.cpp" />
+    <ClCompile Include=".\varManager\varManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include=".\config\config.h" />
+    <ClInclude Include=".\ins\ins.h" />
+    <ClInclude Include=".\logger\logger.h" />
+    <ClInclude Include=".\types\types.h" />
+    <ClInclude Include=".\varManager\varManager.h" />
+    <ClInclude Include=".\libciva.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

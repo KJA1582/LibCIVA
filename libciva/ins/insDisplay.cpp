@@ -518,7 +518,7 @@ void INS::updateDisplay(POSITION pos) noexcept {
           crs = (uint16_t)std::round(waypoints[display.characters.FROM].bearingTo(waypoints[display.characters.TO]));
         }
         else {
-          crs = (uint16_t)desiredTrack;
+          crs = (uint16_t)std::round(desiredTrack);
         }
 
         formatTri(display, crs, true, false, 0);

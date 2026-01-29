@@ -5,7 +5,7 @@
 #include <fstream>
 #include <string>
 
-#include "types/types.h"
+#include "../types/types.h"
 
 class Config {
   const std::string basePath;

@@ -366,4 +366,4 @@ FodyWeavers.xsd
 *.su
 
 # MSFS gauge
-libcivaMSFS24/MSFS/
+MSFS/

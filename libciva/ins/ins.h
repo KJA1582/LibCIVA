@@ -11,10 +11,10 @@
 #include <string>
 #include <vector>
 
-#include "config/config.h"
-#include "logger/logger.h"
-#include "types/types.h"
-#include "varManager/varManager.h"
+#include "../config/config.h"
+#include "../logger/logger.h"
+#include "../types/types.h"
+#include "../varManager/varManager.h"
 
 constexpr auto MIN_MODE_8 = 51;
 constexpr auto MAX_MODE_7 = 90; // Not specified in manual, but "shortly"

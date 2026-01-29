@@ -1,3 +1,6 @@
+#ifndef LOGGER_H
+#define LOGGER_H
+
 #include <fstream>
 
 class Logger {
@@ -22,3 +25,5 @@ public:
 
   static Logger &GetInstance() noexcept;
 };
+
+#endif

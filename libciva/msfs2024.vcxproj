@@ -12,19 +12,19 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{BCCE2E2E-8D6A-4BE8-8E08-3C6A13E3EA44}</ProjectGuid>
+    <ProjectGuid>{56EF6324-242D-49CF-A2CC-D40C4BC2973E}</ProjectGuid>
     <RootNamespace>Module</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|MSFS'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>MSFS2024</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|MSFS'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>MSFS2024</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -36,25 +36,27 @@
   <ImportGroup Label="Shared">
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|MSFS'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"
-      Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')"
-      Label="LocalAppDataPlatform" />
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|MSFS'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"
-      Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')"
-      Label="LocalAppDataPlatform" />
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|MSFS'">
-    <TargetExt>.wasm</TargetExt>
+    <TargetExt>.a</TargetExt>
     <GenerateManifest />
     <LinkIncremental />
     <IncludePath>$(MSFS_IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)\out\MSFS2024\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\out\MSFS2024\$(Configuration)\</IntDir>
+    <TargetName>libciva</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|MSFS'">
-    <TargetExt>.wasm</TargetExt>
+    <TargetExt>.a</TargetExt>
     <IncludePath>$(MSFS_IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)\out\MSFS2024\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\out\MSFS2024\$(Configuration)\</IntDir>
+    <TargetName>libciva</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|MSFS'">
     <ClCompile>
@@ -67,12 +69,12 @@
       <ConformanceMode>
       </ConformanceMode>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <AdditionalIncludeDirectories>..\libciva</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
         __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_WINDLL;WORK_DIR="./work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ShowIncludes>false</ShowIncludes>
-      <ExceptionHandling>
-      </ExceptionHandling>
+      <ExceptionHandling>false</ExceptionHandling>
       <RuntimeTypeInfo>
       </RuntimeTypeInfo>
       <SupportJustMyCode>
@@ -81,7 +83,8 @@
       <BasicRuntimeChecks>
       </BasicRuntimeChecks>
       <LanguageStandard>stdcpp14</LanguageStandard>
-      <AdditionalOptions>/clang:-Wall /clang:-Wextra /clang:-pedantic /clang:-Wno-missing-braces /clang:-Wno-unused-const-variable /clang:-fstack-usage %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/clang:-Wall /clang:-Wextra /clang:-pedantic /clang:-Wno-missing-braces
+        /clang:-Wno-unused-const-variable /clang:-fstack-usage %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -108,6 +111,10 @@
       <Command>
       </Command>
     </PostBuildEvent>
+    <Manifest>
+      <AdditionalOptions>
+      </AdditionalOptions>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|MSFS'">
     <ClCompile>
@@ -117,36 +124,23 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\libciva</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
         __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_WINDLL;WORK_DIR="./work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <ExceptionHandling>false</ExceptionHandling>
       <DebugInformationFormat>false</DebugInformationFormat>
       <SupportJustMyCode>
       </SupportJustMyCode>
-      <AdditionalOptions>/clang:-Wall /clang:-Wextra /clang:-pedantic /clang:-Wno-missing-braces /clang:-Wno-unused-const-variable /clang:-fstack-usage %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/clang:-Wall /clang:-Wextra /clang:-pedantic /clang:-Wno-missing-braces
+        /clang:-Wno-unused-const-variable /clang:-fstack-usage %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>
-      </SubSystem>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreAllDefaultLibraries>
-      </IgnoreAllDefaultLibraries>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <NoEntryPoint>true</NoEntryPoint>
-      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <RandomizedBaseAddress>
-      </RandomizedBaseAddress>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <ProgramDatabaseFile>
-      </ProgramDatabaseFile>
-      <ImportLibrary>
-      </ImportLibrary>
-      <ProfileGuidedDatabase>
-      </ProfileGuidedDatabase>
-      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -154,27 +148,23 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="libcivaMSFS.cpp" />
-    <ClCompile Include="msfsVarManager.cpp" />
-    <ClCompile Include="..\libciva\config\config.cpp" />
-    <ClCompile Include="..\libciva\ins\modes\align.cpp" />
-    <ClCompile Include="..\libciva\ins\ins.cpp" />
-    <ClCompile Include="..\libciva\ins\insDisplay.cpp" />
-    <ClCompile Include="..\libciva\ins\insEvent.cpp" />
-    <ClCompile Include="..\libciva\ins\insSetGet.cpp" />
-    <ClCompile Include="..\libciva\logger\logger.cpp" />
-    <ClCompile Include="..\libciva\types\types.cpp" />
-    <ClCompile Include="..\libciva\varManager\varManager.cpp" />
+    <ClCompile Include=".\config\config.cpp" />
+    <ClCompile Include=".\ins\modes\align.cpp" />
+    <ClCompile Include=".\ins\ins.cpp" />
+    <ClCompile Include=".\ins\insDisplay.cpp" />
+    <ClCompile Include=".\ins\insEvent.cpp" />
+    <ClCompile Include=".\ins\insSetGet.cpp" />
+    <ClCompile Include=".\logger\logger.cpp" />
+    <ClCompile Include=".\types\types.cpp" />
+    <ClCompile Include=".\varManager\varManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="libcivaMSFS.h" />
-    <ClInclude Include="msfsVarManager.h" />
-    <ClInclude Include="..\libciva\config\config.h" />
-    <ClInclude Include="..\libciva\ins\ins.h" />
-    <ClInclude Include="..\libciva\logger\logger.h" />
-    <ClInclude Include="..\libciva\types\types.h" />
-    <ClInclude Include="..\libciva\varManager\varManager.h" />
-    <ClInclude Include="..\libciva\libciva.h" />
+    <ClInclude Include=".\config\config.h" />
+    <ClInclude Include=".\ins\ins.h" />
+    <ClInclude Include=".\logger\logger.h" />
+    <ClInclude Include=".\types\types.h" />
+    <ClInclude Include=".\varManager\varManager.h" />
+    <ClInclude Include=".\libciva.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

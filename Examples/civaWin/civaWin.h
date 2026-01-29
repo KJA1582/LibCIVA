@@ -1,7 +1,5 @@
-﻿// libciva.h : Include file for standard system include files,
-// or project specific include files.
-
-#pragma once
+﻿#ifndef CIVA_WIN_H
+#define CIVA_WIN_H
 
 #include <windows.h>
 
@@ -13,7 +11,7 @@
 
 #include <libciva.h>
 
-#include "winVarManager.h"
+#include "varManager.h"
 
 #ifdef __INTELLISENSE__
 #define WORK_DIR "./"
@@ -29,7 +27,7 @@ enum REQUEST_DEFINITIONS: SIMCONNECT_DATA_REQUEST_ID {
 
 struct DATA {
   double airspeedTrue;
-  double ambiantTemp;
+  double ambientTemp;
   double windDirection;
   double windSpeed;
   double groundSpeed;
@@ -40,3 +38,5 @@ struct DATA {
   double navDME2;
   double simRate;
 };
+
+#endif

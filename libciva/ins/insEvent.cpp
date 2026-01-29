@@ -558,8 +558,8 @@ void INS::handleTestButtonState(const bool _state) noexcept {
         uint8_t last = displayActionMalfunctionCodeIndex;
         advanceActionMalfunctionIndex();
 
-        if (last < 5 && displayActionMalfunctionCodeIndex >= 5 ||
-            last >= 5 && displayActionMalfunctionCodeIndex < 5 ||
+        if ((last < 5 && displayActionMalfunctionCodeIndex >= 5) ||
+            (last >= 5 && displayActionMalfunctionCodeIndex < 5) ||
             last == displayActionMalfunctionCodeIndex) {
           mafunctionCodeDisplayed = false;
         }
