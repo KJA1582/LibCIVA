@@ -77,11 +77,11 @@ Values 0 through 9, corresponding with the thumb wheel on the unit
 | 6     | WIND      |
 | 7     | DSRTK/STS |
 
-### LIBCIVA_OUTPUT_CROSS_TRACK_ERROR_UNIT_x
+### LIBCIVA_CROSS_TRACK_ERROR_VAR_UNIT_x
 
 Calculated cross track error in nmi.  
 Negative values indicate INS is left of course (right turn to get back).
 
-### LIBCIVA_OUTPUT_DESIRED_TRACK_UNIT_x
+### LIBCIVA_DESIRED_TRACK_VAR_UNIT_x
 
 Calculated desired track in degrees.

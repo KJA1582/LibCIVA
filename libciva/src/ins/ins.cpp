@@ -161,8 +161,8 @@ void INS::exportVars() const noexcept {
   varManager.setVar(DATA_SELECTOR_POS_VAR + id, (double)dataSelector);
   varManager.setVar(WAYPOINT_SELECTOR_POS_VAR + id, (double)waypointSelector);
   varManager.setVar(AUTO_MAN_POS_VAR + id, (double)autoMode);
-  varManager.setVar(OUTPUT_CROSS_TRACK_ERROR + id, crossTrackError);
-  varManager.setVar(OUTPUT_DESIRED_TRACK + id, desiredTrack);
+  varManager.setVar(CROSS_TRACK_ERROR_VAR + id, crossTrackError);
+  varManager.setVar(DESIRED_TRACK_VAR + id, desiredTrack);
 }
 
 void INS::updatePreMix(const double dTime) noexcept {

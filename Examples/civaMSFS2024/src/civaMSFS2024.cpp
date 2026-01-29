@@ -3,6 +3,37 @@
 std::unique_ptr<VarManager> varManager;
 std::unique_ptr<INSContainer> ins;
 
+#pragma region Preset LVAR names
+
+std::string DISPLAY_VAR_UNIT_1 =  std::string("L") + DISPLAY_VAR + "UNIT_1";
+std::string INDICATORS_VAR_UNIT_1 = std::string("L") + INDICATORS_VAR + "UNIT_1";
+std::string MODE_SELECTOR_POS_VAR_UNIT_1 = std::string("L") + MODE_SELECTOR_POS_VAR + "UNIT_1";
+std::string DATA_SELECTOR_POS_VAR_UNIT_1 = std::string("L") + DATA_SELECTOR_POS_VAR + "UNIT_1";
+std::string WAYPOINT_SELECTOR_POS_VAR_UNIT_1 = std::string("L") + WAYPOINT_SELECTOR_POS_VAR + "UNIT_1";
+std::string AUTO_MAN_POS_VAR_UNIT_1 = std::string("L") + AUTO_MAN_POS_VAR + "UNIT_1";
+std::string CROSS_TRACK_ERROR_VAR_UNIT_1 = std::string("L") + CROSS_TRACK_ERROR_VAR + "UNIT_1";
+std::string DESIRED_TRACK_VAR_UNIT_1 = std::string("L") + DESIRED_TRACK_VAR + "UNIT_1";
+
+std::string DISPLAY_VAR_UNIT_2 = std::string("L") + DISPLAY_VAR + "UNIT_2";
+std::string INDICATORS_VAR_UNIT_2 = std::string("L") + INDICATORS_VAR + "UNIT_2";
+std::string MODE_SELECTOR_POS_VAR_UNIT_2 = std::string("L") + MODE_SELECTOR_POS_VAR + "UNIT_2";
+std::string DATA_SELECTOR_POS_VAR_UNIT_2 = std::string("L") + DATA_SELECTOR_POS_VAR + "UNIT_2";
+std::string WAYPOINT_SELECTOR_POS_VAR_UNIT_2 = std::string("L") + WAYPOINT_SELECTOR_POS_VAR + "UNIT_2";
+std::string AUTO_MAN_POS_VAR_UNIT_2 = std::string("L") + AUTO_MAN_POS_VAR + "UNIT_2";
+std::string CROSS_TRACK_ERROR_VAR_UNIT_2 = std::string("L") + CROSS_TRACK_ERROR_VAR + "UNIT_2";
+std::string DESIRED_TRACK_VAR_UNIT_2 = std::string("L") + DESIRED_TRACK_VAR + "UNIT_2";
+
+std::string DISPLAY_VAR_UNIT_3 = std::string("L") + DISPLAY_VAR + "UNIT_3";
+std::string INDICATORS_VAR_UNIT_3 = std::string("L") + INDICATORS_VAR + "UNIT_3";
+std::string MODE_SELECTOR_POS_VAR_UNIT_3 = std::string("L") + MODE_SELECTOR_POS_VAR + "UNIT_3";
+std::string DATA_SELECTOR_POS_VAR_UNIT_3 = std::string("L") + DATA_SELECTOR_POS_VAR + "UNIT_3";
+std::string WAYPOINT_SELECTOR_POS_VAR_UNIT_3 = std::string("L") + WAYPOINT_SELECTOR_POS_VAR + "UNIT_3";
+std::string AUTO_MAN_POS_VAR_UNIT_3 = std::string("L") + AUTO_MAN_POS_VAR + "UNIT_3";
+std::string CROSS_TRACK_ERROR_VAR_UNIT_3 = std::string("L") + CROSS_TRACK_ERROR_VAR + "UNIT_3";
+std::string DESIRED_TRACK_VAR_UNIT_3 = std::string("L") + DESIRED_TRACK_VAR + "UNIT_3";
+
+#pragma endregion
+
 #pragma region Events
 
 static void handleEvent(double event) {
@@ -131,61 +162,37 @@ static void setupSimConnect() {
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_NAV_DME_1, "NAUTICAL MILE");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_NAV_DME_2, "NAUTICAL MILE");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_SIMULATION_RATE, "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "L:LIBCIVA_EVENT", "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, EVENT, "NUMBER");
 
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1,
-                                 (std::string("L:") + DISPLAY_VAR + "UNIT_1").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1,
-                                 (std::string("L:") + INDICATORS_VAR + "UNIT_1").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1,
-                                 (std::string("L:") + MODE_SELECTOR_POS_VAR + "UNIT_1").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1,
-                                 (std::string("L:") + DATA_SELECTOR_POS_VAR + "UNIT_1").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1,
-                                 (std::string("L:") + WAYPOINT_SELECTOR_POS_VAR + "UNIT_1").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1,
-                                 (std::string("L:") + AUTO_MAN_POS_VAR + "UNIT_1").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1,
-                                 (std::string("L:") + OUTPUT_CROSS_TRACK_ERROR + "UNIT_1").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1,
-                                 (std::string("L:") + OUTPUT_DESIRED_TRACK + "UNIT_1").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1, "L:LIBCIVA_EVENT", "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1, DISPLAY_VAR_UNIT_1.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1, INDICATORS_VAR_UNIT_1.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1, MODE_SELECTOR_POS_VAR_UNIT_1.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1, DATA_SELECTOR_POS_VAR_UNIT_1.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1, WAYPOINT_SELECTOR_POS_VAR_UNIT_1.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1, AUTO_MAN_POS_VAR_UNIT_1.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1, CROSS_TRACK_ERROR_VAR_UNIT_1.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1, DESIRED_TRACK_VAR_UNIT_1.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1, EVENT, "NUMBER");
 
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2,
-                                 (std::string("L:") +DISPLAY_VAR + "UNIT_2").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2,
-                                 (std::string("L:") + INDICATORS_VAR + "UNIT_2").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2,
-                                 (std::string("L:") + MODE_SELECTOR_POS_VAR + "UNIT_2").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2,
-                                 (std::string("L:") + DATA_SELECTOR_POS_VAR + "UNIT_2").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2,
-                                 (std::string("L:") + WAYPOINT_SELECTOR_POS_VAR + "UNIT_2").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2,
-                                 (std::string("L:") + AUTO_MAN_POS_VAR + "UNIT_2").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2,
-                                 (std::string("L:") + OUTPUT_CROSS_TRACK_ERROR + "UNIT_2").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2,
-                                 (std::string("L:") + OUTPUT_DESIRED_TRACK + "UNIT_2").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2, "L:LIBCIVA_EVENT", "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2, DISPLAY_VAR_UNIT_2.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2, INDICATORS_VAR_UNIT_2.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2, MODE_SELECTOR_POS_VAR_UNIT_2.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2, DATA_SELECTOR_POS_VAR_UNIT_2.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2, WAYPOINT_SELECTOR_POS_VAR_UNIT_2.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2, AUTO_MAN_POS_VAR_UNIT_2.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2, CROSS_TRACK_ERROR_VAR_UNIT_2.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2, DESIRED_TRACK_VAR_UNIT_2.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_2, EVENT, "NUMBER");
 
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3,
-                                 (std::string("L:") + DISPLAY_VAR + "UNIT_3").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3,
-                                 (std::string("L:") + INDICATORS_VAR + "UNIT_3").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3,
-                                 (std::string("L:") + MODE_SELECTOR_POS_VAR + "UNIT_3").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3,
-                                 (std::string("L:") + DATA_SELECTOR_POS_VAR + "UNIT_3").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3,
-                                 (std::string("L:") + WAYPOINT_SELECTOR_POS_VAR + "UNIT_3").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3,
-                                 (std::string("L:") + AUTO_MAN_POS_VAR + "UNIT_3").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3,
-                                 (std::string("L:") + OUTPUT_CROSS_TRACK_ERROR + "UNIT_3").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3,
-                                 (std::string("L:") + OUTPUT_DESIRED_TRACK + "UNIT_3").c_str(), "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3, "L:LIBCIVA_EVENT", "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3, DISPLAY_VAR_UNIT_3.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3, INDICATORS_VAR_UNIT_3.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3, MODE_SELECTOR_POS_VAR_UNIT_3.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3, DATA_SELECTOR_POS_VAR_UNIT_3.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3, WAYPOINT_SELECTOR_POS_VAR_UNIT_3.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3, AUTO_MAN_POS_VAR_UNIT_3.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3, CROSS_TRACK_ERROR_VAR_UNIT_3.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3, DESIRED_TRACK_VAR_UNIT_3.c_str(), "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3, EVENT, "NUMBER");
 
   SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA,
                                     SIMCONNECT_OBJECT_ID_USER_AIRCRAFT, SIMCONNECT_PERIOD_VISUAL_FRAME);
@@ -244,32 +251,32 @@ static void exportVars() {
   EXPORT export2 = { 0 };
   EXPORT export3 = { 0 };
 
-  varManager->getVar(DISPLAY_VAR + std::string("UNIT_1"), export1.displays);
-  varManager->getVar(INDICATORS_VAR + std::string("UNIT_1"), export1.indicators);
-  varManager->getVar(MODE_SELECTOR_POS_VAR + std::string("UNIT_1"), export1.modeSelectorPos);
-  varManager->getVar(DATA_SELECTOR_POS_VAR + std::string("UNIT_1"), export1.dataSelectorPos);
-  varManager->getVar(WAYPOINT_SELECTOR_POS_VAR + std::string("UNIT_1"), export1.waypointSelectorPos);
-  varManager->getVar(AUTO_MAN_POS_VAR + std::string("UNIT_1"), export1.autoManPos);
-  varManager->getVar(OUTPUT_CROSS_TRACK_ERROR + std::string("UNIT_1"), export1.crossTrackError);
-  varManager->getVar(OUTPUT_DESIRED_TRACK + std::string("UNIT_1"), export1.desiredTrack);
+  varManager->getVar(DISPLAY_VAR_UNIT_1, export1.displays);
+  varManager->getVar(INDICATORS_VAR_UNIT_1, export1.indicators);
+  varManager->getVar(MODE_SELECTOR_POS_VAR_UNIT_1, export1.modeSelectorPos);
+  varManager->getVar(DATA_SELECTOR_POS_VAR_UNIT_1, export1.dataSelectorPos);
+  varManager->getVar(WAYPOINT_SELECTOR_POS_VAR_UNIT_1, export1.waypointSelectorPos);
+  varManager->getVar(AUTO_MAN_POS_VAR_UNIT_1, export1.autoManPos);
+  varManager->getVar(CROSS_TRACK_ERROR_VAR_UNIT_1, export1.crossTrackError);
+  varManager->getVar(DESIRED_TRACK_VAR_UNIT_1, export1.desiredTrack);
 
-  varManager->getVar(DISPLAY_VAR + std::string("UNIT_2"), export2.displays);
-  varManager->getVar(INDICATORS_VAR + std::string("UNIT_2"), export2.indicators);
-  varManager->getVar(MODE_SELECTOR_POS_VAR + std::string("UNIT_2"), export2.modeSelectorPos);
-  varManager->getVar(DATA_SELECTOR_POS_VAR + std::string("UNIT_2"), export2.dataSelectorPos);
-  varManager->getVar(WAYPOINT_SELECTOR_POS_VAR + std::string("UNIT_2"), export2.waypointSelectorPos);
-  varManager->getVar(AUTO_MAN_POS_VAR + std::string("UNIT_2"), export2.autoManPos);
-  varManager->getVar(OUTPUT_CROSS_TRACK_ERROR + std::string("UNIT_2"), export2.crossTrackError);
-  varManager->getVar(OUTPUT_DESIRED_TRACK + std::string("UNIT_2"), export2.desiredTrack);
+  varManager->getVar(DISPLAY_VAR_UNIT_2, export2.displays);
+  varManager->getVar(INDICATORS_VAR_UNIT_2, export2.indicators);
+  varManager->getVar(MODE_SELECTOR_POS_VAR_UNIT_2, export2.modeSelectorPos);
+  varManager->getVar(DATA_SELECTOR_POS_VAR_UNIT_2, export2.dataSelectorPos);
+  varManager->getVar(WAYPOINT_SELECTOR_POS_VAR_UNIT_2, export2.waypointSelectorPos);
+  varManager->getVar(AUTO_MAN_POS_VAR_UNIT_2, export2.autoManPos);
+  varManager->getVar(CROSS_TRACK_ERROR_VAR_UNIT_2, export2.crossTrackError);
+  varManager->getVar(DESIRED_TRACK_VAR_UNIT_2, export2.desiredTrack);
 
-  varManager->getVar(DISPLAY_VAR + std::string("UNIT_3"), export3.displays);
-  varManager->getVar(INDICATORS_VAR + std::string("UNIT_3"), export3.indicators);
-  varManager->getVar(MODE_SELECTOR_POS_VAR + std::string("UNIT_3"), export3.modeSelectorPos);
-  varManager->getVar(DATA_SELECTOR_POS_VAR + std::string("UNIT_3"), export3.dataSelectorPos);
-  varManager->getVar(WAYPOINT_SELECTOR_POS_VAR + std::string("UNIT_3"), export3.waypointSelectorPos);
-  varManager->getVar(AUTO_MAN_POS_VAR + std::string("UNIT_3"), export3.autoManPos);
-  varManager->getVar(OUTPUT_CROSS_TRACK_ERROR + std::string("UNIT_3"), export3.crossTrackError);
-  varManager->getVar(OUTPUT_DESIRED_TRACK + std::string("UNIT_3"), export3.desiredTrack);
+  varManager->getVar(DISPLAY_VAR_UNIT_3, export3.displays);
+  varManager->getVar(INDICATORS_VAR_UNIT_3, export3.indicators);
+  varManager->getVar(MODE_SELECTOR_POS_VAR_UNIT_3, export3.modeSelectorPos);
+  varManager->getVar(DATA_SELECTOR_POS_VAR_UNIT_3, export3.dataSelectorPos);
+  varManager->getVar(WAYPOINT_SELECTOR_POS_VAR_UNIT_3, export3.waypointSelectorPos);
+  varManager->getVar(AUTO_MAN_POS_VAR_UNIT_3, export3.autoManPos);
+  varManager->getVar(CROSS_TRACK_ERROR_VAR_UNIT_3, export3.crossTrackError);
+  varManager->getVar(DESIRED_TRACK_VAR_UNIT_3, export3.desiredTrack);
 
   SimConnect_SetDataOnSimObject(simConnect, DATA_DEFINITIONS_UNIT_1, SIMCONNECT_OBJECT_ID_USER_AIRCRAFT,
                                 SIMCONNECT_DATA_SET_FLAG_DEFAULT, 0, sizeof(EXPORT), &export1);
