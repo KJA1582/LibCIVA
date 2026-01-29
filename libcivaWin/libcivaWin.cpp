@@ -1,10 +1,9 @@
 ﻿// libciva.cpp : Defines the entry point for the application.
-//
 
 #include "libcivaWin.h"
 
 std::unique_ptr<WinVarManager> winVarManager;
-std::shared_ptr<INSContainer> ins;
+std::unique_ptr<INSContainer> ins;
 
 std::thread INSThread;
 std::mutex lock;
@@ -24,22 +23,6 @@ static void handleSimConnect() {
         openData = *(SIMCONNECT_RECV_OPEN *)pData;
         break;
       }
-      case SIMCONNECT_RECV_ID_EVENT: {
-        SIMCONNECT_RECV_EVENT *evt = (SIMCONNECT_RECV_EVENT *)pData;
-        break;
-      }
-      case SIMCONNECT_RECV_ID_EVENT_FILENAME: {
-        SIMCONNECT_RECV_EVENT_FILENAME *evt = (SIMCONNECT_RECV_EVENT_FILENAME *)pData;
-        break;
-      }
-      case SIMCONNECT_RECV_ID_EVENT_OBJECT_ADDREMOVE: {
-        SIMCONNECT_RECV_EVENT_OBJECT_ADDREMOVE *evt = (SIMCONNECT_RECV_EVENT_OBJECT_ADDREMOVE *)pData;
-        break;
-      }
-      case SIMCONNECT_RECV_ID_EVENT_FRAME: {
-        SIMCONNECT_RECV_EVENT_FRAME *evt = (SIMCONNECT_RECV_EVENT_FRAME *)pData;
-        break;
-      }
       case SIMCONNECT_RECV_ID_SIMOBJECT_DATA: {
         SIMCONNECT_RECV_SIMOBJECT_DATA *pObjData = (SIMCONNECT_RECV_SIMOBJECT_DATA *)pData;
         DATA *data = (DATA *)&pObjData->dwData;
@@ -53,22 +36,12 @@ static void handleSimConnect() {
         winVarManager->setVar(SIM_VAR_PLANE_LONGITUDE, data->longitude);
         winVarManager->setVar(SIM_VAR_NAV_DME_1, data->navDME1);
         winVarManager->setVar(SIM_VAR_NAV_DME_2, data->navDME2);
-        break;
-      }
-      case SIMCONNECT_RECV_ID_SIMOBJECT_DATA_BYTYPE: {
-        SIMCONNECT_RECV_SIMOBJECT_DATA_BYTYPE *pObjData = (SIMCONNECT_RECV_SIMOBJECT_DATA_BYTYPE *)pData;
-        break;
-      }
-      case SIMCONNECT_RECV_ID_QUIT: {
+        winVarManager->setVar(SIM_VAR_SIMULATION_RATE, data->simRate);
         break;
       }
       case SIMCONNECT_RECV_ID_EXCEPTION: {
         SIMCONNECT_RECV_EXCEPTION *except = (SIMCONNECT_RECV_EXCEPTION *)pData;
-        break;
-      }
-      case SIMCONNECT_RECV_ID_WEATHER_OBSERVATION: {
-        SIMCONNECT_RECV_WEATHER_OBSERVATION *pWxData = (SIMCONNECT_RECV_WEATHER_OBSERVATION *)pData;
-        const char *pszMETAR = (const char *)(pWxData + 1);
+        Logger::GetInstance() << "SimConnect Exception: " << except->dwException << "\n";
         break;
       }
       default:
@@ -93,7 +66,9 @@ static void runner() {
     // FIXME: 100 times as fast as IRL (-9)
     {
       std::lock_guard<std::mutex> guard(lock);
-      ins->update(delta.count() * 1e-7);
+      double simRate = 1;
+      winVarManager->getVar(SIM_VAR_SIMULATION_RATE, simRate);
+      ins->update(delta.count() * 1e-7 * simRate);
     }
 
     HANDLE handle;

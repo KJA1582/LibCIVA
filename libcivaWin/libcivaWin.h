@@ -38,4 +38,5 @@ struct DATA {
   double longitude;
   double navDME1;
   double navDME2;
+  double simRate;
 };

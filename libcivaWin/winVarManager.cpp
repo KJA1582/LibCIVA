@@ -19,6 +19,7 @@ WinVarManager::WinVarManager() noexcept : VarManager("") {
   setVar(SIM_VAR_PLANE_LONGITUDE, 8);
   setVar(SIM_VAR_NAV_DME_1, 25);
   setVar(SIM_VAR_NAV_DME_2, -1);
+  setVar(SIM_VAR_SIMULATION_RATE, 1);
 }
 
 void WinVarManager::dump() const noexcept {

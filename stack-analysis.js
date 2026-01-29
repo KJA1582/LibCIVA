@@ -3,7 +3,10 @@ const path = require("path");
 
 const BASE_DIR = "libcivaMSFS24";
 const output = fs.openSync(path.join(BASE_DIR, "stack-analysis.su"), "w");
-const THRESHOLD = parseInt(process.argv[2] ?? 1024);
+let THRESHOLD = parseInt(process.argv.at(-1) ?? 1024);
+THRESHOLD = isNaN(THRESHOLD) ? 1024 : THRESHOLD;
+let LEVEL = process.argv.includes("--level") ? process.argv[process.argv.findIndex((p) => p === "--level") +1] : undefined;
+if (LEVEL !== "info") LEVEL = undefined;
 
 console.log(`Threshold at ${THRESHOLD} bytes`);
 
@@ -39,6 +42,10 @@ functions.forEach((_function) => {
   } else if (_function.cost >= THRESHOLD) {
     console.error(
       `\x1b[31mFunction \x1b[1m${_function.name}\x1b[0m \x1b[31mexceeds threshold (\x1b[1m${_function.cost}\x1b[0m\x1b[31m)\x1b[0m`
+    );
+  } else if (LEVEL === "info") {
+    console.error(
+      `\x1b[32mFunction \x1b[1m${_function.name}\x1b[0m \x1b[32mbelow threshold (\x1b[1m${_function.cost}\x1b[0m\x1b[32m)\x1b[0m`
     );
   }
 

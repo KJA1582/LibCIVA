@@ -65,4 +65,14 @@ Notes on PI:
 # MSFS Unit specific
 
 - Setup via VarManager (no of units, export options, heading steering)
-- Controllable via LVAR+EVENT
+- Controllable via EVENT
+  - MapClientEvent
+  - Use Custom.Event event strings
+    - Document in README
+
+# Documentation
+
+- Build instructions
+  - PC and MSFS
+- Event handling
+  - PC and MSFS

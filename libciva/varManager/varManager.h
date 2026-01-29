@@ -27,6 +27,7 @@ constexpr auto SIM_VAR_PLANE_LATITUDE = "PLANE LATITUDE";
 constexpr auto SIM_VAR_PLANE_LONGITUDE = "PLANE LONGITUDE";
 constexpr auto SIM_VAR_NAV_DME_1 = "NAV DME:1";
 constexpr auto SIM_VAR_NAV_DME_2 = "NAV DME:2";
+constexpr auto SIM_VAR_SIMULATION_RATE = "SIMULATION RATE";
 
 class VarManager {
   const std::string prefix;
