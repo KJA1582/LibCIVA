@@ -11,6 +11,23 @@ endif()
 
 project ("libciva")
 
-add_library(libciva "ins/ins.cpp" "config/config.cpp" "varManager/varManager.cpp" "types/types.cpp"  "ins/insSetGet.cpp" "ins/insEvent.cpp" "ins/modes/align.cpp" "ins/insDisplay.cpp" "logger/logger.cpp")
+add_library(libciva
+	"include/config/config.h"
+	"include/ins/ins.h"
+	"include/logger/logger.h"
+	"include/types/types.h"
+	"include/varManager/varManager.h"
+
+	"src/config/config.cpp"
+	"src/ins/ins.cpp"
+	"src/ins/insSetGet.cpp"
+	"src/ins/insEvent.cpp"
+	"src/ins/modes/align.cpp"
+	"src/ins/insDisplay.cpp"
+	"src/logger/logger.cpp"
+	"src/types/types.cpp"
+	"src/varManager/varManager.cpp"
+)
 set_property(TARGET libciva PROPERTY CXX_STANDARD 14)
 target_compile_definitions(libciva PRIVATE WORK_DIR="./")
+target_include_directories(libciva PRIVATE "include")

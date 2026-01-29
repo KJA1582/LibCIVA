@@ -11,16 +11,29 @@ endif()
 
 project ("civaWin")
 
-add_executable(civaWin "civaWin.cpp" "varManager.cpp")
+add_executable(civaWin
+	"src/civaWin.cpp"
+	"src/varManager.cpp"
+)
 set_property(TARGET civaWin PROPERTY CXX_STANDARD 14)
-target_include_directories(civaWin PRIVATE "../../libciva" "F:/SteamLibrary/steamapps/common/FSX/SDK/Core Utilities Kit/SimConnect SDK/inc")
-
+target_include_directories(civaWin PRIVATE
+	"../../libciva/include"
+	"F:/SteamLibrary/steamapps/common/FSX/SDK/Core Utilities Kit/SimConnect SDK/inc"
+)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-	target_link_directories(civaWin PRIVATE "../../libciva/out/Win32/Release" "F:/SteamLibrary/steamapps/common/FSX/SDK/Core Utilities Kit/SimConnect SDK/lib")
+	target_link_directories(civaWin PRIVATE
+		"../../libciva/out/Win32/Release"
+	)
 else()
-	target_link_directories(civaWin PRIVATE "../../libciva/out/Win32/Debug" "F:/SteamLibrary/steamapps/common/FSX/SDK/Core Utilities Kit/SimConnect SDK/lib")
+	target_link_directories(civaWin PRIVATE
+		"../../libciva/out/Win32/Debug"
+		"F:/SteamLibrary/steamapps/common/FSX/SDK/Core Utilities Kit/SimConnect SDK/lib"
+	)
 endif()
+target_link_directories(civaWin PRIVATE
+	"F:/SteamLibrary/steamapps/common/FSX/SDK/Core Utilities Kit/SimConnect SDK/lib"
+)
 
 target_link_libraries(civaWin PRIVATE libciva SimConnect.lib)
 target_compile_definitions(civaWin PRIVATE WORK_DIR="./")

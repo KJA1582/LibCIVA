@@ -1,4 +1,4 @@
-#include "config.h"
+#include "config/config.h"
 
 Config::Config(const std::string &basePath, const std::string &id) noexcept : basePath(basePath), id(id) {
   std::ifstream file(basePath + "config_" + id, std::ios::binary);

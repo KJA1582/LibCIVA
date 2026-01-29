@@ -1,4 +1,4 @@
-#include "../ins.h"
+#include "ins/ins.h"
 
 void INS::align(const double dTime) noexcept {
   if (modeSelector == MODE_SELECTOR::STBY) {

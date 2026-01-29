@@ -1,4 +1,4 @@
-#include "ins.h"
+#include "ins/ins.h"
 
 static void formatPos(DISPLAY &display, POSITION &pos) noexcept {
   if (pos.latitude == 999) {

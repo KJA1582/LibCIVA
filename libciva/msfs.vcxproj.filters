@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\ins\modes\align.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\config\config.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ins\ins.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ins\insDisplay.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ins\insEvent.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ins\insSetGet.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\logger\logger.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\types\types.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\varManager\varManager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\config\config.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ins\ins.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libciva.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\logger\logger.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\types\types.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\varManager\varManager.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{a2ce5cf9-2306-47a7-b1f7-2adc9b34b6a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{31a752cc-5dac-47d4-bec3-9ced10764f3a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

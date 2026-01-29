@@ -1,6 +1,16 @@
 #ifndef INS_H
 #define INS_H
 
+#ifndef __INTELLISENSE__
+#	define MODULE_EXPORT __attribute__( ( visibility( "default" ) ) )
+#	define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
+#else
+#	define MODULE_EXPORT
+#	define MODULE_WASM_MODNAME(mod)
+#	define __attribute__(x)
+#	define __restrict__
+#endif
+
 #define _USE_MATH_DEFINES
 
 #include <algorithm>
@@ -11,10 +21,10 @@
 #include <string>
 #include <vector>
 
-#include "../config/config.h"
-#include "../logger/logger.h"
-#include "../types/types.h"
-#include "../varManager/varManager.h"
+#include "config/config.h"
+#include "logger/logger.h"
+#include "types/types.h"
+#include "varManager/varManager.h"
 
 constexpr auto MIN_MODE_8 = 51;
 constexpr auto MAX_MODE_7 = 90; // Not specified in manual, but "shortly"

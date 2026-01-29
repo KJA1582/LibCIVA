@@ -1,4 +1,4 @@
-#include "ins.h"
+#include "ins/ins.h"
 
 static void readLat(DISPLAY &display, uint8_t &read, const uint8_t value) noexcept {
   display.characters.LEFT_1 = display.characters.LEFT_2;

@@ -1,4 +1,4 @@
-#include "ins.h"
+#include "ins/ins.h"
 
 void INS::advanceActionMalfunctionIndex() noexcept {
   uint8_t index = std::max(1, (displayActionMalfunctionCodeIndex + 1) % 8);

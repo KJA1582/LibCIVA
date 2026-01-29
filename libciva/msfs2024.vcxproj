@@ -69,8 +69,7 @@
       <ConformanceMode>
       </ConformanceMode>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
         __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_WINDLL;WORK_DIR="./work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ShowIncludes>false</ShowIncludes>
@@ -124,7 +123,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;$(MSBuildProjectDirectory)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
         __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_WINDLL;WORK_DIR="./work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>false</DebugInformationFormat>
@@ -148,23 +147,23 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include=".\config\config.cpp" />
-    <ClCompile Include=".\ins\modes\align.cpp" />
-    <ClCompile Include=".\ins\ins.cpp" />
-    <ClCompile Include=".\ins\insDisplay.cpp" />
-    <ClCompile Include=".\ins\insEvent.cpp" />
-    <ClCompile Include=".\ins\insSetGet.cpp" />
-    <ClCompile Include=".\logger\logger.cpp" />
-    <ClCompile Include=".\types\types.cpp" />
-    <ClCompile Include=".\varManager\varManager.cpp" />
+    <ClCompile Include="src\config\config.cpp" />
+    <ClCompile Include="src\ins\modes\align.cpp" />
+    <ClCompile Include="src\ins\ins.cpp" />
+    <ClCompile Include="src\ins\insDisplay.cpp" />
+    <ClCompile Include="src\ins\insEvent.cpp" />
+    <ClCompile Include="src\ins\insSetGet.cpp" />
+    <ClCompile Include="src\logger\logger.cpp" />
+    <ClCompile Include="src\types\types.cpp" />
+    <ClCompile Include="src\varManager\varManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include=".\config\config.h" />
-    <ClInclude Include=".\ins\ins.h" />
-    <ClInclude Include=".\logger\logger.h" />
-    <ClInclude Include=".\types\types.h" />
-    <ClInclude Include=".\varManager\varManager.h" />
-    <ClInclude Include=".\libciva.h" />
+    <ClInclude Include="src\config\config.h" />
+    <ClInclude Include="src\ins\ins.h" />
+    <ClInclude Include="src\logger\logger.h" />
+    <ClInclude Include="src\types\types.h" />
+    <ClInclude Include="src\varManager\varManager.h" />
+    <ClInclude Include="src\libciva.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
