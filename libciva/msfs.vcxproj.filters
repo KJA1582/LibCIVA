@@ -30,22 +30,22 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\config\config.h">
+    <ClInclude Include="include\config\config.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\ins\ins.h">
+    <ClInclude Include="include\ins\ins.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\libciva.h">
+    <ClInclude Include="include\libciva.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\logger\logger.h">
+    <ClInclude Include="include\logger\logger.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\types\types.h">
+    <ClInclude Include="include\types\types.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\varManager\varManager.h">
+    <ClInclude Include="include\varManager\varManager.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

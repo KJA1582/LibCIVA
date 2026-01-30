@@ -17,11 +17,13 @@ class Logger {
     std::ofstream file;
 
 protected:
-  Logger();
+  Logger() noexcept;
 
   static Logger *singleton_;
 
 public:
+  ~Logger() noexcept;
+
   Logger(Logger &other) = delete;
   void operator=(const Logger &) = delete;
 

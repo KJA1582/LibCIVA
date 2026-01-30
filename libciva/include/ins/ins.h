@@ -294,6 +294,11 @@ public:
     if (count == UNIT_COUNT::THREE) unit3->connectUnit2(unit1);
     if (count == UNIT_COUNT::THREE) unit3->connectUnit3(unit2);
   }
+  inline ~INSContainer() noexcept {
+    unit1->~INS();
+    if (unit2) unit2->~INS();
+    if (unit3) unit3->~INS();
+  }
 
   inline void update(const double dTime) const noexcept {
     unit1->updatePreMix(dTime);

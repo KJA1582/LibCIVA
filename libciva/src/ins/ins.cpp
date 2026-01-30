@@ -26,8 +26,6 @@ INS::~INS() noexcept {
     config.setLastINSPosition(currentINSPosition);
   }
   config.setLastDMEs(DMEs);
-
-  config.save();
 }
 
 #pragma endregion

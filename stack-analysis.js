@@ -3,7 +3,7 @@ const path = require("path");
 
 const BASE_DIRS = [
   "libciva",
-  "Examples/civaMSFS2024"
+  "Examples/civa24"
 ];
 
 let THRESHOLD = parseInt(process.argv.at(-1) ?? 1024);

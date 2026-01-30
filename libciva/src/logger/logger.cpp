@@ -1,9 +1,14 @@
 #include "logger/logger.h"
 
-Logger *Logger::singleton_ = nullptr;;
+Logger *Logger::singleton_ = nullptr;
 
-Logger::Logger() {
-  file = std::ofstream("log.txt", std::ios::boolalpha);
+Logger::Logger() noexcept {
+  file = std::ofstream(WORK_DIR "/log.txt", std::ios::trunc);
+}
+
+Logger::~Logger() noexcept {
+  file.close();
+  singleton_ = nullptr;
 }
 
 Logger &Logger::GetInstance() noexcept {

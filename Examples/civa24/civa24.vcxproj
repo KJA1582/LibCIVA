@@ -15,6 +15,7 @@
     <ProjectGuid>{BCCE2E2E-8D6A-4BE8-8E08-3C6A13E3EA44}</ProjectGuid>
     <RootNamespace>Module</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>civa24</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|MSFS'" Label="Configuration">
@@ -49,14 +50,14 @@
     <IncludePath>$(MSFS_IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)\out\MSFS2024\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\out\MSFS2024\$(Configuration)\</IntDir>
-    <TargetName>civa</TargetName>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|MSFS'">
     <TargetExt>.wasm</TargetExt>
     <IncludePath>$(MSFS_IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)\out\MSFS2024\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\out\MSFS2024\$(Configuration)\</IntDir>
-    <TargetName>civa</TargetName>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|MSFS'">
     <ClCompile>
@@ -70,8 +71,7 @@
       </ConformanceMode>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)..\..\libciva\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>
-        __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_WINDLL;WORK_DIR="./work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_WINDLL;WORK_DIR="\work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ShowIncludes>false</ShowIncludes>
       <ExceptionHandling>
       </ExceptionHandling>
@@ -105,8 +105,7 @@
       </ImportLibrary>
       <ProfileGuidedDatabase>
       </ProfileGuidedDatabase>
-      <AdditionalLibraryDirectories>
-        $(OutDir);$(SolutionDir)..\..\libciva\out\MSFS2024\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)..\..\libciva\out\MSFS2024\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -122,8 +121,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)..\..\libciva\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>
-        __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_WINDLL;WORK_DIR="./work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_WINDLL;WORK_DIR="\work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ExceptionHandling>false</ExceptionHandling>
       <DebugInformationFormat>false</DebugInformationFormat>
@@ -152,8 +150,7 @@
       </ImportLibrary>
       <ProfileGuidedDatabase>
       </ProfileGuidedDatabase>
-      <AdditionalLibraryDirectories>
-        $(OutDir);$(SolutionDir)..\..\libciva\out\MSFS2024\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(SolutionDir)..\..\libciva\out\MSFS2024\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -161,10 +158,10 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\civaMSFS2024.cpp" />
+    <ClCompile Include="src\civa24.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\civaMSFS2024.h" />
+    <ClInclude Include="src\civa24.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

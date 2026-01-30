@@ -18,6 +18,10 @@
 
 #include <libciva.h>
 
+// Base event IDs
+// Unit 2 is +100
+// Unit 3 is +200
+
 constexpr auto EVENT_KEY_0 = 1;
 constexpr auto EVENT_KEY_1 = 2;
 constexpr auto EVENT_KEY_2 = 3;
@@ -47,6 +51,7 @@ constexpr auto EVENT_INSTANT_ALIGN = 27;
 
 enum DATA_DEFINITIONS: SIMCONNECT_DATA_DEFINITION_ID {
   DATA_DEFINITIONS_DATA,
+  DATA_DEFINITIONS_EVENT,
   DATA_DEFINITIONS_UNIT_1,
   DATA_DEFINITIONS_UNIT_2,
   DATA_DEFINITIONS_UNIT_3,
@@ -80,7 +85,6 @@ struct EXPORT {
   double autoManPos;
   double crossTrackError;
   double desiredTrack;
-  double event;
 };
 
 #endif

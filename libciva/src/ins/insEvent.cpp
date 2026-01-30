@@ -664,7 +664,14 @@ void INS::handleAutoMan() noexcept {
 void INS::handleInstantAlign() noexcept {
   if (modeSelector != MODE_SELECTOR::ALIGN) return;
 
+  double lat;
+  double lon;
+  if (varManager.getVar(SIM_VAR_PLANE_LATITUDE, lat) && varManager.getVar(SIM_VAR_PLANE_LONGITUDE, lon)) {
+    initialINSPosition = currentINSPosition = { lat, lon };
+  }
+
   alignSubmode = ALIGN_SUBMODE::MODE_0;
+  ovenTemperature = config.getOperatingTempInC();
   indicators.indicator.READY_NAV = true;
   initialTimeInNAV =  timeInNAV = timeInMode = 0;
 }

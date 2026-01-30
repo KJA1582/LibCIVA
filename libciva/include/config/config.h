@@ -34,6 +34,9 @@ class Config {
 
 public:
   Config(const std::string &workDir, const std::string &id) noexcept;
+  inline ~Config() noexcept {
+    save();
+  }
 
   void save() const noexcept;
 
