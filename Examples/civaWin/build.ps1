@@ -1,20 +1,40 @@
-# Build lib
-cd ..\..
-cd .\libciva
-mkdir .\out
-cd .\out
-rm -r -fo .\Win32
-mkdir .\Win32
-cd .\Win32
-cmake -A Win32 ..\..
-msbuild .\libciva.sln
-cd ..\..\..
+param(
+  [ValidateSet('Debug', 'Release')]
+  [string]
+  $Build = "Debug",
 
-# Build example
-cd .\Examples\civaWin
-rm -r -fo .\out
+  [switch]
+  $Clean
+)
+
+Write-Host "Building for $Build"
+Write-Host "Cleaning: $Clean"
+
+Write-Warning "Check settings" -WarningAction Inquire
+
+# Lib
+Set-Location ..\..\libciva
 mkdir .\out
-cd .\out
-cmake -A Win32 ..
-msbuild .\civaWin.sln
-cd ..
+Set-Location .\out
+# Clean
+if ($Clean) {
+  Remove-Item -r -fo .\Win32
+}
+# Build
+mkdir .\Win32
+Set-Location .\Win32
+cmake -A Win32 -DCMAKE_BUILD_TYPE="$Build" ..\..
+msbuild .\libciva.vcxproj /property:Configuration="$Build" /m
+
+# Example
+Set-Location ..\..\..\Examples\civaWin
+# Clean
+if ($Clean) {
+  Remove-Item -r -fo .\out
+}
+# Build
+mkdir .\out
+Set-Location .\out
+cmake -A Win32 -DCMAKE_BUILD_TYPE="$Build" ..
+msbuild .\civaWin.vcxproj /property:Configuration="$Build" /m
+Set-Location ..\

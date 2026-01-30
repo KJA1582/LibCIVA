@@ -28,7 +28,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 else()
 	target_link_directories(civaWin PRIVATE
 		"../../libciva/out/Win32/Debug"
-		"F:/SteamLibrary/steamapps/common/FSX/SDK/Core Utilities Kit/SimConnect SDK/lib"
 	)
 endif()
 target_link_directories(civaWin PRIVATE
