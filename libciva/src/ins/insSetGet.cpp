@@ -68,7 +68,7 @@ void INS::updateSimPosDelta() noexcept {
   double simLon = 999;
   varManager.getVar(SIM_VAR_PLANE_LATITUDE, simLat);
   varManager.getVar(SIM_VAR_PLANE_LONGITUDE, simLon);
-  POSITION simPos = { simLat, simLon };
+  POSITION simPos = {simLat, simLon};
 
   if (simPos.isValid()) {
     simPosDelta = currentINSPosition - simPos;
@@ -82,7 +82,7 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
   varManager.getVar(SIM_VAR_PLANE_LATITUDE, simLat);
   varManager.getVar(SIM_VAR_PLANE_LONGITUDE, simLon);
 
-  POSITION simPos = { simLat, simLon };
+  POSITION simPos = {simLat, simLon};
 
   if (!simPos.isValid() || initialTimeInNAV == 0 || !varManager.getVar(SIM_VAR_GROUND_VELOCITY, groundSpeed)) return;
 
@@ -119,8 +119,7 @@ void INS::updateMetrics(POSITION pos) noexcept {
     if (trueHeadingValid || gs < MIN_GS) {
       _track = (uint16_t)(std::round(trueHeading));
     }
-  }
-  else {
+  } else {
     _track = (uint16_t)(std::round(track));
   }
 
@@ -136,8 +135,7 @@ void INS::updateMetrics(POSITION pos) noexcept {
 
   if (alongDist < waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd])) {
     desiredTrack = alongPos.bearingTo(waypoints[currentLegEnd]);
-  }
-  else {
+  } else {
     desiredTrack = legCrs;
   }
 }
@@ -174,9 +172,9 @@ void INS::updateNav(POSITION pos, const double dTime) noexcept {
   if (dist <= turnDist && std::abs(crsToEnd - track) < 2) {
 
 #ifndef NDEBUG
-    Logger::GetInstance() << "Leg changed at " << dist << "/" << turnDist << " remaining from WPT " <<
-      (int)currentLegStart << " along " << track << " to WPT " << (int)currentLegEnd << ". Next crs " <<
-      nextCrs << "to WPT " << (int)((currentLegEnd % 9) + 1) << "\n";
+    Logger::GetInstance() << "Leg changed at " << dist << "/" << turnDist << " remaining from WPT " << (int)currentLegStart
+                          << " along " << track << " to WPT " << (int)currentLegEnd << ". Next crs " << nextCrs << "to WPT "
+                          << (int)((currentLegEnd % 9) + 1) << "\n";
 #endif
 
     currentLegStart = currentLegEnd;

@@ -1,0 +1,6 @@
+---
+BasedOnStyle: LLVM
+ColumnLimit: 130
+IndentCaseLabels: true
+AllowShortIfStatementsOnASingleLine: Always
+AllowShortLoopsOnASingleLine: true

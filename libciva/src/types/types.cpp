@@ -51,12 +51,11 @@ POSITION POSITION::destination(const double distance, const double bearing) cons
   double λ = longitude * M_PI / 180;
   double θ = bearing * M_PI / 180;
 
-  double φ2 = std::asin(std::sin(φ) * std::cos(distance / R) +
-                        std::cos(φ) * std::sin(distance / R) * std::cos(θ));
-  double λ2 = λ + std::atan2(std::sin(θ) * std::sin(distance / R) * std::cos(φ),
-                             std::cos(distance / R) - std::sin(φ) * std::sin(φ2));
+  double φ2 = std::asin(std::sin(φ) * std::cos(distance / R) + std::cos(φ) * std::sin(distance / R) * std::cos(θ));
+  double λ2 =
+      λ + std::atan2(std::sin(θ) * std::sin(distance / R) * std::cos(φ), std::cos(distance / R) - std::sin(φ) * std::sin(φ2));
 
-  return { φ2 * 180.0 / M_PI, std::fmod((λ2 * 180.0 / M_PI) + 540.0, 360.0) - 180.0 };
+  return {φ2 * 180.0 / M_PI, std::fmod((λ2 * 180.0 / M_PI) + 540.0, 360.0) - 180.0};
 }
 
 void POSITION::bound() noexcept {

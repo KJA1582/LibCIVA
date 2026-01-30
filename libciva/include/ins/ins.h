@@ -2,13 +2,13 @@
 #define INS_H
 
 #ifndef __INTELLISENSE__
-#	define MODULE_EXPORT __attribute__( ( visibility( "default" ) ) )
-#	define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
+#define MODULE_EXPORT __attribute__((visibility("default")))
+#define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
 #else
-#	define MODULE_EXPORT
-#	define MODULE_WASM_MODNAME(mod)
-#	define __attribute__(x)
-#	define __restrict__
+#define MODULE_EXPORT
+#define MODULE_WASM_MODNAME(mod)
+#define __attribute__(x)
+#define __restrict__
 #endif
 
 #define _USE_MATH_DEFINES
@@ -27,13 +27,13 @@
 #include "varManager/varManager.h"
 
 constexpr auto MIN_MODE_8 = 51;
-constexpr auto MAX_MODE_7 = 90; // Not specified in manual, but "shortly"
-constexpr auto MAX_MODE_6 = 420; // Rest of the ~8.5min MODE 7 and 6
-constexpr auto MODE_5_TO_0 = 204; // 3.4min per mode
-constexpr auto TIME_PER_AI = 1200; // 20min per AI, 3 AI per hour, 3h results in AI9
+constexpr auto MAX_MODE_7 = 90;        // Not specified in manual, but "shortly"
+constexpr auto MAX_MODE_6 = 420;       // Rest of the ~8.5min MODE 7 and 6
+constexpr auto MODE_5_TO_0 = 204;      // 3.4min per mode
+constexpr auto TIME_PER_AI = 1200;     // 20min per AI, 3 AI per hour, 3h results in AI9
 constexpr auto MAX_BAT_TEST_TIME = 12; // 12s bat test
 
-constexpr uint8_t PROG_NUM[] = { 1, 1, 0, 7 }; // CIV-A-22
+constexpr uint8_t PROG_NUM[] = {1, 1, 0, 7}; // CIV-A-22
 
 constexpr auto MIN_GS = 75;
 constexpr auto MIN_GS_TIME = 10;
@@ -48,9 +48,9 @@ constexpr auto MAX_DRIFT_ANGLE = 45;
 constexpr auto INITIAL_TIME_IN_NAV = 5400;
 constexpr auto MIN_LEG_TIME = 25.6;
 constexpr auto LEG_TIME_ALERT = 120;
-constexpr auto MIN_DME_TIME = 12; // After this, DME indicator can go green
+constexpr auto MIN_DME_TIME = 12;                     // After this, DME indicator can go green
 constexpr auto MAX_SINGLE_DME_TIME_UNTIL_VALID = 150; // Stop DME update if not valid below this
-constexpr auto MAX_DUAL_DME_TIME_UNTIL_VALID = 300; // Stop DME update if nopt valid below this
+constexpr auto MAX_DUAL_DME_TIME_UNTIL_VALID = 300;   // Stop DME update if nopt valid below this
 
 constexpr auto DISPLAY_CHAR_RIGHT = 10;
 constexpr auto DISPLAY_CHAR_LEFT = 11;
@@ -66,60 +66,56 @@ class INS {
   // List of active malfunctions
   ACTION_MALFUNCTION_CODES actionMalfunctionCodes;
 
-  #pragma region Positions
+#pragma region Positions
 
   // Current position displayed on unit
-  POSITION displayPosition = { 999, 999 };
+  POSITION displayPosition = {999, 999};
   // INS Position without any updates
-  POSITION initialINSPosition = { 999, 999 };
+  POSITION initialINSPosition = {999, 999};
   // Current INS position with updates
-  POSITION currentINSPosition = { 999, 999 };
+  POSITION currentINSPosition = {999, 999};
   // Current INS tripple mix position with updates
-  POSITION currentTrippleMixPosition = { 999, 999 };
+  POSITION currentTrippleMixPosition = {999, 999};
   // HOLD mode
-  POSITION holdINSPosition = { 999, 999 };
-  POSITION holdPosition = { 999, 999 };
+  POSITION holdINSPosition = {999, 999};
+  POSITION holdPosition = {999, 999};
   // Delta to actual sim position
-  POSITION simPosDelta = { 0, 0 };
+  POSITION simPosDelta = {0, 0};
   // Error
-  POSITION initialError = { 0, 0 };
-  POSITION currentError = { 0, 0 };
+  POSITION initialError = {0, 0};
+  POSITION currentError = {0, 0};
 
-  #pragma endregion
+#pragma endregion
 
-  #pragma region Waypoints/DMEs
+#pragma region Waypoints / DMEs
 
   // Waypoints (0 is not settable by hand)
-  POSITION waypoints[10] = {
-    { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } , { 0, 0 } , { 0, 0 } , { 0, 0 }
-  };
+  POSITION waypoints[10] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
   // DMEs, index of selector - 1 = array index
-  DME DMEs[9] = {
-    { 0, 0, 0, 0}, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 },  { 0, 0, 0, 0 }, { 0, 0, 0, 0 },
-    { 0, 0, 0, 0 } , { 0, 0, 0, 0 } , { 0, 0, 0, 0 }
-  };
+  DME DMEs[9] = {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
+                 {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
 
-  #pragma endregion
+#pragma endregion
 
-  #pragma region Indicators/Display
+#pragma region Indicators / Display
 
   // Active indicators
-  INDICATORS indicators = { 0 };
+  INDICATORS indicators = {0};
   // Previous indicators for test mode
-  INDICATORS previousIndicators = { 0 };
+  INDICATORS previousIndicators = {0};
   // Current Display
-  DISPLAY display = { 0 };
+  DISPLAY display = {0};
 
-  #pragma endregion
+#pragma endregion
 
-  #pragma region Multi Unit
+#pragma region Multi Unit
 
   std::shared_ptr<INS> unit2;
   std::shared_ptr<INS> unit3;
 
-  #pragma endregion
+#pragma endregion
 
-  #pragma region States
+#pragma region States
 
   // Current oven temperature
   double ovenTemperature = 0;
@@ -149,11 +145,11 @@ class INS {
   // State of battery test
   BATTERY_TEST batteryTest = BATTERY_TEST::IDLE;
   // Position of data selector
-  DATA_SELECTOR dataSelector = { DATA_SELECTOR::POS };
+  DATA_SELECTOR dataSelector = {DATA_SELECTOR::POS};
   // Position of mode selector
-  MODE_SELECTOR modeSelector = { MODE_SELECTOR::OFF };
+  MODE_SELECTOR modeSelector = {MODE_SELECTOR::OFF};
   // Current active insert mode
-  INSERT_MODE insertMode = { INSERT_MODE::INV };
+  INSERT_MODE insertMode = {INSERT_MODE::INV};
   // Current performance index (4, 5)
   uint8_t activePerformanceIndex = 5;
   // Current accuracy index, 0 to 9, 0 best, 9 worst, 2 if DME update altitude invalid
@@ -184,7 +180,7 @@ class INS {
   // If DME is connected
   bool hasDME = false;
 
-  #pragma endregion
+#pragma endregion
 
   void advanceActionMalfunctionIndex() noexcept;
 
@@ -212,44 +208,28 @@ class INS {
   }
 
 public:
-  INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir,
-      const bool hasDME) noexcept;
+  INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir, const bool hasDME)
+  noexcept;
   ~INS() noexcept;
 
   void updatePreMix(const double dTime) noexcept;
   void updatePostMix(const double dTime) noexcept;
 
-  #pragma region Public Getter/Setter
+#pragma region Public Getter / Setter
 
-  inline void setDataSelectorPos(const DATA_SELECTOR pos) noexcept {
-    dataSelector = pos;
-  }
-  inline void setModeSelectorPos(const MODE_SELECTOR pos) noexcept {
-    modeSelector = pos;
-  }
-  inline void connectUnit2(std::shared_ptr<INS> &unit) noexcept {
-    unit2 = unit;
-  }
-  inline void connectUnit3(std::shared_ptr<INS> &unit) noexcept {
-    unit3 = unit;
-  }
+  inline void setDataSelectorPos(const DATA_SELECTOR pos) noexcept { dataSelector = pos; }
+  inline void setModeSelectorPos(const MODE_SELECTOR pos) noexcept { modeSelector = pos; }
+  inline void connectUnit2(std::shared_ptr<INS> &unit) noexcept { unit2 = unit; }
+  inline void connectUnit3(std::shared_ptr<INS> &unit) noexcept { unit3 = unit; }
 
-  inline DATA_SELECTOR getDataSelectorPos() const noexcept {
-    return dataSelector;
-  }
-  inline MODE_SELECTOR getModeSelectorPos() const noexcept {
-    return modeSelector;
-  }
-  inline bool isAided() const noexcept {
-    return activePerformanceIndex == 4;
-  }
-  inline POSITION getINSPosition() const noexcept {
-    return initialINSPosition;
-  }
+  inline DATA_SELECTOR getDataSelectorPos() const noexcept { return dataSelector; }
+  inline MODE_SELECTOR getModeSelectorPos() const noexcept { return modeSelector; }
+  inline bool isAided() const noexcept { return activePerformanceIndex == 4; }
+  inline POSITION getINSPosition() const noexcept { return initialINSPosition; }
 
-  #pragma endregion
+#pragma endregion
 
-  #pragma region Events
+#pragma region Events
 
   void incDataSelectorPos() noexcept;
   void incModeSelectorPos() noexcept;
@@ -269,7 +249,7 @@ public:
   void handleAutoMan() noexcept;
   void handleInstantAlign() noexcept;
 
-  #pragma endregion
+#pragma endregion
 };
 
 class INSContainer {
@@ -281,8 +261,9 @@ public:
   inline INSContainer(VarManager &varManager, UNIT_COUNT count, UNIT_HAS_DME dme, const std::string &configBaseID) noexcept {
     unit1 = std::make_shared<INS>(varManager, "UNIT_1", "_1", WORK_DIR, dme == UNIT_HAS_DME::ONE || dme == UNIT_HAS_DME::BOTH);
 
-    if (count > UNIT_COUNT::ONE) unit2 = std::make_shared<INS>(varManager, "UNIT_2", configBaseID + "_2", WORK_DIR,
-                                                               dme == UNIT_HAS_DME::TWO || dme == UNIT_HAS_DME::BOTH);
+    if (count > UNIT_COUNT::ONE)
+      unit2 = std::make_shared<INS>(varManager, "UNIT_2", configBaseID + "_2", WORK_DIR,
+                                    dme == UNIT_HAS_DME::TWO || dme == UNIT_HAS_DME::BOTH);
     if (count == UNIT_COUNT::THREE) unit3 = std::make_shared<INS>(varManager, "UNIT_3", configBaseID + "_3", WORK_DIR, false);
 
     if (count > UNIT_COUNT::ONE) unit1->connectUnit2(unit2);
@@ -314,6 +295,5 @@ public:
     callback(unit1, unit2, unit3);
   }
 };
-
 
 #endif

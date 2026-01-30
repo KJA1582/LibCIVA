@@ -28,7 +28,7 @@ void Config::save() const noexcept {
     file.write((const char *)&unitSpecificHeat, sizeof(unitSpecificHeat));
     file.write((const char *)&lastINSPosition, sizeof(lastINSPosition));
 
-    file.write((const char*)&lastDMEs, sizeof(lastDMEs));
+    file.write((const char *)&lastDMEs, sizeof(lastDMEs));
 
     file.write((const char *)&expectedBankAngle, sizeof(expectedBankAngle));
 

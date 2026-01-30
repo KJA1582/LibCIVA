@@ -2,13 +2,13 @@
 #define CONFIG_H
 
 #ifndef __INTELLISENSE__
-#	define MODULE_EXPORT __attribute__( ( visibility( "default" ) ) )
-#	define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
+#define MODULE_EXPORT __attribute__((visibility("default")))
+#define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
 #else
-#	define MODULE_EXPORT
-#	define MODULE_WASM_MODNAME(mod)
-#	define __attribute__(x)
-#	define __restrict__
+#define MODULE_EXPORT
+#define MODULE_WASM_MODNAME(mod)
+#define __attribute__(x)
+#define __restrict__
 #endif
 
 #include <cstring>
@@ -25,52 +25,28 @@ class Config {
   double heaterEfficiency = 0.9;
   double unitMassInKG = 5;
   double unitSpecificHeat = 900;
-  POSITION lastINSPosition = { 999, 999 };
-  DME lastDMEs[9] = {
-    { 0, 0, 0, 0}, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 },
-    { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }
-  };
+  POSITION lastINSPosition = {999, 999};
+  DME lastDMEs[9] = {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
+                     {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
   char expectedBankAngle = 30;
 
 public:
   Config(const std::string &workDir, const std::string &id) noexcept;
-  inline ~Config() noexcept {
-    save();
-  }
+  inline ~Config() noexcept { save(); }
 
   void save() const noexcept;
 
-  inline double getOperatingTempInC() const noexcept {
-    return operatingTempInC;
-  }
-  inline double getHeaterWattage() const noexcept {
-    return heaterWattage;
-  }
-  inline double getHeaterEfficiency() const noexcept {
-    return heaterEfficiency;
-  }
-  inline double getUnitMass() const noexcept {
-    return unitMassInKG;
-  }
-  inline double getUnitSpecificHeat() const noexcept {
-    return unitSpecificHeat;
-  }
-  inline POSITION getLastINSPosition() const noexcept {
-    return lastINSPosition;
-  }
-  inline void getLastDMEs(DME(&DMEs)[9]) const noexcept {
-    std::memcpy(DMEs, lastDMEs, sizeof(lastDMEs));
-  }
-  inline char getExpectedBankAngle() const noexcept {
-    return expectedBankAngle;
-  }
+  inline double getOperatingTempInC() const noexcept { return operatingTempInC; }
+  inline double getHeaterWattage() const noexcept { return heaterWattage; }
+  inline double getHeaterEfficiency() const noexcept { return heaterEfficiency; }
+  inline double getUnitMass() const noexcept { return unitMassInKG; }
+  inline double getUnitSpecificHeat() const noexcept { return unitSpecificHeat; }
+  inline POSITION getLastINSPosition() const noexcept { return lastINSPosition; }
+  inline void getLastDMEs(DME (&DMEs)[9]) const noexcept { std::memcpy(DMEs, lastDMEs, sizeof(lastDMEs)); }
+  inline char getExpectedBankAngle() const noexcept { return expectedBankAngle; }
 
-  inline void setLastINSPosition(POSITION pos) noexcept {
-    lastINSPosition = pos;
-  }
-  inline void setLastDMEs(const DME(&DMEs)[9]) noexcept {
-    std::memcpy(lastDMEs, DMEs, sizeof(DMEs));
-  }
+  inline void setLastINSPosition(POSITION pos) noexcept { lastINSPosition = pos; }
+  inline void setLastDMEs(const DME (&DMEs)[9]) noexcept { std::memcpy(lastDMEs, DMEs, sizeof(DMEs)); }
 };
 
 #endif

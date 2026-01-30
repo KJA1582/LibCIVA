@@ -2,13 +2,13 @@
 #define TYPES_H
 
 #ifndef __INTELLISENSE__
-#	define MODULE_EXPORT __attribute__( ( visibility( "default" ) ) )
-#	define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
+#define MODULE_EXPORT __attribute__((visibility("default")))
+#define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
 #else
-#	define MODULE_EXPORT
-#	define MODULE_WASM_MODNAME(mod)
-#	define __attribute__(x)
-#	define __restrict__
+#define MODULE_EXPORT
+#define MODULE_WASM_MODNAME(mod)
+#define __attribute__(x)
+#define __restrict__
 #endif
 
 #define _USE_MATH_DEFINES
@@ -16,31 +16,22 @@
 #include <cmath>
 #include <cstdint>
 
-enum class UNIT_COUNT: uint8_t {
+enum class UNIT_COUNT : uint8_t {
   ONE,
   TWO,
   THREE,
 };
 
-enum class UNIT_HAS_DME: uint8_t {
+enum class UNIT_HAS_DME : uint8_t {
   NONE,
   ONE,
   TWO,
   BOTH,
 };
 
-enum class DATA_SELECTOR: uint8_t {
-  TKGS,
-  HDGDA,
-  XTKTKE,
-  POS,
-  WPT,
-  DISTIME,
-  WIND,
-  DSRTKSTS
-};
+enum class DATA_SELECTOR : uint8_t { TKGS, HDGDA, XTKTKE, POS, WPT, DISTIME, WIND, DSRTKSTS };
 
-enum class MODE_SELECTOR: uint8_t {
+enum class MODE_SELECTOR : uint8_t {
   OFF,
   STBY,
   ALIGN,
@@ -48,7 +39,7 @@ enum class MODE_SELECTOR: uint8_t {
   ATT,
 };
 
-enum class INS_STATE: uint8_t {
+enum class INS_STATE : uint8_t {
   OFF,
   STBY,
   ALIGN,
@@ -57,7 +48,7 @@ enum class INS_STATE: uint8_t {
   FAIL,
 };
 
-enum class ALIGN_SUBMODE: uint8_t {
+enum class ALIGN_SUBMODE : uint8_t {
   MODE_0, // See MODE_4, minimum
   MODE_1, // See MODE_4
   MODE_2, // See MODE_4
@@ -70,7 +61,7 @@ enum class ALIGN_SUBMODE: uint8_t {
   MODE_9, // STBY, change to 8 if ALIGN entered and warmed up
 };
 
-enum class BATTERY_TEST: uint8_t {
+enum class BATTERY_TEST : uint8_t {
   IDLE,
   RUNNING,
   COMPLETED,
@@ -78,7 +69,7 @@ enum class BATTERY_TEST: uint8_t {
   INHIBITED,
 };
 
-enum class INSERT_MODE: int8_t {
+enum class INSERT_MODE : int8_t {
   INV = -1,
   POS_LAT,
   PRE_POS_LON,
@@ -92,7 +83,7 @@ enum class INSERT_MODE: int8_t {
   WPT_CHG_TO,
 };
 
-enum class DME_MODE: int8_t {
+enum class DME_MODE : int8_t {
   INV = -1,
   DME_LL,
   DME_FREQ,
@@ -174,9 +165,7 @@ struct POSITION {
   // In degrees
   double longitude;
 
-  inline bool isValid() const noexcept {
-    return latitude <= 90 && latitude >= -90 && longitude <= 180 && longitude >= -180;
-  }
+  inline bool isValid() const noexcept { return latitude <= 90 && latitude >= -90 && longitude <= 180 && longitude >= -180; }
 
   double distanceTo(const POSITION &target) const noexcept;
   double bearingTo(const POSITION &target) const noexcept;
@@ -188,13 +177,9 @@ struct POSITION {
   bool inFront(const POSITION &pos, const double track) const noexcept;
 
   // Not bound checked
-  inline POSITION operator+(const POSITION &rhs) const noexcept {
-    return { latitude + rhs.latitude, longitude + rhs.longitude };
-  }
+  inline POSITION operator+(const POSITION &rhs) const noexcept { return {latitude + rhs.latitude, longitude + rhs.longitude}; }
   // Not bound checked
-  inline POSITION operator-(const POSITION &rhs) const noexcept {
-    return { latitude - rhs.latitude, longitude - rhs.longitude };
-  }
+  inline POSITION operator-(const POSITION &rhs) const noexcept { return {latitude - rhs.latitude, longitude - rhs.longitude}; }
 };
 
 typedef struct {

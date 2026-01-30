@@ -58,20 +58,17 @@ void WinVarManager::dump() const noexcept {
       std::cout << "|";
       if (i.indicator.FROM_BLINK) {
         std::cout << "\033[5m" << convertCharacter(v.characters.FROM) << "\033[0m";
-      }
-      else {
+      } else {
         std::cout << convertCharacter(v.characters.FROM);
       }
       std::cout << " ";
       if (i.indicator.TO_BLINK) {
         std::cout << "\033[5m" << convertCharacter(v.characters.TO) << "\033[0m";
-      }
-      else {
+      } else {
         std::cout << convertCharacter(v.characters.TO);
       }
       std::cout << "|";
-    }
-    else if (it->first.find(INDICATORS_VAR) != std::string::npos) {
+    } else if (it->first.find(INDICATORS_VAR) != std::string::npos) {
       const INDICATORS i = *reinterpret_cast<const INDICATORS *>(&it->second);
 
       std::cout << "       ";
@@ -88,8 +85,7 @@ void WinVarManager::dump() const noexcept {
       std::cout << (i.indicator.MSU_BAT ? "\033[92mDME 1\033[0m|" : "\033[90mDME 1\033[0m|");
       std::cout << (i.indicator.MSU_BAT ? "\033[92mDME 2\033[0m" : "\033[90mDME 2\033[0m");
       std::cout << "               ";
-    }
-    else if (it->first.find(MODE_SELECTOR_POS_VAR) != std::string::npos) {
+    } else if (it->first.find(MODE_SELECTOR_POS_VAR) != std::string::npos) {
       std::cout << "                                 ";
       std::cout << (it->second == 0 ? "OFF|" : "\033[90mOFF\033[0m|");
       std::cout << (it->second == 1 ? "STBY|" : "\033[90mSTBY\033[0m|");
@@ -97,8 +93,7 @@ void WinVarManager::dump() const noexcept {
       std::cout << (it->second == 3 ? "NAV|" : "\033[90mNAV\033[0m|");
       std::cout << (it->second == 4 ? "ATT" : "\033[90mATT\033[0m");
 
-    }
-    else if (it->first.find(DATA_SELECTOR_POS_VAR) != std::string::npos) {
+    } else if (it->first.find(DATA_SELECTOR_POS_VAR) != std::string::npos) {
       std::cout << (it->second == 0 ? "TK/GS|" : "\033[90mTK/GS\033[0m|");
       std::cout << (it->second == 1 ? "HDG/DA|" : "\033[90mHDG/DA\033[0m|");
       std::cout << (it->second == 2 ? "XTK/TKE|" : "\033[90mXTK/TKE\033[0m|");
@@ -107,8 +102,7 @@ void WinVarManager::dump() const noexcept {
       std::cout << (it->second == 5 ? "DIS/TIME|" : "\033[90mDIS/TIME\033[0m|");
       std::cout << (it->second == 6 ? "WIND|" : "\033[90mWIND\033[0m|");
       std::cout << (it->second == 7 ? "DSRTK/STS" : "\033[90mDSRTK/STS\033[0m");
-    }
-    else {
+    } else {
       std::cout << std::right << std::setfill(' ') << std::setw(55) << it->second;
     }
 

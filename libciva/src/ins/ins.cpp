@@ -3,8 +3,8 @@
 #pragma region Lifecycle
 
 INS::INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir,
-         const bool hasDME) noexcept :
-  varManager(varManager), config(Config(workDir, configID)), id(id), actionMalfunctionCodes(), hasDME(hasDME) {
+         const bool hasDME) noexcept
+    : varManager(varManager), config(Config(workDir, configID)), id(id), actionMalfunctionCodes(), hasDME(hasDME) {
   clearDisplay();
 
   // Init all things from global vars
@@ -36,8 +36,7 @@ void INS::temperatureSim(const double dTime) noexcept {
   double ambient = 0;
   if (varManager.getVar(SIM_VAR_AMBIENT_TEMPERATURE, ambient)) {
     // Exit if at operating tem or ambient in case of heating or no heating
-    if (shouldHeat && ovenTemperature >= config.getOperatingTempInC())
-      return;
+    if (shouldHeat && ovenTemperature >= config.getOperatingTempInC()) return;
 
     double cooling = shouldHeat ? 0.0 : 0.02;
     double loss = cooling * (ovenTemperature - ambient) * (dTime / config.getUnitMass());
@@ -58,12 +57,12 @@ void INS::temperatureSim(const double dTime) noexcept {
 void INS::reset(const bool full) noexcept {
   if (full) {
     clearDisplay();
-    indicators = { 0 };
-    displayPosition = currentINSPosition = initialINSPosition = { 999, 999 };
+    indicators = {0};
+    displayPosition = currentINSPosition = initialINSPosition = {999, 999};
     track = 0;
 
     for (uint8_t i = 0; i < 10; i++) {
-      waypoints[i] = { 0, 0 };
+      waypoints[i] = {0, 0};
     }
 
     insertMode = INSERT_MODE::INV;
@@ -80,7 +79,7 @@ void INS::reset(const bool full) noexcept {
   accuracyIndex = 9;
   timeInMode = 0;
   initialTimeInNAV = timeInNAV = INITIAL_TIME_IN_NAV;
-  initialError = currentError = { 0, 0 };
+  initialError = currentError = {0, 0};
   indicators.indicator.READY_NAV = false;
 }
 
@@ -92,10 +91,8 @@ void INS::calculateTrack() noexcept {
   double gs = 0;
 
   if (varManager.getVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, trueHeading) &&
-      varManager.getVar(SIM_VAR_AMBIENT_WIND_DIRECTION, windDir) &&
-      varManager.getVar(SIM_VAR_AMBIENT_WIND_VELOCITY, windSpeed) &&
-      varManager.getVar(SIM_VAR_AIRSPEED_TRUE, tas) &&
-      varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs)) {
+      varManager.getVar(SIM_VAR_AMBIENT_WIND_DIRECTION, windDir) && varManager.getVar(SIM_VAR_AMBIENT_WIND_VELOCITY, windSpeed) &&
+      varManager.getVar(SIM_VAR_AIRSPEED_TRUE, tas) && varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs)) {
 
     if (gs < MIN_GS) {
       track = trueHeading;
@@ -108,7 +105,8 @@ void INS::calculateTrack() noexcept {
 
     track = std::fmod(360 + (std::atan2(tas * std::sin(_trueHeading) + windSpeed * std::sin(_windDir),
                                         tas * std::cos(_trueHeading) + windSpeed * std::cos(_windDir))) *
-                      180 / M_PI, 360);
+                                180 / M_PI,
+                      360);
   }
 }
 
@@ -167,8 +165,8 @@ void INS::updatePreMix(const double dTime) noexcept {
   // Oven
   temperatureSim(dTime);
   // Aux data
-  if (state >= INS_STATE::ALIGN && (alignSubmode < ALIGN_SUBMODE::MODE_7 ||
-                                    (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
+  if (state >= INS_STATE::ALIGN &&
+      (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
     // Ground track
     calculateTrack();
 
@@ -227,13 +225,12 @@ void INS::updatePreMix(const double dTime) noexcept {
         // Downmode
         state = INS_STATE::STBY;
         reset(false);
-      }
-      else if (modeSelector == MODE_SELECTOR::ALIGN) {
+      } else if (modeSelector == MODE_SELECTOR::ALIGN) {
         // Downmode
         state = INS_STATE::ALIGN;
         alignSubmode = ALIGN_SUBMODE::MODE_9;
         initialTimeInNAV = timeInNAV = INITIAL_TIME_IN_NAV;
-        initialError = currentError = { 0, 0 };
+        initialError = currentError = {0, 0};
       }
 
       updateCurrentINSPosition(dTime);

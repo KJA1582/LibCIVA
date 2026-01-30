@@ -78,11 +78,11 @@ static void runner() {
     std::cout << std::endl;
     if (simConnect == NULL) {
       std::cout << "No SimConnect" << std::endl;
-    }
-    else {
-      std::cout << "SimConnect " << openData.szApplicationName << " Version " <<
-        openData.dwApplicationVersionMajor << "." << openData.dwApplicationVersionMinor << "." <<
-        openData.dwApplicationBuildMajor << "." << openData.dwApplicationBuildMinor << std::endl << std::endl;
+    } else {
+      std::cout << "SimConnect " << openData.szApplicationName << " Version " << openData.dwApplicationVersionMajor << "."
+                << openData.dwApplicationVersionMinor << "." << openData.dwApplicationBuildMajor << "."
+                << openData.dwApplicationBuildMinor << std::endl
+                << std::endl;
     }
     std::cout << "Mode Knob: Arrow left/right" << std::endl;
     std::cout << "Data Knob: Arrow up/down" << std::endl;
@@ -119,8 +119,8 @@ static void setupSimConnect() {
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_NAV_DME_2, "NAUTICAL MILE");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_SIMULATION_RATE, "NUMBER");
 
-  SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA,
-                                    SIMCONNECT_OBJECT_ID_USER, SIMCONNECT_PERIOD_VISUAL_FRAME);
+  SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA, SIMCONNECT_OBJECT_ID_USER,
+                                    SIMCONNECT_PERIOD_VISUAL_FRAME);
   // TODO:SC init
 }
 
@@ -251,7 +251,7 @@ int main() {
               unit1->handleTestButtonState(true);
               if (unit2) unit2->handleTestButtonState(true);
               if (unit3) unit3->handleTestButtonState(true);
-              Sleep(200); //DEBOUNCE;
+              Sleep(200); // DEBOUNCE;
               break;
             case 'L':
             case 'F':

@@ -14,9 +14,7 @@ VarManager::VarManager() noexcept {
   setVar(SIM_VAR_SIMULATION_RATE, 1);
 }
 
-void VarManager::setVar(const std::string &name, double value) noexcept {
-  store[name] = value;
-}
+void VarManager::setVar(const std::string &name, double value) noexcept { store[name] = value; }
 
 bool VarManager::getVar(const std::string &name, double &value) const noexcept {
   auto it = store.find(name);

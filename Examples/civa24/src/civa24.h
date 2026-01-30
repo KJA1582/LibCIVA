@@ -2,13 +2,13 @@
 #define LIBCIVA_MSFS_H
 
 #ifndef __INTELLISENSE__
-#	define MODULE_EXPORT __attribute__( ( visibility( "default" ) ) )
-#	define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
+#define MODULE_EXPORT __attribute__((visibility("default")))
+#define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
 #else
-#	define MODULE_EXPORT
-#	define MODULE_WASM_MODNAME(mod)
-#	define __attribute__(x)
-#	define __restrict__
+#define MODULE_EXPORT
+#define MODULE_WASM_MODNAME(mod)
+#define __attribute__(x)
+#define __restrict__
 #endif
 
 #include <MSFS/Legacy/gauges.h>
@@ -49,7 +49,7 @@ constexpr auto EVENT_HOLD = 25;
 constexpr auto EVENT_AUTO_MAN = 26;
 constexpr auto EVENT_INSTANT_ALIGN = 27;
 
-enum DATA_DEFINITIONS: SIMCONNECT_DATA_DEFINITION_ID {
+enum DATA_DEFINITIONS : SIMCONNECT_DATA_DEFINITION_ID {
   DATA_DEFINITIONS_DATA,
   DATA_DEFINITIONS_EVENT,
   DATA_DEFINITIONS_UNIT_1,
@@ -57,9 +57,7 @@ enum DATA_DEFINITIONS: SIMCONNECT_DATA_DEFINITION_ID {
   DATA_DEFINITIONS_UNIT_3,
 };
 
-enum REQUEST_DEFINITIONS: SIMCONNECT_DATA_REQUEST_ID {
-  REQUEST_DEFINITIONS_DATA
-};
+enum REQUEST_DEFINITIONS : SIMCONNECT_DATA_REQUEST_ID { REQUEST_DEFINITIONS_DATA };
 
 struct DATA {
   double airspeedTrue;

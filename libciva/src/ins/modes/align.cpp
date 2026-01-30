@@ -8,8 +8,7 @@ void INS::align(const double dTime) noexcept {
     actionMalfunctionCodes.value = 0;
 
     return;
-  }
-  else if (modeSelector == MODE_SELECTOR::NAV) {
+  } else if (modeSelector == MODE_SELECTOR::NAV) {
     // Upmode
     if (alignSubmode <= ALIGN_SUBMODE::MODE_5) {
       state = INS_STATE::NAV;
@@ -34,12 +33,10 @@ void INS::align(const double dTime) noexcept {
     case ALIGN_SUBMODE::MODE_8: {
       if (batteryTest == BATTERY_TEST::IDLE && (uint8_t)state != (uint8_t)modeSelector) {
         batteryTest = BATTERY_TEST::INHIBITED;
-      }
-      else if (batteryTest == BATTERY_TEST::IDLE && timeInMode < MAX_BAT_TEST_TIME) {
+      } else if (batteryTest == BATTERY_TEST::IDLE && timeInMode < MAX_BAT_TEST_TIME) {
         indicators.indicator.CDU_BAT = true;
         batteryTest = BATTERY_TEST::RUNNING;
-      }
-      else if (batteryTest == BATTERY_TEST::RUNNING && timeInMode >= MAX_BAT_TEST_TIME) {
+      } else if (batteryTest == BATTERY_TEST::RUNNING && timeInMode >= MAX_BAT_TEST_TIME) {
         indicators.indicator.CDU_BAT = false;
         batteryTest = BATTERY_TEST::COMPLETED;
       }

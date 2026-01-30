@@ -7,7 +7,7 @@
 
 #include <libciva.h>
 
-class WinVarManager: public VarManager {
+class WinVarManager : public VarManager {
 public:
   WinVarManager() noexcept;
 
