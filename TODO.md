@@ -32,6 +32,10 @@
 - Unit intercom
   - Remote key
 - Tripple Mix
+  - TESTING REQUIRED
+    - Display
+    - Navigation function
+    - Dropout if any unit is in AI !0 4
 
 # Sim specific
 
@@ -63,8 +67,5 @@ Notes on PI:
       - Stationary still incurs penalty, but very little (integrator errors)
 
 # MSFS Unit specific
-
-- Controllable via LVAR
-  - Document in README
 
 # Documentation

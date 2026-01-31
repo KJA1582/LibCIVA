@@ -61,12 +61,11 @@ static void runner() {
       handleSimConnect();
     }
 
-    // FIXME: 100 times as fast as IRL (-9)
     {
       std::lock_guard<std::mutex> guard(lock);
       double simRate = 1;
       winVarManager->getVar(SIM_VAR_SIMULATION_RATE, simRate);
-      ins->update(delta.count() * 1e-7 * simRate);
+      ins->update(delta.count() * 1e-9 * simRate);
     }
 
     HANDLE handle;

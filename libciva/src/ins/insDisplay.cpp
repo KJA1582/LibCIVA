@@ -1,6 +1,6 @@
 #include "ins/ins.h"
 
-static void formatPos(DISPLAY &display, POSITION &pos) noexcept {
+static void formatPos(DISPLAY &display, POSITION pos) noexcept {
   if (pos.latitude == 999) {
     display.characters.N = display.characters.S = false;
     pos.latitude = 0;
@@ -172,7 +172,7 @@ void INS::formatActionMalfunctionCode(const bool showingMalf) noexcept {
   }
 }
 
-void INS::updateDisplay(POSITION pos) noexcept {
+void INS::updateDisplay(POSITION &pos) noexcept {
   if (inTestMode) {
     uint64_t d;
     d = 0xFF88888888F88888;
@@ -544,7 +544,7 @@ void INS::updateDisplay(POSITION pos) noexcept {
   }
 }
 
-void INS::alertLamp(POSITION pos, const double dTime) noexcept {
+void INS::alertLamp(POSITION &pos, const double dTime) noexcept {
   static double flashTime = 0;
 
   double gs = 0;

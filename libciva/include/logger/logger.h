@@ -12,11 +12,12 @@
 #endif
 
 #include <fstream>
+#include <iomanip>
 
 class Logger {
+protected:
   std::ofstream file;
 
-protected:
   Logger() noexcept;
 
   static Logger *singleton_;
@@ -27,7 +28,7 @@ public:
   Logger(Logger &other) = delete;
   void operator=(const Logger &) = delete;
 
-  template <typename T> Logger &operator<<(const T &val) {
+  template <typename T> inline Logger &operator<<(const T &val) {
     this->file << val;
     file.flush();
 
@@ -35,6 +36,30 @@ public:
   }
 
   static Logger &GetInstance() noexcept;
+};
+
+class DataLogger {
+protected:
+  std::ofstream file;
+
+  DataLogger() noexcept;
+
+  static DataLogger *singleton_;
+
+public:
+  ~DataLogger() noexcept;
+
+  DataLogger(DataLogger &other) = delete;
+  void operator=(const DataLogger &) = delete;
+
+  template <typename T> inline DataLogger &operator<<(const T &val) {
+    this->file << val;
+    file.flush();
+
+    return *this;
+  }
+
+  static DataLogger &GetInstance() noexcept;
 };
 
 #endif

@@ -88,25 +88,25 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
 
   // TODO: DME Update error and time adjustments
 
-  // Increase spread based on timeInNav, scaled by dT
-  // Spread is constructed so that sum over many dT adheres to the 3sigma of the unit
-  // Ex: timeInNav is 10800 (3h), dTime is 3600 (1h) -> spread of 3
-  // Ex: timeInNav is 3600 (1h), dTime is 0.1s (100ms) -> spread 0.00002777777
-  std::normal_distribution<> disDist(0);
-  double err = std::abs(disDist(*randomGenerator)) * std::min(0.1, groundSpeed / DRIFT_GS);
-  double initialDist = err * (initialTimeInNAV / 3600) * (dTime / 3600);
-  double dist = err * (timeInNAV / 3600) * (dTime / 3600);
+  double rad = config.getErrorRadial();
+  double dist = config.getErrorDistance();
 
-  initialError = initialError.destination(initialDist, errorRadial);
-  currentError = currentError.destination(dist, errorRadial);
+  // Calculate drift rate in nmi/s, max error at 500 GS
+  double errorInitialDist = dist * std::max(0.1, groundSpeed / DRIFT_GS);
+  double errorDist = dist * std::max(0.1, groundSpeed / DRIFT_GS);
 
-  currentINSPosition = simPos + simPosDelta + currentError;
-  currentINSPosition.bound();
-  initialINSPosition = simPos + simPosDelta + initialError;
+  // Get dT error
+  initialError += errorInitialDist * dTime;
+  currentError += errorDist * dTime;
+
+  // Get new position
+  initialINSPosition = (simPos + simPosDelta).destination(initialError, rad);
   initialINSPosition.bound();
+  currentINSPosition = (simPos + simPosDelta).destination(currentError, rad);
+  currentINSPosition.bound();
 }
 
-void INS::updateMetrics(POSITION pos) noexcept {
+void INS::updateMetrics(POSITION &pos) noexcept {
   double gs;
   bool gsValid = varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs);
   double trueHeading;
@@ -140,7 +140,7 @@ void INS::updateMetrics(POSITION pos) noexcept {
   }
 }
 
-void INS::updateNav(POSITION pos, const double dTime) noexcept {
+void INS::updateNav(POSITION &pos, const double dTime) noexcept {
   // Skip if not in auto
   if (!autoMode) return;
 
@@ -161,11 +161,11 @@ void INS::updateNav(POSITION pos, const double dTime) noexcept {
     return;
   }
 
-  double turnRadius = (gs * gs) / (11.26 * std::tan(config.getExpectedBankAngle() * M_PI / 180.0));
+  double turnRadius = (gs * gs) / (11.26 * std::tan(config.getExpectedBankAngle() * DEG2RAD));
   double delta = nextCrs - track;
   while (delta < -180.0) delta += 360.0;
   while (delta >= 180.0) delta -= 360.0;
-  double turnDist = turnRadius * std::tan((std::abs(delta) * M_PI / 180.0) / 2.0);
+  double turnDist = turnRadius * std::tan((std::abs(delta) * DEG2RAD) / 2.0);
   turnDist /= 6076.1154856;
 
   // Turn point hit, advance leg (must be <2deg delta between track and dirto crs)

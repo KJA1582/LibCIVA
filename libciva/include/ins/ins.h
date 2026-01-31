@@ -82,8 +82,8 @@ class INS {
   // Delta to actual sim position
   POSITION simPosDelta = {0, 0};
   // Error
-  POSITION initialError = {0, 0};
-  POSITION currentError = {0, 0};
+  double initialError = 0;
+  double currentError = 0;
 
 #pragma endregion
 
@@ -92,8 +92,8 @@ class INS {
   // Waypoints (0 is not settable by hand)
   POSITION waypoints[10] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
   // DMEs, index of selector - 1 = array index
-  DME DMEs[9] = {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
-                 {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
+  DME DMEs[9] = {{{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0},
+                 {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}};
 
 #pragma endregion
 
@@ -135,9 +135,6 @@ class INS {
   double crossTrackError = 0;
   // Desired track
   double desiredTrack = 0;
-  // Random generators for drift
-  std::unique_ptr<std::mt19937> randomGenerator;
-  double errorRadial = 0;
   // Current INS State
   INS_STATE state = INS_STATE::OFF;
   // Current align submode
@@ -186,9 +183,9 @@ class INS {
 
   void updateSimPosDelta() noexcept;
   void updateCurrentINSPosition(const double dTime) noexcept;
-  void updateMetrics(POSITION pos) noexcept;
-  void updateNav(POSITION pos, const double dTime) noexcept;
-  void updateDisplay(POSITION pos) noexcept;
+  void updateMetrics(POSITION &pos) noexcept;
+  void updateNav(POSITION &pos, const double dTime) noexcept;
+  void updateDisplay(POSITION &pos) noexcept;
 
   void temperatureSim(const double dTime) noexcept;
   void align(const double dTime) noexcept;
@@ -198,7 +195,7 @@ class INS {
   void exportVars() const noexcept;
 
   void formatActionMalfunctionCode(const bool showingMalf) noexcept;
-  void alertLamp(POSITION pos, const double dTime) noexcept;
+  void alertLamp(POSITION &pos, const double dTime) noexcept;
 
   void reset(const bool full) noexcept;
   inline void clearDisplay() noexcept {
@@ -213,6 +210,7 @@ public:
   ~INS() noexcept;
 
   void updatePreMix(const double dTime) noexcept;
+  void updateMix() noexcept;
   void updatePostMix(const double dTime) noexcept;
 
 #pragma region Public Getter / Setter
@@ -259,7 +257,8 @@ class INSContainer {
 
 public:
   inline INSContainer(VarManager &varManager, UNIT_COUNT count, UNIT_HAS_DME dme, const std::string &configBaseID) noexcept {
-    unit1 = std::make_shared<INS>(varManager, "UNIT_1", "_1", WORK_DIR, dme == UNIT_HAS_DME::ONE || dme == UNIT_HAS_DME::BOTH);
+    unit1 = std::make_shared<INS>(varManager, "UNIT_1", configBaseID + "_1", WORK_DIR,
+                                  dme == UNIT_HAS_DME::ONE || dme == UNIT_HAS_DME::BOTH);
 
     if (count > UNIT_COUNT::ONE)
       unit2 = std::make_shared<INS>(varManager, "UNIT_2", configBaseID + "_2", WORK_DIR,
@@ -281,15 +280,7 @@ public:
     if (unit3) unit3->~INS();
   }
 
-  inline void update(const double dTime) const noexcept {
-    unit1->updatePreMix(dTime);
-    if (unit2) unit2->updatePreMix(dTime);
-    if (unit3) unit3->updatePreMix(dTime);
-    // TODO: Mix
-    unit1->updatePostMix(dTime);
-    if (unit2) unit2->updatePostMix(dTime);
-    if (unit3) unit3->updatePostMix(dTime);
-  }
+  void update(const double dTime) const noexcept;
 
   inline void handleEvent(std::function<void(std::shared_ptr<INS>, std::shared_ptr<INS>, std::shared_ptr<INS>)> callback) {
     callback(unit1, unit2, unit3);

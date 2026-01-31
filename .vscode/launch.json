@@ -1,0 +1,35 @@
+{
+  "configurations": [
+    {
+      "name": "Data Analysis",
+      "program": "${workspaceFolder}/data-analysis.js",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "cwd": "${workspaceFolder}",
+      "type": "node"
+    },
+    {
+      "name": "Stack Analysis",
+      "program": "${workspaceFolder}/stack-analysis.js",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "cwd": "${workspaceFolder}",
+      "type": "node"
+    },
+    {
+      "name": "Launch civaWin",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/Examples/civaWin/out/Debug/civaWin.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/Examples/civaWin/out/Debug/",
+      "environment": [],
+      "console": "externalTerminal"
+    }
+  ]
+}

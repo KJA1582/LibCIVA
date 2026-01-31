@@ -11,10 +11,12 @@
 #define __restrict__
 #endif
 
-#define _USE_MATH_DEFINES
-
 #include <cmath>
 #include <cstdint>
+#include <iostream>
+
+constexpr double DEG2RAD = 3.14159265358979323846 / 180.0;
+constexpr double RAD2DEG = 180.0 / 3.14159265358979323846;
 
 enum class UNIT_COUNT : uint8_t {
   ONE,
@@ -159,11 +161,31 @@ typedef union {
   } characters;
 } DISPLAY;
 
+#pragma region Helpers
+
+static inline double deltaAngle(const double x, const double y) noexcept {
+  constexpr auto c = 180.0;
+  return c - fabs(fmod(fabs(x - y), 2 * c) - c);
+}
+
+static inline double roundCoord(const double x) noexcept { return std::round(x * 1e6) / 1e6; }
+
+#pragma endregion
+
 struct POSITION {
   // In degrees
   double latitude;
   // In degrees
   double longitude;
+
+  inline POSITION(int latitude, int longitude) noexcept {
+    this->latitude = latitude;
+    this->longitude = longitude;
+  }
+  inline POSITION(double latitude, double longitude) noexcept {
+    this->latitude = latitude;
+    this->longitude = longitude;
+  }
 
   inline bool isValid() const noexcept { return latitude <= 90 && latitude >= -90 && longitude <= 180 && longitude >= -180; }
 
@@ -180,6 +202,8 @@ struct POSITION {
   inline POSITION operator+(const POSITION &rhs) const noexcept { return {latitude + rhs.latitude, longitude + rhs.longitude}; }
   // Not bound checked
   inline POSITION operator-(const POSITION &rhs) const noexcept { return {latitude - rhs.latitude, longitude - rhs.longitude}; }
+
+  friend std::ostream &operator<<(std::ostream &os, const POSITION &dt);
 };
 
 typedef struct {
@@ -190,13 +214,20 @@ typedef struct {
   uint8_t altitude;
 } DME;
 
-#pragma region Helpers
+struct POSITION_VECTOR {
+  double x, y, z;
 
-static inline double deltaAngle(const double x, const double y) {
-  constexpr auto c = 180.0;
-  return c - fabs(fmod(fabs(x - y), 2 * c) - c);
-}
+  inline POSITION_VECTOR operator+(const POSITION_VECTOR &v) const noexcept { return {x + v.x, y + v.y, z + v.z}; }
+  inline POSITION_VECTOR operator-(const POSITION_VECTOR &v) const noexcept { return {x - v.x, y - v.y, z - v.z}; }
+  inline POSITION_VECTOR operator*(double s) const noexcept { return {x * s, y * s, z * s}; }
+  inline POSITION_VECTOR cross(const POSITION_VECTOR &b) const noexcept {
+    return {y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x};
+  }
+  inline double dot(const POSITION_VECTOR &b) const noexcept { return x * b.x + y * b.y + z * b.z; }
+  void normalize() noexcept;
 
-#pragma endregion
+  static POSITION_VECTOR fromPosition(POSITION &position) noexcept;
+  POSITION toPosition() const noexcept;
+};
 
 #endif

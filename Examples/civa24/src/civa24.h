@@ -72,6 +72,7 @@ struct DATA {
   double navDME2;
   double simRate;
   double event;
+  const char atcID[32];
 };
 
 struct EXPORT {

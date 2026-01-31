@@ -13,6 +13,7 @@
 
 #include <cstring>
 #include <fstream>
+#include <random>
 #include <string>
 
 #include "../types/types.h"
@@ -26,9 +27,11 @@ class Config {
   double unitMassInKG = 5;
   double unitSpecificHeat = 900;
   POSITION lastINSPosition = {999, 999};
-  DME lastDMEs[9] = {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
-                     {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
+  DME lastDMEs[9] = {{{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0},
+                     {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}};
   char expectedBankAngle = 30;
+  double errorRadial = -1;
+  double errorDistance = -1;
 
 public:
   Config(const std::string &workDir, const std::string &id) noexcept;
@@ -44,6 +47,8 @@ public:
   inline POSITION getLastINSPosition() const noexcept { return lastINSPosition; }
   inline void getLastDMEs(DME (&DMEs)[9]) const noexcept { std::memcpy(DMEs, lastDMEs, sizeof(lastDMEs)); }
   inline char getExpectedBankAngle() const noexcept { return expectedBankAngle; }
+  inline double getErrorRadial() const noexcept { return errorRadial; }
+  inline double getErrorDistance() const noexcept { return errorDistance; }
 
   inline void setLastINSPosition(POSITION pos) noexcept { lastINSPosition = pos; }
   inline void setLastDMEs(const DME (&DMEs)[9]) noexcept { std::memcpy(lastDMEs, DMEs, sizeof(DMEs)); }

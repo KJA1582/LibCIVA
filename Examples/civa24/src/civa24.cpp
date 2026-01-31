@@ -176,6 +176,7 @@ static void setupSimConnect() {
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_NAV_DME_2, "NAUTICAL MILE");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_SIMULATION_RATE, "NUMBER");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, EVENT, "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "ATC ID", NULL, SIMCONNECT_DATATYPE_STRING32);
 
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_EVENT, EVENT, "NUMBER");
 
@@ -262,6 +263,11 @@ static void handleSimConnect() {
           varManager->setVar(SIM_VAR_NAV_DME_2, data->navDME2);
           varManager->setVar(SIM_VAR_SIMULATION_RATE, data->simRate);
 
+          if (data->atcID != NULL && !ins) {
+            Logger::GetInstance() << "Booting INS for " << data->atcID;
+            ins = std::make_unique<INSContainer>(*varManager, UNIT_COUNT::THREE, UNIT_HAS_DME::BOTH, data->atcID);
+          }
+
           if (data->event != 0) {
             handleEvent((int)data->event);
             data->event = 0;
@@ -326,13 +332,11 @@ static void exportVars() {
 #pragma endregion
 
 extern "C" MSFS_CALLBACK bool LibCIVA_gauge_init(FsContext ctx, sGaugeInstallData *p_install_data) {
-  Logger::GetInstance() << "Starting libCIVA"
-                        << "\n";
+  Logger::GetInstance() << "Starting libCIVA\n";
 
   setupSimConnect();
 
   varManager = std::make_unique<VarManager>();
-  ins = std::make_unique<INSContainer>(*varManager, UNIT_COUNT::THREE, UNIT_HAS_DME::BOTH, "");
 
   return true;
 }
@@ -355,10 +359,13 @@ extern "C" MSFS_CALLBACK bool LibCIVA_gauge_update(FsContext ctx, float dTime) {
 
 extern "C" MSFS_CALLBACK bool LibCIVA_gauge_kill(FsContext ctx) {
   ins->~INSContainer();
-  Logger::GetInstance().~Logger();
+  DataLogger::GetInstance().~DataLogger();
 
   SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA,
                                     SIMCONNECT_OBJECT_ID_USER_AIRCRAFT, SIMCONNECT_PERIOD_NEVER);
+
+  Logger::GetInstance() << "Stopped libCIVA\n";
+  Logger::GetInstance().~Logger();
 
   return true;
 }

@@ -333,8 +333,7 @@ void INS::handleInsert() noexcept {
           break;
         }
 
-        currentError = {0, 0};
-        timeInNAV = 0;
+        currentError = timeInNAV = 0;
 
         // Get delta of reference entered and what froze
         POSITION delta = holdPosition - displayPosition;
@@ -596,9 +595,11 @@ void INS::handleHoldButton() noexcept {
 
   if (inHoldMode) {
     if (holdRequiresForce) {
-      currentError = {0, 0};
-      timeInNAV = 0;
-      currentINSPosition = displayPosition;
+      currentError = timeInNAV = 0;
+      // Get delta of reference entered and what froze
+      POSITION delta = holdPosition - displayPosition;
+      // Set updated position to be w/e currently is + delta
+      currentINSPosition = currentINSPosition + delta;
       updateSimPosDelta();
     }
 

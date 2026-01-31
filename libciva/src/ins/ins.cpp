@@ -12,12 +12,6 @@ INS::INS(VarManager &varManager, const std::string &id, const std::string &confi
 
   // Init exports
   exportVars();
-
-  // Setup random
-  std::random_device rd;
-  randomGenerator = std::make_unique<std::mt19937>(rd());
-  std::uniform_real_distribution<> disRad(0.0, 360.0);
-  errorRadial = disRad(*randomGenerator);
 }
 
 INS::~INS() noexcept {
@@ -79,7 +73,7 @@ void INS::reset(const bool full) noexcept {
   accuracyIndex = 9;
   timeInMode = 0;
   initialTimeInNAV = timeInNAV = INITIAL_TIME_IN_NAV;
-  initialError = currentError = {0, 0};
+  initialError = currentError = 0;
   indicators.indicator.READY_NAV = false;
 }
 
@@ -100,12 +94,12 @@ void INS::calculateTrack() noexcept {
       return;
     }
 
-    double _trueHeading = trueHeading * M_PI / 180;
-    double _windDir = std::fmod(windDir + 180, 360) * M_PI / 180;
+    double _trueHeading = trueHeading * DEG2RAD;
+    double _windDir = std::fmod(windDir + 180, 360) * DEG2RAD;
 
     track = std::fmod(360 + (std::atan2(tas * std::sin(_trueHeading) + windSpeed * std::sin(_windDir),
                                         tas * std::cos(_trueHeading) + windSpeed * std::cos(_windDir))) *
-                                180 / M_PI,
+                                RAD2DEG,
                       360);
   }
 }
@@ -230,7 +224,7 @@ void INS::updatePreMix(const double dTime) noexcept {
         state = INS_STATE::ALIGN;
         alignSubmode = ALIGN_SUBMODE::MODE_9;
         initialTimeInNAV = timeInNAV = INITIAL_TIME_IN_NAV;
-        initialError = currentError = {0, 0};
+        initialError = currentError = 0;
       }
 
       updateCurrentINSPosition(dTime);
@@ -252,6 +246,54 @@ void INS::updatePreMix(const double dTime) noexcept {
   }
 }
 
+void INS::updateMix() noexcept {
+  if (unit2 && unit3 && activePerformanceIndex == 4 && unit2->activePerformanceIndex == 4 && unit3->activePerformanceIndex == 4 &&
+      state == INS_STATE::NAV && unit2->state == INS_STATE::NAV && unit3->state == INS_STATE::NAV) {
+    POSITION_VECTOR A = POSITION_VECTOR::fromPosition(currentINSPosition);
+    POSITION_VECTOR B = POSITION_VECTOR::fromPosition(unit2->currentINSPosition);
+    POSITION_VECTOR C = POSITION_VECTOR::fromPosition(unit3->currentINSPosition);
+
+    POSITION_VECTOR BC = B.cross(C);
+    POSITION_VECTOR CA = C.cross(A);
+    POSITION_VECTOR AB = A.cross(B);
+
+    POSITION_VECTOR P = {BC.x + CA.x + AB.x, BC.y + CA.y + AB.y, BC.z + CA.z + AB.z};
+
+    double mag = std::sqrt(P.dot(P));
+    if (mag < 1e-10) {
+      // Points are collinear or numerically unstable
+      currentTrippleMixPosition = unit2->currentTrippleMixPosition = unit3->currentTrippleMixPosition = currentINSPosition;
+    } else {
+      P.normalize();
+
+      // Choose the solution closest to the triangle
+      if (P.dot(A + B + C) < 0) P = P * -1.0;
+
+      currentTrippleMixPosition = unit2->currentTrippleMixPosition = unit3->currentTrippleMixPosition = P.toPosition();
+    }
+  } else {
+    currentTrippleMixPosition = {999, 999};
+    if (unit2) unit2->currentTrippleMixPosition = {999, 999};
+    if (unit3) unit3->currentTrippleMixPosition = {999, 999};
+  }
+
+#ifndef NDEBUG
+  double lat;
+  double lon;
+  varManager.getVar(SIM_VAR_PLANE_LATITUDE, lat);
+  varManager.getVar(SIM_VAR_PLANE_LONGITUDE, lon);
+
+  DataLogger::GetInstance() << id << ";" << currentINSPosition << ";" << initialINSPosition << ";" << currentTrippleMixPosition
+                            << ";" << lat << "," << lon << "\n";
+  if (unit2)
+    DataLogger::GetInstance() << unit2->id << ";" << unit2->currentINSPosition << ";" << unit2->initialINSPosition << ";"
+                              << unit2->currentTrippleMixPosition << ";" << lat << "," << lon << "\n";
+  if (unit3)
+    DataLogger::GetInstance() << unit3->id << ";" << unit3->currentINSPosition << ";" << unit3->initialINSPosition << ";"
+                              << unit3->currentTrippleMixPosition << ";" << lat << "," << lon << "\n";
+#endif
+}
+
 void INS::updatePostMix(const double dTime) noexcept {
   // NAV
   if (state == INS_STATE::NAV) {
@@ -270,4 +312,17 @@ void INS::updatePostMix(const double dTime) noexcept {
 
   // Time step
   timeInMode += dTime;
+}
+
+void INSContainer::update(const double dTime) const noexcept {
+  unit1->updatePreMix(dTime);
+  if (unit2) unit2->updatePreMix(dTime);
+  if (unit3) unit3->updatePreMix(dTime);
+
+  // Unit 1 updates *all* via interconnect pointers
+  unit1->updateMix();
+
+  unit1->updatePostMix(dTime);
+  if (unit2) unit2->updatePostMix(dTime);
+  if (unit3) unit3->updatePostMix(dTime);
 }
