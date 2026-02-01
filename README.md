@@ -1,4 +1,31 @@
+# Scope
+
+Simulation of a Delco Electronics Carousel IV-A unit with flight program CIV-A-22.
+
+Included
+
+- Multi Unit install up to three independent units, including triple mix.
+- Unit drift, units drift along a radial. Drift radial and max 1h drift is selected on unit boot (OFF -> STBY). Radial is
+  uniformly distributed, max 1h drift is normal distributed (μ = 0, σ = 1).
+- Failures
+  - 02 31
+  - 02 42
+  - 02 49
+  - 02 63
+  - 04 41
+
+Planned
+
+- DME Update with one DME connected to units 1 and 2, with unit 3 receiving data from units 1 and 2 via unit interconnect.
+  - Dual DME update using an offside DME, if both units 1 and 2 perform DME updating, the units will exchange update data via 
+    unit interconnect.
+- Failures:
+  - 04 43
+  - 04 57
+
 # Build
+
+## Library
 
 LibCIVA uses CMake as its build tool.
 
@@ -6,12 +33,20 @@ LibCIVA uses CMake as its build tool.
 mkdir .\out
 cd .\out
 cmake ..
-msbuild .\libciva.sln
+msbuild .\libciva.sln # Or whatever generator is applicable for your system
 ```
 
 | Option | Remark                             |
 | ------ | ---------------------------------- |
 | SHARED | Build shared library (default OFF) |
+
+### For MSFS/MSFS2024
+
+To build for the simulators, a VS2022 solution file and project files are provided.
+
+## Examples
+
+Use the respective build scripts.
 
 # Usage
 
@@ -42,6 +77,15 @@ if x == 11: 'L' // ASCII L
 if x == 12: ' ' // blank space
 ```
 
+#### Notes on the type
+
+The primary suer of this library is the MSFS and MSFS 2024 simulator platform.
+These simulators can export data into local variables (LVar).
+LVars are of FLOAT64 type.
+As such, this variable is defined as a `union` type, with the first member being a `double`.  
+This member is not to be used by C++ consumers, those shall use the second member of type `struct`, which exposes the bit field
+properly.
+
 ### LIBCIVA_INDICATORS_UNIT_x
 
 Bit field, 64bits
@@ -49,6 +93,15 @@ Bit field, 64bits
 | 63 - 13 | 12                          | 11                          | 10             | 09               | 08            | 07         | 06            | 05          | 04           | 03           | 02         | 01              | 00            |
 | ------- | --------------------------- | --------------------------- | -------------- | ---------------- | ------------- | ---------- | ------------- | ----------- | ------------ | ------------ | ---------- | --------------- | ------------- |
 | Unset   | DME2 update indicator light | DME1 update indicator light | TO field blink | FROM field blink | WPT CHG light | WARN light | CDU BAT light | ALERT light | INSERT light | REMOTE light | HOLD light | READY NAV light | MSU BAT light |
+
+#### Notes on the type
+
+The primary suer of this library is the MSFS and MSFS 2024 simulator platform.
+These simulators can export data into local variables (LVar).
+LVars are of FLOAT64 type.
+As such, this variable is defined as a `union` type, with the first member being a `double`.  
+This member is not to be used by C++ consumers, those shall use the second member of type `struct`, which exposes the bit field
+properly.
 
 ### LIBCIVA__MODE_SELECTOR_POS_UNIT_x
 

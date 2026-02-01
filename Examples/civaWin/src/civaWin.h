@@ -1,9 +1,21 @@
 ﻿#ifndef CIVA_WIN_H
 #define CIVA_WIN_H
 
+#ifndef __INTELLISENSE__
+#define MODULE_EXPORT __attribute__((visibility("default")))
+#define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
+#else
+#define MODULE_EXPORT
+#define MODULE_WASM_MODNAME(mod)
+#define __attribute__(x)
+#define __restrict__
+#endif
+
 #include <windows.h>
 
 #include <iostream>
+#include <memory>
+#undef _LIBCPP_HAS_NO_THREADS
 #include <mutex>
 #include <thread>
 
@@ -12,10 +24,6 @@
 #include <libciva.h>
 
 #include "varManager.h"
-
-#ifdef __INTELLISENSE__
-#define WORK_DIR "./"
-#endif
 
 enum DATA_DEFINITIONS : SIMCONNECT_DATA_DEFINITION_ID { DATA_DEFINITIONS_DATA };
 

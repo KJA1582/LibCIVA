@@ -4,6 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/.vscode",
                 "C:\\MSFS 2024 SDK\\WASM\\wasi-sysroot\\include",
                 "C:\\MSFS 2024 SDK\\WASM\\wasi-sysroot\\include\\c++\\v1",
                 "C:\\MSFS 2024 SDK\\WASM\\include",
@@ -12,7 +13,9 @@
             "defines": [
                 "_DEBUG",
                 "UNICODE",
-                "_UNICODE"
+                "_UNICODE",
+                "_LIBCPP_STD_VER=14",
+                "WORK_DIR=\"\\work\""
             ],
             "windowsSdkVersion": "10.0.26100.0",
             "compilerPath": "cl.exe",

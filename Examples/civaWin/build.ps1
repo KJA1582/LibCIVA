@@ -28,6 +28,12 @@ msbuild .\libciva.vcxproj /property:Configuration="$Build" /m
 
 # Example
 Set-Location ..\..\..\Examples\civaWin
+
+# Terminate here if lib build failed
+if ($LASTEXITCODE -gt 0) {
+  exit
+}
+
 # Clean
 if ($Clean) {
   Remove-Item -r -fo .\out

@@ -28,10 +28,23 @@ if ($Clean) {
 }
 # Build
 msbuild .\msfs.vcxproj /property:Configuration="$Build" /property:Platform=MSFS /m
+
+# Terminate here if lib build failed
+if ($LASTEXITCODE -gt 0) {
+  Set-Location ..\Examples\civa24
+  exit
+}
+
 msbuild .\msfs2024.vcxproj /property:Configuration="$Build" /property:Platform=MSFS /m
 
 # Example
 Set-Location ..\Examples\civa24
+
+# Terminate here if lib build failed
+if ($LASTEXITCODE -gt 0) {
+  exit
+}
+
 # Clean
 if ($Clean) {
   Remove-Item -r -fo .\out

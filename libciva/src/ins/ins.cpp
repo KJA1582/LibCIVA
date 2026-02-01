@@ -2,6 +2,11 @@
 
 #pragma region Lifecycle
 
+std::random_device rd;
+std::mt19937 rg(rd());
+std::uniform_real_distribution<> disRad(0.0, 360.0);
+std::normal_distribution<> disDist(0);
+
 INS::INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir,
          const bool hasDME) noexcept
     : varManager(varManager), config(Config(workDir, configID)), id(id), actionMalfunctionCodes(), hasDME(hasDME) {
@@ -9,6 +14,10 @@ INS::INS(VarManager &varManager, const std::string &id, const std::string &confi
 
   // Init all things from global vars
   varManager.getVar(SIM_VAR_AMBIENT_TEMPERATURE, ovenTemperature);
+
+  errorRadial = disRad(rg);
+  // Normal distributed drift in nmi per s
+  driftPerSecond = std::abs(disDist(rg)) / 3600.0;
 
   // Init exports
   exportVars();
@@ -197,6 +206,9 @@ void INS::updatePreMix(const double dTime) noexcept {
         config.getLastDMEs(DMEs);
         indicators.indicator.INSERT = true;
         dmeMode = DME_MODE::INV;
+        // Init error radial and distance
+        errorRadial = disRad(rg);
+        driftPerSecond = std::abs(disDist(rg)) / 3600.0;
 
         timeInMode = 0;
       }
@@ -249,28 +261,13 @@ void INS::updatePreMix(const double dTime) noexcept {
 void INS::updateMix() noexcept {
   if (unit2 && unit3 && activePerformanceIndex == 4 && unit2->activePerformanceIndex == 4 && unit3->activePerformanceIndex == 4 &&
       state == INS_STATE::NAV && unit2->state == INS_STATE::NAV && unit3->state == INS_STATE::NAV) {
-    POSITION_VECTOR A = POSITION_VECTOR::fromPosition(currentINSPosition);
-    POSITION_VECTOR B = POSITION_VECTOR::fromPosition(unit2->currentINSPosition);
-    POSITION_VECTOR C = POSITION_VECTOR::fromPosition(unit3->currentINSPosition);
+    // Uses averaging instead of fancy formulas.
+    // Circumcenter was tried, but the result was very erratic.
+    // Using averages will result in inaccuracy on high flight hours, but at 20h of uncorrected flight, worst case (3sigma) is 20
+    // miles. Which is bad to begin with.
+    POSITION mix = (currentINSPosition + unit2->currentINSPosition + unit3->currentINSPosition) / 3.0;
 
-    POSITION_VECTOR BC = B.cross(C);
-    POSITION_VECTOR CA = C.cross(A);
-    POSITION_VECTOR AB = A.cross(B);
-
-    POSITION_VECTOR P = {BC.x + CA.x + AB.x, BC.y + CA.y + AB.y, BC.z + CA.z + AB.z};
-
-    double mag = std::sqrt(P.dot(P));
-    if (mag < 1e-10) {
-      // Points are collinear or numerically unstable
-      currentTrippleMixPosition = unit2->currentTrippleMixPosition = unit3->currentTrippleMixPosition = currentINSPosition;
-    } else {
-      P.normalize();
-
-      // Choose the solution closest to the triangle
-      if (P.dot(A + B + C) < 0) P = P * -1.0;
-
-      currentTrippleMixPosition = unit2->currentTrippleMixPosition = unit3->currentTrippleMixPosition = P.toPosition();
-    }
+    currentTrippleMixPosition = unit2->currentTrippleMixPosition = unit3->currentTrippleMixPosition = mix;
   } else {
     currentTrippleMixPosition = {999, 999};
     if (unit2) unit2->currentTrippleMixPosition = {999, 999};

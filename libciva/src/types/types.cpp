@@ -75,21 +75,3 @@ bool POSITION::inFront(const POSITION &pos, const double track) const noexcept {
   double brg = this->bearingTo(pos);
   return std::abs(std::fmod(brg - track + 540, 360) - 180) < 90;
 }
-
-void POSITION_VECTOR::normalize() noexcept {
-  double mag = std::sqrt(this->dot(*this));
-  x = x / mag;
-  y = y / mag;
-  z = z / mag;
-}
-
-POSITION_VECTOR POSITION_VECTOR::fromPosition(POSITION &position) noexcept {
-  double lat = roundCoord(position.latitude * DEG2RAD);
-  double lon = roundCoord(position.longitude * DEG2RAD);
-
-  return {std::cos(lat) * std::cos(lon), std::cos(lat) * std::sin(lon), std::sin(lat)};
-}
-
-POSITION POSITION_VECTOR::toPosition() const noexcept {
-  return {roundCoord(std::asin(z) * RAD2DEG), roundCoord(std::atan2(y, x) * RAD2DEG)};
-}

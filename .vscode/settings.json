@@ -2,8 +2,13 @@
   "cSpell.words": [
     "ADEU",
     "ALIG",
+    "Circumcenter",
     "civa",
+    "Delco",
+    "DISTIME",
     "DSRTK",
+    "DSRTKSTS",
+    "HDGDA",
     "HRESULT",
     "libciva",
     "LVAR",
@@ -14,6 +19,10 @@
     "SIMCONNECT",
     "SIMOBJECT",
     "STBY",
-    "steamapps"
-  ]
+    "steamapps",
+    "TKGS",
+    "XTKTKE"
+  ],
+  "C_Cpp.errorSquiggles": "enabled",
+  "cmake.ignoreCMakeListsMissing": true
 }

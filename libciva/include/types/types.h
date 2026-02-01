@@ -58,7 +58,7 @@ enum class ALIGN_SUBMODE : uint8_t {
   MODE_4, // 3.4min from 4 to 3 etc.
   MODE_5, // Directly at end of MODE_6
   MODE_6, // See MODE_7
-  MODE_7, // together with MODE_6, ~8.5min if pres pos was eneterd before MODE_7 finished
+  MODE_7, // together with MODE_6, ~8.5min if pres pos was entered before MODE_7 finished
   MODE_8, // min 51s, BAT test
   MODE_9, // STBY, change to 8 if ALIGN entered and warmed up
 };
@@ -102,7 +102,7 @@ typedef union {
     bool A02_49 : 1; // 3 pos update in flight > 33, clearable
     bool A02_63 : 1; // 4 self checks failed, non-clearable
     bool A04_41 : 1; // 5 ramp pos > 76nmi from last pos, clearable
-    bool A04_43 : 1; // 6 ramp pos missmatch between pairs of units, non-clearable
+    bool A04_43 : 1; // 6 ramp pos mismatch between pairs of units, non-clearable
     bool A04_57 : 1; // 7 taxi during align, non-clearable
   } codes;
 } ACTION_MALFUNCTION_CODES;
@@ -178,15 +178,6 @@ struct POSITION {
   // In degrees
   double longitude;
 
-  inline POSITION(int latitude, int longitude) noexcept {
-    this->latitude = latitude;
-    this->longitude = longitude;
-  }
-  inline POSITION(double latitude, double longitude) noexcept {
-    this->latitude = latitude;
-    this->longitude = longitude;
-  }
-
   inline bool isValid() const noexcept { return latitude <= 90 && latitude >= -90 && longitude <= 180 && longitude >= -180; }
 
   double distanceTo(const POSITION &target) const noexcept;
@@ -202,6 +193,8 @@ struct POSITION {
   inline POSITION operator+(const POSITION &rhs) const noexcept { return {latitude + rhs.latitude, longitude + rhs.longitude}; }
   // Not bound checked
   inline POSITION operator-(const POSITION &rhs) const noexcept { return {latitude - rhs.latitude, longitude - rhs.longitude}; }
+  // Not bound checked
+  inline POSITION operator/(double scalar) const noexcept { return {latitude / scalar, longitude / scalar}; }
 
   friend std::ostream &operator<<(std::ostream &os, const POSITION &dt);
 };
@@ -213,21 +206,5 @@ typedef struct {
   // In thousands of feet
   uint8_t altitude;
 } DME;
-
-struct POSITION_VECTOR {
-  double x, y, z;
-
-  inline POSITION_VECTOR operator+(const POSITION_VECTOR &v) const noexcept { return {x + v.x, y + v.y, z + v.z}; }
-  inline POSITION_VECTOR operator-(const POSITION_VECTOR &v) const noexcept { return {x - v.x, y - v.y, z - v.z}; }
-  inline POSITION_VECTOR operator*(double s) const noexcept { return {x * s, y * s, z * s}; }
-  inline POSITION_VECTOR cross(const POSITION_VECTOR &b) const noexcept {
-    return {y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x};
-  }
-  inline double dot(const POSITION_VECTOR &b) const noexcept { return x * b.x + y * b.y + z * b.z; }
-  void normalize() noexcept;
-
-  static POSITION_VECTOR fromPosition(POSITION &position) noexcept;
-  POSITION toPosition() const noexcept;
-};
 
 #endif

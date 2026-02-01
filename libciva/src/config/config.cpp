@@ -13,22 +13,8 @@ Config::Config(const std::string &basePath, const std::string &id) noexcept : ba
     file.read((char *)&lastDMEs, sizeof(lastDMEs));
 
     file.read((char *)&expectedBankAngle, sizeof(expectedBankAngle));
-    file.read((char *)&errorRadial, sizeof(errorRadial));
-    file.read((char *)&errorDistance, sizeof(errorDistance));
 
     file.close();
-  }
-
-  std::random_device rd;
-  std::mt19937 rg(rd());
-  std::uniform_real_distribution<> disRad(0.0, 360.0);
-  std::normal_distribution<> disDist(0);
-  if (errorRadial < 0) {
-    errorRadial = disRad(rg);
-  }
-  if (errorDistance < 0) {
-    // Normal distributed drift in nmi per s
-    errorDistance = std::abs(disDist(rg)) / 3600.0;
   }
 }
 
@@ -45,8 +31,6 @@ void Config::save() const noexcept {
     file.write((const char *)&lastDMEs, sizeof(lastDMEs));
 
     file.write((const char *)&expectedBankAngle, sizeof(expectedBankAngle));
-    file.write((const char *)&errorRadial, sizeof(errorRadial));
-    file.write((const char *)&errorDistance, sizeof(errorDistance));
 
     file.close();
   }

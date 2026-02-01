@@ -75,7 +75,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
-        __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_WINDLL;WORK_DIR="\work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_WINDLL;WORK_DIR="\\work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ShowIncludes>false</ShowIncludes>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeTypeInfo>
@@ -129,7 +129,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>include;$(MSBuildProjectDirectory)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
-        __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_WINDLL;WORK_DIR="\work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_WINDLL;WORK_DIR="\\work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>false</DebugInformationFormat>
       <SupportJustMyCode>
       </SupportJustMyCode>

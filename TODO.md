@@ -31,11 +31,6 @@
 
 - Unit intercom
   - Remote key
-- Tripple Mix
-  - TESTING REQUIRED
-    - Display
-    - Navigation function
-    - Dropout if any unit is in AI !0 4
 
 # Sim specific
 
@@ -69,3 +64,14 @@ Notes on PI:
 # MSFS Unit specific
 
 # Documentation
+
+# Other
+
+- Revisit drift
+  - Random generators (pointer) in class
+  - Pick starting radial in constructor
+  - Pick distance and radial *change* per iteration
+    - Radial thus gets shifted by tiny amounts (uniformly distributed in small quantity)
+    - Distance shift as it is now, but differing per frame
+      - Should still adhere to the stochastic limit since in worst case, every dT picks 3, which equates to the same as picking 3
+        once

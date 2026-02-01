@@ -11,6 +11,8 @@
 #define __restrict__
 #endif
 
+#include <memory>
+
 #include <MSFS/Legacy/gauges.h>
 #include <MSFS/MSFS.h>
 #include <MSFS/MSFS_SystemContext.h>

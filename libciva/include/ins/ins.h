@@ -17,6 +17,7 @@
 #include <cmath>
 #include <cstdint>
 #include <functional>
+#include <memory>
 #include <random>
 #include <string>
 #include <vector>
@@ -81,9 +82,6 @@ class INS {
   POSITION holdPosition = {999, 999};
   // Delta to actual sim position
   POSITION simPosDelta = {0, 0};
-  // Error
-  double initialError = 0;
-  double currentError = 0;
 
 #pragma endregion
 
@@ -135,6 +133,11 @@ class INS {
   double crossTrackError = 0;
   // Desired track
   double desiredTrack = 0;
+  // Drift related
+  double initialError = 0;
+  double currentError = 0;
+  double errorRadial = 0;
+  double driftPerSecond = 0;
   // Current INS State
   INS_STATE state = INS_STATE::OFF;
   // Current align submode

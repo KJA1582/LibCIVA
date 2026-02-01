@@ -88,21 +88,18 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
 
   // TODO: DME Update error and time adjustments
 
-  double rad = config.getErrorRadial();
-  double dist = config.getErrorDistance();
-
   // Calculate drift rate in nmi/s, max error at 500 GS
-  double errorInitialDist = dist * std::max(0.1, groundSpeed / DRIFT_GS);
-  double errorDist = dist * std::max(0.1, groundSpeed / DRIFT_GS);
+  double errorInitialDist = driftPerSecond * std::max(0.1, groundSpeed / DRIFT_GS);
+  double errorDist = driftPerSecond * std::max(0.1, groundSpeed / DRIFT_GS);
 
   // Get dT error
   initialError += errorInitialDist * dTime;
   currentError += errorDist * dTime;
 
   // Get new position
-  initialINSPosition = (simPos + simPosDelta).destination(initialError, rad);
+  initialINSPosition = (simPos + simPosDelta).destination(initialError, errorRadial);
   initialINSPosition.bound();
-  currentINSPosition = (simPos + simPosDelta).destination(currentError, rad);
+  currentINSPosition = (simPos + simPosDelta).destination(currentError, errorRadial);
   currentINSPosition.bound();
 }
 
