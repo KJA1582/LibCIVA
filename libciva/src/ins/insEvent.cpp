@@ -333,7 +333,7 @@ void INS::handleInsert() noexcept {
           break;
         }
 
-        currentError = timeInNAV = 0;
+        currentDistanceError = 0;
 
         // Get delta of reference entered and what froze
         POSITION delta = holdPosition - displayPosition;
@@ -595,7 +595,7 @@ void INS::handleHoldButton() noexcept {
 
   if (inHoldMode) {
     if (holdRequiresForce) {
-      currentError = timeInNAV = 0;
+      currentDistanceError = 0;
       // Get delta of reference entered and what froze
       POSITION delta = holdPosition - displayPosition;
       // Set updated position to be w/e currently is + delta
@@ -629,6 +629,7 @@ void INS::handleInstantAlign() noexcept {
 
   alignSubmode = ALIGN_SUBMODE::MODE_0;
   ovenTemperature = config.getOperatingTempInC();
+  indicators.value = 0;
   indicators.indicator.READY_NAV = true;
-  initialTimeInNAV = timeInNAV = timeInMode = 0;
+  timeInMode = 0;
 }

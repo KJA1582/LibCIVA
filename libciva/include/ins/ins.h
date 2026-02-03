@@ -46,12 +46,13 @@ constexpr auto MAX_GS = 910;
 constexpr auto DRIFT_GS = 500;
 constexpr auto MAX_GS_DISPLAY = 2400;
 constexpr auto MAX_DRIFT_ANGLE = 45;
-constexpr auto INITIAL_TIME_IN_NAV = 5400;
+constexpr auto MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME =
+    5400; // AI5 Time. This scales the radial error to simulate the difference between full align an minimal align
 constexpr auto MIN_LEG_TIME = 25.6;
 constexpr auto LEG_TIME_ALERT = 120;
 constexpr auto MIN_DME_TIME = 12;                     // After this, DME indicator can go green
-constexpr auto MAX_SINGLE_DME_TIME_UNTIL_VALID = 150; // Stop DME update if not valid below this
-constexpr auto MAX_DUAL_DME_TIME_UNTIL_VALID = 300;   // Stop DME update if nopt valid below this
+constexpr auto MAX_SINGLE_DME_TIME_UNTIL_VALID = 150; // Stop DME update if not valid before hitting this count
+constexpr auto MAX_DUAL_DME_TIME_UNTIL_VALID = 300;   // Stop DME update if not valid before hitting this count
 
 constexpr auto DISPLAY_CHAR_RIGHT = 10;
 constexpr auto DISPLAY_CHAR_LEFT = 11;
@@ -61,11 +62,15 @@ class INS {
   // Global vars manager
   VarManager &varManager;
   // INS Config
-  Config config;
+  Config &config;
   // Unit ID
   const std::string id;
   // List of active malfunctions
   ACTION_MALFUNCTION_CODES actionMalfunctionCodes;
+  // Random
+  std::mt19937 &randomGen;
+  std::normal_distribution<> &distributionRadial;   // °/h 3sigma of 0.01
+  std::normal_distribution<> &distributionDistance; // nmi/h
 
 #pragma region Positions
 
@@ -119,10 +124,8 @@ class INS {
   double ovenTemperature = 0;
   // Current time in mode
   double timeInMode = 0;
-  // Uncorrected time in NAV, starts at AI 5 value, ticks down in align after AI 5, ticks up in NAV
-  double initialTimeInNAV = INITIAL_TIME_IN_NAV;
-  // Current time in NAV, starts at AI 5 value, ticks down in align after AI 5, ticks up in NAV
-  double timeInNAV = INITIAL_TIME_IN_NAV;
+  // Starts at AI 5 value, ticks down in align after AI 5, used to scale radial error
+  double radialScalarAlignTime = MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME;
   // Time spent in current leg
   double timeInLeg = 0;
   // Time spent in DME update mode
@@ -133,11 +136,17 @@ class INS {
   double crossTrackError = 0;
   // Desired track
   double desiredTrack = 0;
-  // Drift related
-  double initialError = 0;
-  double currentError = 0;
-  double errorRadial = 0;
-  double driftPerSecond = 0;
+  // Initial INS accumulated distance error
+  double initialDistanceError = 0;
+  // Current INS position accumulated distance error
+  double currentDistanceError = 0;
+  // Accumulated radial error
+  double radialError = 0;
+  // Radial drift in °/s
+  double radialDriftPerSecond = 0;
+  double baseRadialDriftPerSecond = 0;
+  // Distance drift in nmi/s
+  double distanceDriftPerSecond = 0;
   // Current INS State
   INS_STATE state = INS_STATE::OFF;
   // Current align submode
@@ -179,6 +188,8 @@ class INS {
   bool autoMode = true;
   // If DME is connected
   bool hasDME = false;
+  // if DME is updating
+  bool dmeUpdating = false;
 
 #pragma endregion
 

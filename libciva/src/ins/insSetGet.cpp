@@ -84,22 +84,29 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
 
   POSITION simPos = {simLat, simLon};
 
-  if (!simPos.isValid() || initialTimeInNAV == 0 || !varManager.getVar(SIM_VAR_GROUND_VELOCITY, groundSpeed)) return;
+  if (!simPos.isValid() || !varManager.getVar(SIM_VAR_GROUND_VELOCITY, groundSpeed)) return;
 
-  // TODO: DME Update error and time adjustments
-
-  // Calculate drift rate in nmi/s, max error at 500 GS
-  double errorInitialDist = driftPerSecond * std::max(0.1, groundSpeed / DRIFT_GS);
-  double errorDist = driftPerSecond * std::max(0.1, groundSpeed / DRIFT_GS);
+  double errorInitialDist = 0;
+  double errorDist = 0;
+  // max error at 500 GS
+  double speedScalar = std::max(0.1, groundSpeed / DRIFT_GS);
+  if (dmeUpdating) {
+    // TODO: DME Update error and time adjustments
+  } else {
+    errorInitialDist = distanceDriftPerSecond * speedScalar;
+    errorDist = distanceDriftPerSecond * speedScalar;
+  }
+  double errorRadial = radialDriftPerSecond * speedScalar;
 
   // Get dT error
-  initialError += errorInitialDist * dTime;
-  currentError += errorDist * dTime;
+  initialDistanceError += errorInitialDist * dTime;
+  currentDistanceError += errorDist * dTime;
+  radialError += errorRadial * dTime;
 
   // Get new position
-  initialINSPosition = (simPos + simPosDelta).destination(initialError, errorRadial);
+  initialINSPosition = (simPos + simPosDelta).destination(initialDistanceError, radialError);
   initialINSPosition.bound();
-  currentINSPosition = (simPos + simPosDelta).destination(currentError, errorRadial);
+  currentINSPosition = (simPos + simPosDelta).destination(currentDistanceError, radialError);
   currentINSPosition.bound();
 }
 

@@ -2,8 +2,10 @@
 
 Simulation of a Delco Electronics Carousel IV-A unit with flight program CIV-A-22.
 
-Included
+## Implemented
 
+- Unit temperature sim
+- Instant align shortcut
 - Multi Unit install up to three independent units, including triple mix.
 - Unit drift, units drift along a radial. Drift radial and max 1h drift is selected on unit boot (OFF -> STBY). Radial is
   uniformly distributed, max 1h drift is normal distributed (μ = 0, σ = 1).
@@ -14,7 +16,7 @@ Included
   - 02 63
   - 04 41
 
-Planned
+## Planned
 
 - DME Update with one DME connected to units 1 and 2, with unit 3 receiving data from units 1 and 2 via unit interconnect.
   - Dual DME update using an offside DME, if both units 1 and 2 perform DME updating, the units will exchange update data via 
@@ -22,6 +24,10 @@ Planned
 - Failures:
   - 04 43
   - 04 57
+
+## Wishes
+
+- ADEU
 
 # Build
 

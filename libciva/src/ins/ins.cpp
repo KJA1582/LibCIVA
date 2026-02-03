@@ -2,22 +2,15 @@
 
 #pragma region Lifecycle
 
-std::random_device rd;
-std::mt19937 rg(rd());
-std::uniform_real_distribution<> disRad(0.0, 360.0);
-std::normal_distribution<> disDist(0);
-
 INS::INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir,
          const bool hasDME) noexcept
-    : varManager(varManager), config(Config(workDir, configID)), id(id), actionMalfunctionCodes(), hasDME(hasDME) {
+    : varManager(varManager), config(Config(workDir, configID)), id(id), actionMalfunctionCodes(), hasDME(hasDME),
+      randomGen(std::mt19937((std::random_device())())), distributionRadial(std::normal_distribution<>(0, 0.01 / 3)),
+      distributionDistance(std::normal_distribution<>(0)) {
   clearDisplay();
 
   // Init all things from global vars
   varManager.getVar(SIM_VAR_AMBIENT_TEMPERATURE, ovenTemperature);
-
-  errorRadial = disRad(rg);
-  // Normal distributed drift in nmi per s
-  driftPerSecond = std::abs(disDist(rg)) / 3600.0;
 
   // Init exports
   exportVars();
@@ -81,8 +74,8 @@ void INS::reset(const bool full) noexcept {
   alignSubmode = ALIGN_SUBMODE::MODE_9;
   accuracyIndex = 9;
   timeInMode = 0;
-  initialTimeInNAV = timeInNAV = INITIAL_TIME_IN_NAV;
-  initialError = currentError = 0;
+  radialScalarAlignTime = MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME;
+  initialDistanceError = currentDistanceError = 0;
   indicators.indicator.READY_NAV = false;
 }
 
@@ -207,8 +200,8 @@ void INS::updatePreMix(const double dTime) noexcept {
         indicators.indicator.INSERT = true;
         dmeMode = DME_MODE::INV;
         // Init error radial and distance
-        errorRadial = disRad(rg);
-        driftPerSecond = std::abs(disDist(rg)) / 3600.0;
+        baseRadialDriftPerSecond = distributionRadial(randomGen);
+        distanceDriftPerSecond = std::abs(distributionDistance(randomGen)) / 3600.0;
 
         timeInMode = 0;
       }
@@ -235,8 +228,8 @@ void INS::updatePreMix(const double dTime) noexcept {
         // Downmode
         state = INS_STATE::ALIGN;
         alignSubmode = ALIGN_SUBMODE::MODE_9;
-        initialTimeInNAV = timeInNAV = INITIAL_TIME_IN_NAV;
-        initialError = currentError = 0;
+        radialScalarAlignTime = MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME;
+        initialDistanceError = currentDistanceError = 0;
       }
 
       updateCurrentINSPosition(dTime);
@@ -247,8 +240,6 @@ void INS::updatePreMix(const double dTime) noexcept {
         timeInMode = 0;
       }
 
-      initialTimeInNAV += dTime;
-      timeInNAV += dTime;
       break;
     }
     case INS_STATE::ATT:

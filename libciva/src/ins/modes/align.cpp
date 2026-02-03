@@ -14,6 +14,9 @@ void INS::align(const double dTime) noexcept {
       state = INS_STATE::NAV;
       indicators.indicator.READY_NAV = false;
       accuracyIndex = 0;
+      radialError = 0;
+      // If you enter exactly at AI5, you get double the drift (3sigma of 0.02 °/h)
+      radialDriftPerSecond = baseRadialDriftPerSecond * (1 + (radialScalarAlignTime / MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME));
 
       updateSimPosDelta();
 
@@ -76,11 +79,12 @@ void INS::align(const double dTime) noexcept {
         alignSubmode = (ALIGN_SUBMODE)((uint8_t)alignSubmode - 1);
         timeInMode = 0;
       }
-      initialTimeInNAV = timeInNAV = std::max(0.0, timeInNAV - dTime * INITIAL_TIME_IN_NAV / (5.0 * MODE_5_TO_0));
+      radialScalarAlignTime =
+          std::max(0.0, radialScalarAlignTime - dTime * MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME / (5.0 * MODE_5_TO_0));
       break;
     }
     case ALIGN_SUBMODE::MODE_0: {
-      initialTimeInNAV = timeInNAV = 0;
+      radialScalarAlignTime = 0;
       break;
     }
   }
