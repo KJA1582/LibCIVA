@@ -190,3 +190,32 @@ void INS::updateNav(POSITION &pos, const double dTime) noexcept {
 
   timeInLeg += dTime;
 }
+
+void INS::remoteUpdateDME(const uint8_t dme, const bool resetDMEUpdate) noexcept {
+  if (!remoteActive) return;
+
+  DME _dme = DMEs[dme];
+
+  if (unit2 && unit2->remoteActive) {
+    unit2->DMEs[dme] = _dme;
+    if (resetDMEUpdate && unit2->activeDME == dme) {
+      activeDME = 0;
+    }
+  }
+  if (unit3 && unit3->remoteActive) {
+    unit3->DMEs[dme] = _dme;
+  }
+}
+
+void INS::remoteUpdateWPT(const uint8_t wpt) noexcept {
+  if (!remoteActive) return;
+
+  POSITION _wpt = waypoints[wpt];
+
+  if (unit2 && unit2->remoteActive) {
+    unit2->waypoints[wpt] = _wpt;
+  }
+  if (unit3 && unit3->remoteActive) {
+    unit3->waypoints[wpt] = _wpt;
+  }
+}

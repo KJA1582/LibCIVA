@@ -137,6 +137,11 @@ static void handleEvent(int event) {
         if (isUnit2 && unit2) unit2->handleAutoMan();
         if (isUnit3 && unit3) unit3->handleAutoMan();
         break;
+      case EVENT_REMOTE:
+        if (isUnit1) unit1->handleRemote();
+        if (isUnit2 && unit2) unit2->handleRemote();
+        if (isUnit3 && unit3) unit3->handleRemote();
+        break;
       case EVENT_INSTANT_ALIGN:
         if (isUnit1) unit1->handleInstantAlign();
         if (isUnit2 && unit2) unit2->handleInstantAlign();

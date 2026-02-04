@@ -188,8 +188,10 @@ class INS {
   bool autoMode = true;
   // If DME is connected
   bool hasDME = false;
-  // if DME is updating
+  // If DME is updating
   bool dmeUpdating = false;
+  // Remote active
+  bool remoteActive = false;
 
 #pragma endregion
 
@@ -218,26 +220,29 @@ class INS {
     display = *(reinterpret_cast<DISPLAY *>(&d));
   }
 
+  inline POSITION getINSPosition() const noexcept { return initialINSPosition; }
+
 public:
+#pragma region Lifecycle
+
   INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir, const bool hasDME)
   noexcept;
   ~INS() noexcept;
+
+#pragma endregion
+
+#pragma region Update functions
 
   void updatePreMix(const double dTime) noexcept;
   void updateMix() noexcept;
   void updatePostMix(const double dTime) noexcept;
 
+#pragma endregion
+
 #pragma region Public Getter / Setter
 
-  inline void setDataSelectorPos(const DATA_SELECTOR pos) noexcept { dataSelector = pos; }
-  inline void setModeSelectorPos(const MODE_SELECTOR pos) noexcept { modeSelector = pos; }
   inline void connectUnit2(std::shared_ptr<INS> &unit) noexcept { unit2 = unit; }
   inline void connectUnit3(std::shared_ptr<INS> &unit) noexcept { unit3 = unit; }
-
-  inline DATA_SELECTOR getDataSelectorPos() const noexcept { return dataSelector; }
-  inline MODE_SELECTOR getModeSelectorPos() const noexcept { return modeSelector; }
-  inline bool isAided() const noexcept { return activePerformanceIndex == 4; }
-  inline POSITION getINSPosition() const noexcept { return initialINSPosition; }
 
 #pragma endregion
 
@@ -260,6 +265,14 @@ public:
   void handleHoldButton() noexcept;
   void handleAutoMan() noexcept;
   void handleInstantAlign() noexcept;
+  void handleRemote() noexcept;
+
+#pragma endregion
+
+#pragma region Remote Update
+
+  void remoteUpdateDME(const uint8_t dme, const bool resetDMEUpdate = false) noexcept;
+  void remoteUpdateWPT(const uint8_t wpt) noexcept;
 
 #pragma endregion
 };

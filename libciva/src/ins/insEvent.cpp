@@ -413,8 +413,13 @@ void INS::handleInsert() noexcept {
         if (activeDME == waypointSelector - 1) {
           activeDME = 0;
         }
+
+        remoteUpdateDME(waypointSelector - 1, true);
+
       } else if (dmeMode == DME_MODE::INV) {
         waypoints[waypointSelector].longitude = lon;
+
+        remoteUpdateWPT(waypointSelector);
       }
 
       break;
@@ -429,6 +434,8 @@ void INS::handleInsert() noexcept {
       if (alt > 15) break;
 
       DMEs[waypointSelector - 1].altitude = alt;
+
+      remoteUpdateDME(waypointSelector - 1);
 
       break;
     }
@@ -448,12 +455,14 @@ void INS::handleInsert() noexcept {
 
       DMEs[waypointSelector - 1].frequency = freq;
 
+      remoteUpdateDME(waypointSelector - 1);
+
       break;
     }
     case INSERT_MODE::PERFORMANCE_INDEX: {
       if (dataSelector != DATA_SELECTOR::DSRTKSTS) return;
 
-      // Erradication
+      // Eradication
       if (display.characters.RIGHT_6 == 1) {
         activePerformanceIndex = 5;
         currentINSPosition = initialINSPosition;
@@ -505,15 +514,20 @@ void INS::handleTestButtonState(const bool _state) noexcept {
     if (_state) {
       if (malfunctionCodeDisplayed) {
         // NOTE: KEEP IN SYNC WITH DISPLAY FUNCTION
-        if (displayActionMalfunctionCodeIndex == 5) {
-          actionMalfunctionCodes.codes.A04_41 = false;
-          config->setLastINSPosition(currentINSPosition);
+        if (state == INS_STATE::STBY) {
+          if (displayActionMalfunctionCodeIndex == 5) {
+            actionMalfunctionCodes.codes.A04_41 = false;
+            config->setLastINSPosition(currentINSPosition);
+          } else if (displayActionMalfunctionCodeIndex == 6) {
+            actionMalfunctionCodes.codes.A04_43 = false;
+            config->setLastINSPosition(currentINSPosition);
+          }
 
           if (actionMalfunctionCodes.value == 0) {
             indicators.indicator.WARN = false;
           }
         }
-        if (displayActionMalfunctionCodeIndex == 3) {
+        if (state == INS_STATE::NAV && displayActionMalfunctionCodeIndex == 3) {
           actionMalfunctionCodes.codes.A02_49 = false;
 
           if (actionMalfunctionCodes.value == 0) {
@@ -632,4 +646,10 @@ void INS::handleInstantAlign() noexcept {
   indicators.value = 0;
   indicators.indicator.READY_NAV = true;
   timeInMode = 0;
+}
+
+void INS::handleRemote() noexcept {
+  remoteActive = !remoteActive;
+
+  indicators.indicator.REMOTE = remoteActive;
 }

@@ -30,7 +30,7 @@
 # Multi Unit
 
 - Unit intercom
-  - Remote key
+  - DME Update sharing
 
 # Sim specific
 
