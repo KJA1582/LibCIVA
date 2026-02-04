@@ -4,13 +4,16 @@
 
 INS::INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir,
          const bool hasDME) noexcept
-    : varManager(varManager), config(Config(workDir, configID)), id(id), actionMalfunctionCodes(), hasDME(hasDME),
-      randomGen(std::mt19937((std::random_device())())), distributionRadial(std::normal_distribution<>(0, 0.01 / 3)),
-      distributionDistance(std::normal_distribution<>(0)) {
+    : varManager(varManager), id(id), actionMalfunctionCodes(), hasDME(hasDME) {
   clearDisplay();
 
   // Init all things from global vars
   varManager.getVar(SIM_VAR_AMBIENT_TEMPERATURE, ovenTemperature);
+
+  config = std::make_unique<Config>(workDir, configID);
+  randomGen = std::make_unique<std::mt19937>((std::random_device())());
+  distributionRadial = std::make_unique<std::normal_distribution<>>(0, 0.01 / 3);
+  distributionDistance = std::make_unique<std::normal_distribution<>>(0);
 
   // Init exports
   exportVars();
@@ -19,9 +22,9 @@ INS::INS(VarManager &varManager, const std::string &id, const std::string &confi
 INS::~INS() noexcept {
   // If we have a valid position, save
   if (currentINSPosition.isValid()) {
-    config.setLastINSPosition(currentINSPosition);
+    config->setLastINSPosition(currentINSPosition);
   }
-  config.setLastDMEs(DMEs);
+  config->setLastDMEs(DMEs);
 }
 
 #pragma endregion
@@ -32,10 +35,10 @@ void INS::temperatureSim(const double dTime) noexcept {
   double ambient = 0;
   if (varManager.getVar(SIM_VAR_AMBIENT_TEMPERATURE, ambient)) {
     // Exit if at operating tem or ambient in case of heating or no heating
-    if (shouldHeat && ovenTemperature >= config.getOperatingTempInC()) return;
+    if (shouldHeat && ovenTemperature >= config->getOperatingTempInC()) return;
 
     double cooling = shouldHeat ? 0.0 : 0.02;
-    double loss = cooling * (ovenTemperature - ambient) * (dTime / config.getUnitMass());
+    double loss = cooling * (ovenTemperature - ambient) * (dTime / config->getUnitMass());
 
     // Ambient following
     if (!shouldHeat) {
@@ -43,8 +46,8 @@ void INS::temperatureSim(const double dTime) noexcept {
       return;
     }
 
-    double energy = config.getHeaterWattage() * config.getHeaterEfficiency() * dTime;
-    double dTemp = energy / (config.getUnitMass() * config.getUnitSpecificHeat());
+    double energy = config->getHeaterWattage() * config->getHeaterEfficiency() * dTime;
+    double dTemp = energy / (config->getUnitMass() * config->getUnitSpecificHeat());
 
     ovenTemperature = ovenTemperature + dTemp - loss;
   }
@@ -180,11 +183,11 @@ void INS::updatePreMix(const double dTime) noexcept {
   // Going to OFF
   if (state > INS_STATE::OFF && modeSelector == MODE_SELECTOR::OFF) {
     if (currentINSPosition.isValid()) {
-      config.setLastINSPosition(currentINSPosition);
+      config->setLastINSPosition(currentINSPosition);
     }
-    config.setLastDMEs(DMEs);
+    config->setLastDMEs(DMEs);
 
-    config.save();
+    config->save();
 
     state = INS_STATE::OFF;
     reset(true);
@@ -195,13 +198,13 @@ void INS::updatePreMix(const double dTime) noexcept {
       if (modeSelector != MODE_SELECTOR::OFF) {
         // Upmode
         state = INS_STATE::STBY;
-        displayPosition = config.getLastINSPosition();
-        config.getLastDMEs(DMEs);
+        displayPosition = config->getLastINSPosition();
+        config->getLastDMEs(DMEs);
         indicators.indicator.INSERT = true;
         dmeMode = DME_MODE::INV;
         // Init error radial and distance
-        baseRadialDriftPerSecond = distributionRadial(randomGen);
-        distanceDriftPerSecond = std::abs(distributionDistance(randomGen)) / 3600.0;
+        baseRadialDriftPerSecond = distributionRadial->operator()(*randomGen);
+        distanceDriftPerSecond = std::abs(distributionDistance->operator()(*randomGen)) / 3600.0;
 
         timeInMode = 0;
       }

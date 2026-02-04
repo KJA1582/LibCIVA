@@ -38,6 +38,8 @@ public:
   static Logger &GetInstance() noexcept;
 };
 
+#ifndef NDEBUG
+
 class DataLogger {
 protected:
   std::ofstream file;
@@ -61,5 +63,7 @@ public:
 
   static DataLogger &GetInstance() noexcept;
 };
+
+#endif
 
 #endif

@@ -361,7 +361,7 @@ void INS::handleInsert() noexcept {
           alignSubmode = ALIGN_SUBMODE::MODE_6;
         }
         // Others, trigger 04-41 if >76nmi from last
-        else if (displayPosition.distanceTo(config.getLastINSPosition()) > MAX_RAMP_DEV) {
+        else if (displayPosition.distanceTo(config->getLastINSPosition()) > MAX_RAMP_DEV) {
           actionMalfunctionCodes.codes.A04_41 = true;
           advanceActionMalfunctionIndex();
           indicators.indicator.WARN = true;
@@ -372,7 +372,7 @@ void INS::handleInsert() noexcept {
       // Since OFF and ATT are early abort, this is STBY only
       // Tigger 04-41 if >76nmi from last
       else {
-        if (displayPosition.distanceTo(config.getLastINSPosition()) > MAX_RAMP_DEV) {
+        if (displayPosition.distanceTo(config->getLastINSPosition()) > MAX_RAMP_DEV) {
           actionMalfunctionCodes.codes.A04_41 = true;
           advanceActionMalfunctionIndex();
           indicators.indicator.WARN = true;
@@ -507,7 +507,7 @@ void INS::handleTestButtonState(const bool _state) noexcept {
         // NOTE: KEEP IN SYNC WITH DISPLAY FUNCTION
         if (displayActionMalfunctionCodeIndex == 5) {
           actionMalfunctionCodes.codes.A04_41 = false;
-          config.setLastINSPosition(currentINSPosition);
+          config->setLastINSPosition(currentINSPosition);
 
           if (actionMalfunctionCodes.value == 0) {
             indicators.indicator.WARN = false;
@@ -568,7 +568,7 @@ void INS::handleClear() noexcept {
     } else if (currentINSPosition.isValid()) {
       displayPosition = currentINSPosition;
     } else {
-      displayPosition = config.getLastINSPosition();
+      displayPosition = config->getLastINSPosition();
     }
   }
 
@@ -628,7 +628,7 @@ void INS::handleInstantAlign() noexcept {
   }
 
   alignSubmode = ALIGN_SUBMODE::MODE_0;
-  ovenTemperature = config.getOperatingTempInC();
+  ovenTemperature = config->getOperatingTempInC();
   indicators.value = 0;
   indicators.indicator.READY_NAV = true;
   timeInMode = 0;

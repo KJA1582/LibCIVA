@@ -17,6 +17,8 @@ Logger &Logger::GetInstance() noexcept {
   return *singleton_;
 }
 
+#ifndef NDEBUG
+
 DataLogger *DataLogger::singleton_ = nullptr;
 
 DataLogger::DataLogger() noexcept {
@@ -37,3 +39,5 @@ DataLogger &DataLogger::GetInstance() noexcept {
 
   return *singleton_;
 }
+
+#endif

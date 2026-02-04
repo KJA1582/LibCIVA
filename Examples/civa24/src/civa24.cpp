@@ -359,7 +359,9 @@ extern "C" MSFS_CALLBACK bool LibCIVA_gauge_update(FsContext ctx, float dTime) {
 
 extern "C" MSFS_CALLBACK bool LibCIVA_gauge_kill(FsContext ctx) {
   ins->~INSContainer();
+#ifndef NDEBUG
   DataLogger::GetInstance().~DataLogger();
+#endif
 
   SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA,
                                     SIMCONNECT_OBJECT_ID_USER_AIRCRAFT, SIMCONNECT_PERIOD_NEVER);

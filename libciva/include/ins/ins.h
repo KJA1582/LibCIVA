@@ -62,15 +62,15 @@ class INS {
   // Global vars manager
   VarManager &varManager;
   // INS Config
-  Config &config;
+  std::unique_ptr<Config> config;
   // Unit ID
   const std::string id;
   // List of active malfunctions
   ACTION_MALFUNCTION_CODES actionMalfunctionCodes;
   // Random
-  std::mt19937 &randomGen;
-  std::normal_distribution<> &distributionRadial;   // °/h 3sigma of 0.01
-  std::normal_distribution<> &distributionDistance; // nmi/h
+  std::unique_ptr<std::mt19937> randomGen;
+  std::unique_ptr<std::normal_distribution<>> distributionRadial;   // °/h 3sigma of 0.01
+  std::unique_ptr<std::normal_distribution<>> distributionDistance; // nmi/h
 
 #pragma region Positions
 

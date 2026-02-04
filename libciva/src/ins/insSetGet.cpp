@@ -165,7 +165,7 @@ void INS::updateNav(POSITION &pos, const double dTime) noexcept {
     return;
   }
 
-  double turnRadius = (gs * gs) / (11.26 * std::tan(config.getExpectedBankAngle() * DEG2RAD));
+  double turnRadius = (gs * gs) / (11.26 * std::tan(config->getExpectedBankAngle() * DEG2RAD));
   double delta = nextCrs - track;
   while (delta < -180.0) delta += 360.0;
   while (delta >= 180.0) delta -= 360.0;
