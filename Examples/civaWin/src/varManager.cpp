@@ -82,8 +82,8 @@ void WinVarManager::dump() const noexcept {
       std::cout << "               ";
       std::cout << (i.indicator.READY_NAV ? "\033[92mREADY NAV\033[0m|" : "\033[90mREADY NAV\033[0m|");
       std::cout << (i.indicator.MSU_BAT ? "\033[91mBAT\033[0m|" : "\033[90mBAT\033[0m|");
-      std::cout << (i.indicator.MSU_BAT ? "\033[92mDME 1\033[0m|" : "\033[90mDME 1\033[0m|");
-      std::cout << (i.indicator.MSU_BAT ? "\033[92mDME 2\033[0m" : "\033[90mDME 2\033[0m");
+      std::cout << (i.indicator.DME1 ? "\033[92mDME 1\033[0m|" : "\033[90mDME 1\033[0m|");
+      std::cout << (i.indicator.DME2 ? "\033[92mDME 2\033[0m" : "\033[90mDME 2\033[0m");
       std::cout << "               ";
     } else if (it->first.find(MODE_SELECTOR_POS_VAR) != std::string::npos) {
       std::cout << "                                 ";

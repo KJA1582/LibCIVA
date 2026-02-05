@@ -5,9 +5,6 @@
 
 # Other
 
-- BAT operation behaviour
-  - BAT CDU Lamp when on bat
-  - BAT MSU lamp when auto shutdown due to low bat
 - TAXI in ALIGN error
 - SB Import (ADEU)
 

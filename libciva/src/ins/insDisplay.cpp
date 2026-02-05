@@ -337,7 +337,7 @@ void INS::updateDisplay(POSITION &pos) noexcept {
       display.characters.LEFT_DEG_1 = display.characters.LEFT_DEC_2 = display.characters.RIGHT_DEG_1 =
           display.characters.RIGHT_DEC_2 = true;
 
-      formatPos(display, displayPosition);
+      formatPos(display, displayPosition.isValid() ? displayPosition : config->getLastINSPosition());
 
       break;
     }
@@ -429,7 +429,7 @@ void INS::updateDisplay(POSITION &pos) noexcept {
     }
     case DATA_SELECTOR::WIND: {
       double tas = 0;
-      bool valid = varManager.getVar(SIM_VAR_AIRSPEED_TRUE, tas);
+      bool tasValid = varManager.getVar(SIM_VAR_AIRSPEED_TRUE, tas);
 
       display.characters.LEFT_DEC_1 = display.characters.LEFT_DEC_2 = display.characters.LEFT_DEG_1 =
           display.characters.RIGHT_DEC_1 = display.characters.RIGHT_DEC_2 = display.characters.RIGHT_DEG_1 =
@@ -440,7 +440,7 @@ void INS::updateDisplay(POSITION &pos) noexcept {
           display.characters.RIGHT_1 = display.characters.RIGHT_2 = display.characters.RIGHT_3 = display.characters.RIGHT_4 =
               display.characters.RIGHT_5 = DISPLAY_CHAR_BLANK;
 
-      if (!valid || gs < MIN_GS || tas < MIN_TAS_WIND || tas > MAX_TAS_WIND ||
+      if (!tasValid || gs < MIN_GS || tas < MIN_TAS_WIND || tas > MAX_TAS_WIND ||
           !(state >= INS_STATE::ALIGN &&
             (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7)))) {
         display.characters.LEFT_5 = display.characters.RIGHT_6 = 0;

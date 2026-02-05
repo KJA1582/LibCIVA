@@ -57,7 +57,7 @@ void INS::advanceActionMalfunctionIndex() noexcept {
     index = std::max(1, (index + 1) % 8);
 
     if (index == displayActionMalfunctionCodeIndex) {
-      displayActionMalfunctionCodeIndex = index != 5 ? index : 0;
+      displayActionMalfunctionCodeIndex = index <= 2 ? index : 0;
       break;
     }
   }

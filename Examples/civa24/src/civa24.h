@@ -50,7 +50,9 @@ constexpr auto EVENT_WPT_CHG = 24;
 constexpr auto EVENT_HOLD = 25;
 constexpr auto EVENT_AUTO_MAN = 26;
 constexpr auto EVENT_REMOTE = 27;
-constexpr auto EVENT_INSTANT_ALIGN = 28;
+constexpr auto EVENT_EXTERNAL_POWER_ON = 28;
+constexpr auto EVENT_EXTERNAL_POWER_OFF = 29;
+constexpr auto EVENT_INSTANT_ALIGN = 30;
 
 enum DATA_DEFINITIONS : SIMCONNECT_DATA_DEFINITION_ID {
   DATA_DEFINITIONS_DATA,

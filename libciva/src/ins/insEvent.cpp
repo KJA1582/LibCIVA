@@ -370,7 +370,7 @@ void INS::handleInsert() noexcept {
         waypoints[0] = currentINSPosition = initialINSPosition = displayPosition;
       }
       // Since OFF and ATT are early abort, this is STBY only
-      // Tigger 04-41 if >76nmi from last
+      // Trigger 04-41 if >76nmi from last
       else {
         if (displayPosition.distanceTo(config->getLastINSPosition()) > MAX_RAMP_DEV) {
           actionMalfunctionCodes.codes.A04_41 = true;
@@ -520,7 +520,6 @@ void INS::handleTestButtonState(const bool _state) noexcept {
             config->setLastINSPosition(currentINSPosition);
           } else if (displayActionMalfunctionCodeIndex == 6) {
             actionMalfunctionCodes.codes.A04_43 = false;
-            config->setLastINSPosition(currentINSPosition);
           }
 
           if (actionMalfunctionCodes.value == 0) {
@@ -653,3 +652,5 @@ void INS::handleRemote() noexcept {
 
   indicators.indicator.REMOTE = remoteActive;
 }
+
+void INS::handleExternalPower(const bool powered) noexcept { externalPower = powered; }

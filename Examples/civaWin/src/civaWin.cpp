@@ -7,6 +7,7 @@ std::thread INSThread;
 std::mutex lock;
 std::atomic<bool> __exit;
 std::atomic<uint8_t> selectedUnit = 4;
+std::atomic<bool> power = false;
 
 HANDLE simConnect = 0;
 SIMCONNECT_RECV_OPEN openData;
@@ -100,7 +101,8 @@ static void runner() {
     std::cout << "HOLD      : H" << std::endl;
     std::cout << "AUTO/MAN  : A" << std::endl;
     std::cout << "REMOTE    : R" << std::endl;
-    std::cout << "INST ALIGN: I" << std::endl << std::endl;
+    std::cout << "INST ALIGN: I" << std::endl;
+    std::cout << "AC POWER  : P" << std::endl << std::endl;
 
     std::cout << "dT was " << delta.count() * 1e-6 << "ms" << std::endl;
   }
@@ -134,7 +136,7 @@ int main() {
 
   winVarManager = std::make_unique<WinVarManager>();
 
-  ins = std::make_unique<INSContainer>(*winVarManager, UNIT_COUNT::THREE, UNIT_HAS_DME::BOTH, "");
+  ins = std::make_unique<INSContainer>(*winVarManager, UNIT_COUNT::THREE, UNIT_HAS_DME::BOTH, "", false);
 
   INSThread = std::thread(runner);
 
@@ -300,6 +302,12 @@ int main() {
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleInstantAlign();
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleInstantAlign();
               if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleInstantAlign();
+              break;
+            case 'P':
+              power = !power;
+              unit1->handleExternalPower(power);
+              if (unit2) unit2->handleExternalPower(power);
+              if (unit2) unit3->handleExternalPower(power);
               break;
             case VK_ESCAPE:
               __exit = true;

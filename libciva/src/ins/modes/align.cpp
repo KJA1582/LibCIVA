@@ -5,7 +5,6 @@ void INS::align(const double dTime) noexcept {
     // Downmode
     state = INS_STATE::STBY;
     reset(false);
-    actionMalfunctionCodes.value = 0;
 
     return;
   } else if (modeSelector == MODE_SELECTOR::NAV) {
@@ -41,7 +40,9 @@ void INS::align(const double dTime) noexcept {
         batteryTest = BATTERY_TEST::RUNNING;
       } else if (batteryTest == BATTERY_TEST::RUNNING && timeInMode >= MAX_BAT_TEST_TIME) {
         indicators.indicator.CDU_BAT = false;
-        batteryTest = BATTERY_TEST::COMPLETED;
+        if (batteryRuntime >= MIN_BATTERY_DURATION) batteryTest = BATTERY_TEST::COMPLETED;
+        else
+          batteryTest = BATTERY_TEST::FAILED;
       }
 
       if (currentINSPosition.isValid()) {

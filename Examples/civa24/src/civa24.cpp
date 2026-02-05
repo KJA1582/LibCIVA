@@ -147,6 +147,16 @@ static void handleEvent(int event) {
         if (isUnit2 && unit2) unit2->handleInstantAlign();
         if (isUnit3 && unit3) unit3->handleInstantAlign();
         break;
+      case EVENT_EXTERNAL_POWER_ON:
+        unit1->handleExternalPower(true);
+        if (unit2) unit2->handleExternalPower(true);
+        if (unit3) unit3->handleExternalPower(true);
+        break;
+      case EVENT_EXTERNAL_POWER_OFF:
+        unit1->handleExternalPower(false);
+        if (unit2) unit2->handleExternalPower(false);
+        if (unit3) unit3->handleExternalPower(false);
+        break;
       default:
         Logger::GetInstance() << "Unknown event " << event << "\n";
     }
@@ -270,7 +280,7 @@ static void handleSimConnect() {
 
           if (data->atcID != NULL && !ins) {
             Logger::GetInstance() << "Booting INS for " << data->atcID;
-            ins = std::make_unique<INSContainer>(*varManager, UNIT_COUNT::THREE, UNIT_HAS_DME::BOTH, data->atcID);
+            ins = std::make_unique<INSContainer>(*varManager, UNIT_COUNT::THREE, UNIT_HAS_DME::BOTH, data->atcID, true);
           }
 
           if (data->event != 0) {

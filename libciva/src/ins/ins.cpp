@@ -3,8 +3,8 @@
 #pragma region Lifecycle
 
 INS::INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir,
-         const bool hasDME) noexcept
-    : varManager(varManager), id(id), actionMalfunctionCodes(), hasDME(hasDME) {
+         const bool hasDME, const bool hasExpandedBattery) noexcept
+    : varManager(varManager), id(id), actionMalfunctionCodes(), hasDME(hasDME), hasExpandedBattery(hasExpandedBattery) {
   clearDisplay();
 
   // Init all things from global vars
@@ -14,6 +14,8 @@ INS::INS(VarManager &varManager, const std::string &id, const std::string &confi
   randomGen = std::make_unique<std::mt19937>((std::random_device())());
   distributionRadial = std::make_unique<std::normal_distribution<>>(0, 0.01 / 3);
   distributionDistance = std::make_unique<std::normal_distribution<>>(0);
+
+  if (hasExpandedBattery) batteryRuntime = EXPANDED_BATTERY_DURATION;
 
   // Init exports
   exportVars();
@@ -29,9 +31,19 @@ INS::~INS() noexcept {
 
 #pragma endregion
 
-void INS::temperatureSim(const double dTime) noexcept {
-  bool shouldHeat = state > INS_STATE::OFF;
+void INS::temperatureBatterySim(const double dTime) noexcept {
+  // Battery
+  if (externalPower) {
+    batteryRuntime = std::min((double)(hasExpandedBattery ? EXPANDED_BATTERY_DURATION : BATTERY_DURATION),
+                              batteryRuntime + CHARGE_RATE * dTime);
+    if (batteryTest != BATTERY_TEST::RUNNING) indicators.indicator.CDU_BAT = false;
+  } else if (state > INS_STATE::OFF && !externalPower) {
+    batteryRuntime = std::max(0.0, batteryRuntime - dTime);
+    if (batteryTest != BATTERY_TEST::RUNNING) indicators.indicator.CDU_BAT = true;
+  }
 
+  // Oven
+  bool shouldHeat = state > INS_STATE::OFF;
   double ambient = 0;
   if (varManager.getVar(SIM_VAR_AMBIENT_TEMPERATURE, ambient)) {
     // Exit if at operating tem or ambient in case of heating or no heating
@@ -59,6 +71,7 @@ void INS::reset(const bool full) noexcept {
     indicators = {0};
     displayPosition = currentINSPosition = initialINSPosition = {999, 999};
     track = 0;
+    valid = false;
 
     for (uint8_t i = 0; i < 10; i++) {
       waypoints[i] = {0, 0};
@@ -130,21 +143,18 @@ void INS::handleOutOfBounds() noexcept {
     indicators.indicator.WARN = true;
   }
 
-  // Inter system compare trigger 04-43
-  if (state == INS_STATE::ALIGN) {
-    if (unit2) {
-      if (unit2->getINSPosition().distanceTo(initialINSPosition) > 0.1) {
-        actionMalfunctionCodes.codes.A04_43 = true;
-        advanceActionMalfunctionIndex();
-        indicators.indicator.WARN = true;
-      }
-    }
-    if (unit3) {
-      if (unit3->getINSPosition().distanceTo(initialINSPosition) > 0.1) {
-        actionMalfunctionCodes.codes.A04_43 = true;
-        advanceActionMalfunctionIndex();
-        indicators.indicator.WARN = true;
-      }
+  if (initialINSPosition.isValid() && state == INS_STATE::ALIGN) {
+    // Inter system compare trigger 04-43
+    if (unit2 && unit2->initialINSPosition.isValid() && unit2->initialINSPosition.distanceTo(displayPosition) > 0.0001) {
+      actionMalfunctionCodes.codes.A04_43 = true;
+      advanceActionMalfunctionIndex();
+      indicators.indicator.WARN = true;
+      alignSubmode = ALIGN_SUBMODE::MODE_6;
+    } else if (unit3 && unit3->initialINSPosition.isValid() && unit3->initialINSPosition.distanceTo(displayPosition) > 0.0001) {
+      actionMalfunctionCodes.codes.A04_43 = true;
+      advanceActionMalfunctionIndex();
+      indicators.indicator.WARN = true;
+      alignSubmode = ALIGN_SUBMODE::MODE_6;
     }
   }
 }
@@ -158,13 +168,22 @@ void INS::exportVars() const noexcept {
   varManager.setVar(AUTO_MAN_POS_VAR + id, (double)autoMode);
   varManager.setVar(CROSS_TRACK_ERROR_VAR + id, crossTrackError);
   varManager.setVar(DESIRED_TRACK_VAR + id, desiredTrack);
+  varManager.setVar(VALID + id, (double)valid);
 }
 
 void INS::updatePreMix(const double dTime) noexcept {
-  // Oven
-  temperatureSim(dTime);
+  // Oven/Battery
+  temperatureBatterySim(dTime);
+  if (state > INS_STATE::OFF && (batteryRuntime == 0 || batteryTest == BATTERY_TEST::FAILED)) {
+    state = INS_STATE::FAIL;
+    indicators.value = 0;
+    indicators.indicator.MSU_BAT = true;
+    valid = false;
+    clearDisplay();
+  }
+
   // Aux data
-  if (state >= INS_STATE::ALIGN &&
+  if (state < INS_STATE::ATT && state >= INS_STATE::ALIGN &&
       (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
     // Ground track
     calculateTrack();
@@ -176,6 +195,7 @@ void INS::updatePreMix(const double dTime) noexcept {
   if (state < INS_STATE::ATT && modeSelector == MODE_SELECTOR::ATT) {
     state = INS_STATE::ATT;
     timeInMode = 0;
+    valid = false;
     clearDisplay();
 
     return;
@@ -197,6 +217,8 @@ void INS::updatePreMix(const double dTime) noexcept {
     case INS_STATE::OFF: {
       if (modeSelector != MODE_SELECTOR::OFF) {
         // Upmode
+        if (batteryRuntime == 0) return;
+
         state = INS_STATE::STBY;
         displayPosition = config->getLastINSPosition();
         config->getLastDMEs(DMEs);
@@ -205,6 +227,7 @@ void INS::updatePreMix(const double dTime) noexcept {
         // Init error radial and distance
         baseRadialDriftPerSecond = distributionRadial->operator()(*randomGen);
         distanceDriftPerSecond = std::abs(distributionDistance->operator()(*randomGen)) / 3600.0;
+        valid = true;
 
         timeInMode = 0;
       }
@@ -286,16 +309,18 @@ void INS::updateMix() noexcept {
 }
 
 void INS::updatePostMix(const double dTime) noexcept {
-  // NAV
-  if (state == INS_STATE::NAV) {
-    alertLamp(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition, dTime);
-    updateMetrics(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition);
-    updateNav(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition, dTime);
-  }
+  if (valid) {
+    // NAV
+    if (state == INS_STATE::NAV) {
+      alertLamp(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition, dTime);
+      updateMetrics(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition);
+      updateNav(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition, dTime);
+    }
 
-  // Display
-  if (state > INS_STATE::OFF && state < INS_STATE::ATT) {
-    updateDisplay(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition);
+    // Display
+    if (state > INS_STATE::OFF && state < INS_STATE::ATT) {
+      updateDisplay(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition);
+    }
   }
 
   // Exports

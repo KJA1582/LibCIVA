@@ -47,12 +47,16 @@ constexpr auto DRIFT_GS = 500;
 constexpr auto MAX_GS_DISPLAY = 2400;
 constexpr auto MAX_DRIFT_ANGLE = 45;
 constexpr auto MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME =
-    5400; // AI5 Time. This scales the radial error to simulate the difference between full align an minimal align
+    5400; // AI5 Time. This scales the radial error to simulate the difference between full align and minimal align
 constexpr auto MIN_LEG_TIME = 25.6;
 constexpr auto LEG_TIME_ALERT = 120;
 constexpr auto MIN_DME_TIME = 12;                     // After this, DME indicator can go green
 constexpr auto MAX_SINGLE_DME_TIME_UNTIL_VALID = 150; // Stop DME update if not valid before hitting this count
 constexpr auto MAX_DUAL_DME_TIME_UNTIL_VALID = 300;   // Stop DME update if not valid before hitting this count
+constexpr auto BATTERY_DURATION = 900;                // Battery runtime
+constexpr auto EXPANDED_BATTERY_DURATION = 1800;
+constexpr auto MIN_BATTERY_DURATION = 600;
+constexpr auto CHARGE_RATE = 3; //
 
 constexpr auto DISPLAY_CHAR_RIGHT = 10;
 constexpr auto DISPLAY_CHAR_LEFT = 11;
@@ -120,6 +124,8 @@ class INS {
 
 #pragma region States
 
+  // Battery runtime left
+  double batteryRuntime = BATTERY_DURATION;
   // Current oven temperature
   double ovenTemperature = 0;
   // Current time in mode
@@ -186,12 +192,18 @@ class INS {
   bool holdRequiresForce = false;
   // AUTO/MAN
   bool autoMode = true;
+  // If battery is expanded
+  bool hasExpandedBattery = false;
   // If DME is connected
   bool hasDME = false;
   // If DME is updating
   bool dmeUpdating = false;
   // Remote active
   bool remoteActive = false;
+  // External power state
+  bool externalPower = false;
+  // Signals valid
+  bool valid = false;
 
 #pragma endregion
 
@@ -203,7 +215,7 @@ class INS {
   void updateNav(POSITION &pos, const double dTime) noexcept;
   void updateDisplay(POSITION &pos) noexcept;
 
-  void temperatureSim(const double dTime) noexcept;
+  void temperatureBatterySim(const double dTime) noexcept;
   void align(const double dTime) noexcept;
   void calculateTrack() noexcept;
   void handleOutOfBounds() noexcept;
@@ -220,12 +232,11 @@ class INS {
     display = *(reinterpret_cast<DISPLAY *>(&d));
   }
 
-  inline POSITION getINSPosition() const noexcept { return initialINSPosition; }
-
 public:
 #pragma region Lifecycle
 
-  INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir, const bool hasDME)
+  INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir, const bool hasDME,
+      const bool hasExpandedBattery)
   noexcept;
   ~INS() noexcept;
 
@@ -266,6 +277,7 @@ public:
   void handleAutoMan() noexcept;
   void handleInstantAlign() noexcept;
   void handleRemote() noexcept;
+  void handleExternalPower(const bool powered) noexcept;
 
 #pragma endregion
 
@@ -283,14 +295,16 @@ class INSContainer {
   std::shared_ptr<INS> unit3;
 
 public:
-  inline INSContainer(VarManager &varManager, UNIT_COUNT count, UNIT_HAS_DME dme, const std::string &configBaseID) noexcept {
+  inline INSContainer(VarManager &varManager, UNIT_COUNT count, UNIT_HAS_DME dme, const std::string &configBaseID,
+                      const bool hasExtendedBattery) noexcept {
     unit1 = std::make_shared<INS>(varManager, "UNIT_1", configBaseID + "_1", WORK_DIR,
-                                  dme == UNIT_HAS_DME::ONE || dme == UNIT_HAS_DME::BOTH);
+                                  dme == UNIT_HAS_DME::ONE || dme == UNIT_HAS_DME::BOTH, hasExtendedBattery);
 
     if (count > UNIT_COUNT::ONE)
       unit2 = std::make_shared<INS>(varManager, "UNIT_2", configBaseID + "_2", WORK_DIR,
-                                    dme == UNIT_HAS_DME::TWO || dme == UNIT_HAS_DME::BOTH);
-    if (count == UNIT_COUNT::THREE) unit3 = std::make_shared<INS>(varManager, "UNIT_3", configBaseID + "_3", WORK_DIR, false);
+                                    dme == UNIT_HAS_DME::TWO || dme == UNIT_HAS_DME::BOTH, hasExtendedBattery);
+    if (count == UNIT_COUNT::THREE)
+      unit3 = std::make_shared<INS>(varManager, "UNIT_3", configBaseID + "_3", WORK_DIR, false, hasExtendedBattery);
 
     if (count > UNIT_COUNT::ONE) unit1->connectUnit2(unit2);
     if (count == UNIT_COUNT::THREE) unit1->connectUnit3(unit3);
