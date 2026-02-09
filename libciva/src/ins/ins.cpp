@@ -156,6 +156,17 @@ void INS::handleOutOfBounds() noexcept {
       indicators.indicator.WARN = true;
       alignSubmode = ALIGN_SUBMODE::MODE_6;
     }
+    // Taxi
+    double simLat = 999;
+    double simLon = 999;
+    varManager.getVar(SIM_VAR_PLANE_LATITUDE, simLat);
+    varManager.getVar(SIM_VAR_PLANE_LONGITUDE, simLon);
+    POSITION simPos = {simLat, simLon};
+
+    if (simPos.isValid() && (simPos + simPosDelta).distanceTo(initialINSPosition) > 0.0001) {
+      actionMalfunctionCodes.codes.A04_57 = true;
+      advanceActionMalfunctionIndex();
+    }
   }
 }
 
@@ -256,6 +267,7 @@ void INS::updatePreMix(const double dTime) noexcept {
         alignSubmode = ALIGN_SUBMODE::MODE_9;
         radialScalarAlignTime = MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME;
         initialDistanceError = currentDistanceError = 0;
+        indicators.indicator.ALERT = false;
       }
 
       updateCurrentINSPosition(dTime);

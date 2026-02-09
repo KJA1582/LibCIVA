@@ -520,6 +520,8 @@ void INS::handleTestButtonState(const bool _state) noexcept {
             config->setLastINSPosition(currentINSPosition);
           } else if (displayActionMalfunctionCodeIndex == 6) {
             actionMalfunctionCodes.codes.A04_43 = false;
+          } else if (displayActionMalfunctionCodeIndex == 7) {
+            actionMalfunctionCodes.codes.A04_57 = false;
           }
 
           if (actionMalfunctionCodes.value == 0) {
@@ -538,7 +540,7 @@ void INS::handleTestButtonState(const bool _state) noexcept {
         advanceActionMalfunctionIndex();
 
         if ((last < 5 && displayActionMalfunctionCodeIndex >= 5) || (last >= 5 && displayActionMalfunctionCodeIndex < 5) ||
-            last == displayActionMalfunctionCodeIndex) {
+            last >= displayActionMalfunctionCodeIndex) {
           malfunctionCodeDisplayed = false;
         }
       } else {

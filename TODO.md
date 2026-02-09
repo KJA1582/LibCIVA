@@ -5,7 +5,6 @@
 
 # Other
 
-- TAXI in ALIGN error
 - SB Import (ADEU)
 
 # Updating
