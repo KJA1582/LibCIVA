@@ -270,6 +270,8 @@ void INS::updatePreMix(const double dTime) noexcept {
         indicators.indicator.ALERT = false;
       }
 
+      dmeUpdateChecks(dTime);
+
       updateCurrentINSPosition(dTime);
 
       // AI
@@ -288,19 +290,13 @@ void INS::updatePreMix(const double dTime) noexcept {
 }
 
 void INS::updateMix() noexcept {
-  if (unit2 && unit3 && activePerformanceIndex == 4 && unit2->activePerformanceIndex == 4 && unit3->activePerformanceIndex == 4 &&
-      state == INS_STATE::NAV && unit2->state == INS_STATE::NAV && unit3->state == INS_STATE::NAV) {
-    // Uses averaging instead of fancy formulas.
-    // Circumcenter was tried, but the result was very erratic.
-    // Using averages will result in inaccuracy on high flight hours, but at 20h of uncorrected flight, worst case (3sigma) is 20
-    // miles. Which is bad to begin with.
+  if (unit2 && unit3 && activePerformanceIndex == 4 && state == INS_STATE::NAV && unit2->state == INS_STATE::NAV &&
+      unit3->state == INS_STATE::NAV) {
     POSITION mix = (currentINSPosition + unit2->currentINSPosition + unit3->currentINSPosition) / 3.0;
 
-    currentTrippleMixPosition = unit2->currentTrippleMixPosition = unit3->currentTrippleMixPosition = mix;
+    currentTrippleMixPosition = mix;
   } else {
     currentTrippleMixPosition = {999, 999};
-    if (unit2) unit2->currentTrippleMixPosition = {999, 999};
-    if (unit3) unit3->currentTrippleMixPosition = {999, 999};
   }
 
 #ifndef NDEBUG

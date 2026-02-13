@@ -17,16 +17,17 @@ WinVarManager::WinVarManager() noexcept : VarManager() {
   setVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, 249.2);
   setVar(SIM_VAR_PLANE_LATITUDE, 50);
   setVar(SIM_VAR_PLANE_LONGITUDE, 8);
-  setVar(SIM_VAR_NAV_DME_1, 25);
-  setVar(SIM_VAR_NAV_DME_2, -1);
+  setVar(SIM_VAR_NAV_DME_1, 38.9); // for station at 50N009E, 1000ft
+  setVar(SIM_VAR_NAV_DME_2, 60.2); // for station at 51N008E, 1500ft
   setVar(SIM_VAR_SIMULATION_RATE, 1);
+  setVar(SIM_VAR_PLANE_ALTITUDE, 32000);
 }
 
 void WinVarManager::dump() const noexcept {
   for (auto it = store.begin(); it != store.end(); ++it) {
     if (it->first.find(DISPLAY_VAR) != std::string::npos) {
       const DISPLAY v = *reinterpret_cast<const DISPLAY *>(&it->second);
-      auto iIt = store.lower_bound(INDICATORS_VAR);
+      auto iIt = store.lower_bound(INDICATORS_VAR); // FIXME: This selects the wrong unit
       if (iIt == store.end()) continue;
       const INDICATORS i = *reinterpret_cast<const INDICATORS *>(&iIt->second);
 

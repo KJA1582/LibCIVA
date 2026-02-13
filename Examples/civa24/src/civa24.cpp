@@ -192,6 +192,7 @@ static void setupSimConnect() {
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_SIMULATION_RATE, "NUMBER");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, EVENT, "NUMBER");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "ATC ID", NULL, SIMCONNECT_DATATYPE_STRING32);
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "PLANE ALTITUDE", "FEET");
 
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_EVENT, EVENT, "NUMBER");
 
@@ -277,6 +278,7 @@ static void handleSimConnect() {
           varManager->setVar(SIM_VAR_NAV_DME_1, data->navDME1);
           varManager->setVar(SIM_VAR_NAV_DME_2, data->navDME2);
           varManager->setVar(SIM_VAR_SIMULATION_RATE, data->simRate);
+          varManager->setVar(SIM_VAR_PLANE_ALTITUDE, data->altitude);
 
           if (data->atcID != NULL && !ins) {
             Logger::GetInstance() << "Booting INS for " << data->atcID;

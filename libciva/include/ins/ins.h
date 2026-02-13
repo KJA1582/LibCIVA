@@ -50,17 +50,20 @@ constexpr auto MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME =
     5400; // AI5 Time. This scales the radial error to simulate the difference between full align and minimal align
 constexpr auto MIN_LEG_TIME = 25.6;
 constexpr auto LEG_TIME_ALERT = 120;
-constexpr auto MIN_DME_TIME = 12;                     // After this, DME indicator can go green
-constexpr auto MAX_SINGLE_DME_TIME_UNTIL_VALID = 150; // Stop DME update if not valid before hitting this count
-constexpr auto MAX_DUAL_DME_TIME_UNTIL_VALID = 300;   // Stop DME update if not valid before hitting this count
-constexpr auto BATTERY_DURATION = 900;                // Battery runtime
-constexpr auto EXPANDED_BATTERY_DURATION = 1800;
-constexpr auto MIN_BATTERY_DURATION = 600;
-constexpr auto CHARGE_RATE = 3; //
+constexpr auto MIN_DME_TIME = 12;                // After this, DME indicator can go green
+constexpr auto BATTERY_DURATION = 900;           // Battery runtime, seconds, 15min
+constexpr auto EXPANDED_BATTERY_DURATION = 1800; // 30 min
+constexpr auto MIN_BATTERY_DURATION = 600;       // 10 min
+constexpr auto CHARGE_RATE = 3;                  // 3 seconds of runtime per second gained
+constexpr auto MAX_DME_RANGE = 250;              // Maximum range upon which DME updating can occur
 
 constexpr auto DISPLAY_CHAR_RIGHT = 10;
 constexpr auto DISPLAY_CHAR_LEFT = 11;
 constexpr auto DISPLAY_CHAR_BLANK = 12;
+
+constexpr auto ID_UNIT_1 = "UNIT_1";
+constexpr auto ID_UNIT_2 = "UNIT_2";
+constexpr auto ID_UNIT_3 = "UNIT_3";
 
 class INS {
   // Global vars manager
@@ -146,8 +149,10 @@ class INS {
   double initialDistanceError = 0;
   // Current INS position accumulated distance error
   double currentDistanceError = 0;
-  // Accumulated radial error
-  double radialError = 0;
+  // Initial INS accumulated radial error
+  double initialRadialError = 0;
+  // Current INS accumulated radial error
+  double currentRadialError = 0;
   // Radial drift in °/s
   double radialDriftPerSecond = 0;
   double baseRadialDriftPerSecond = 0;
@@ -196,6 +201,8 @@ class INS {
   bool hasExpandedBattery = false;
   // If DME is connected
   bool hasDME = false;
+  // If DME is armed
+  bool dmeArmed = false;
   // If DME is updating
   bool dmeUpdating = false;
   // Remote active
@@ -219,6 +226,7 @@ class INS {
   void align(const double dTime) noexcept;
   void calculateTrack() noexcept;
   void handleOutOfBounds() noexcept;
+  void dmeUpdateChecks(const double dTime) noexcept;
 
   void exportVars() const noexcept;
 
@@ -297,14 +305,14 @@ class INSContainer {
 public:
   inline INSContainer(VarManager &varManager, UNIT_COUNT count, UNIT_HAS_DME dme, const std::string &configBaseID,
                       const bool hasExtendedBattery) noexcept {
-    unit1 = std::make_shared<INS>(varManager, "UNIT_1", configBaseID + "_1", WORK_DIR,
+    unit1 = std::make_shared<INS>(varManager, ID_UNIT_1, configBaseID + "_1", WORK_DIR,
                                   dme == UNIT_HAS_DME::ONE || dme == UNIT_HAS_DME::BOTH, hasExtendedBattery);
 
     if (count > UNIT_COUNT::ONE)
-      unit2 = std::make_shared<INS>(varManager, "UNIT_2", configBaseID + "_2", WORK_DIR,
+      unit2 = std::make_shared<INS>(varManager, ID_UNIT_2, configBaseID + "_2", WORK_DIR,
                                     dme == UNIT_HAS_DME::TWO || dme == UNIT_HAS_DME::BOTH, hasExtendedBattery);
     if (count == UNIT_COUNT::THREE)
-      unit3 = std::make_shared<INS>(varManager, "UNIT_3", configBaseID + "_3", WORK_DIR, false, hasExtendedBattery);
+      unit3 = std::make_shared<INS>(varManager, ID_UNIT_3, configBaseID + "_3", WORK_DIR, false, hasExtendedBattery);
 
     if (count > UNIT_COUNT::ONE) unit1->connectUnit2(unit2);
     if (count == UNIT_COUNT::THREE) unit1->connectUnit3(unit3);

@@ -78,6 +78,7 @@ struct DATA {
   double simRate;
   double event;
   const char atcID[32];
+  double altitude;
 };
 
 struct EXPORT {

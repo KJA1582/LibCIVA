@@ -41,6 +41,7 @@ struct DATA {
   double navDME1;
   double navDME2;
   double simRate;
+  double altitude;
 };
 
 #endif

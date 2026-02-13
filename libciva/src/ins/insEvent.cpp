@@ -472,11 +472,12 @@ void INS::handleInsert() noexcept {
       // Aided
       else if (display.characters.RIGHT_6 == 4) {
         activePerformanceIndex = 4;
-        // TODO: Start DME update
       }
       // Unaided
       else {
         activePerformanceIndex = 5;
+        if (currentTrippleMixPosition.isValid()) currentINSPosition = currentTrippleMixPosition;
+        currentTrippleMixPosition = {999, 999};
       }
 
       break;
@@ -484,9 +485,14 @@ void INS::handleInsert() noexcept {
     case INSERT_MODE::WPT_CHG_FROM:
     case INSERT_MODE::WPT_CHG_TO: {
       if (dmeMode != DME_MODE::INV) {
-        activeDME = display.characters.TO;
-        timeInDME = 0;
-        // TODO: Start DME update
+        if (hasDME) {
+          activeDME = display.characters.TO;
+          timeInDME = 0;
+          dmeArmed = true;
+          dmeUpdating = false;
+          if (id == ID_UNIT_1) indicators.indicator.DME1 = false;
+          if (id == ID_UNIT_2) indicators.indicator.DME2 = false;
+        }
       } else {
         currentLegStart = display.characters.FROM;
         currentLegEnd = display.characters.TO;

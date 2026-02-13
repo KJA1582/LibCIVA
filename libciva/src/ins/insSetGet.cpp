@@ -86,28 +86,41 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
 
   if (!simPos.isValid() || !varManager.getVar(SIM_VAR_GROUND_VELOCITY, groundSpeed)) return;
 
-  double errorInitialDist = 0;
-  double errorDist = 0;
-  // max error at 500 GS
+  // Max error at 500 GS
   double speedScalar = std::max(0.1, groundSpeed / DRIFT_GS);
+  // Radial gain
+  double errorRadial = radialDriftPerSecond * speedScalar;
+  initialRadialError += errorRadial * dTime;
+  // Positional gain
+  double errorInitialDist = distanceDriftPerSecond * speedScalar;
+  initialDistanceError += errorInitialDist * dTime;
+  // Inital pos update
+  initialINSPosition = (simPos + simPosDelta).destination(initialDistanceError, initialRadialError);
+  initialINSPosition.bound();
+
   if (dmeUpdating) {
     // TODO: DME Update error and time adjustments
+    // 1. Get Distance from station to currentINS
+    // 2. Get Bearing from station to currentINS
+    // 3. Compare distance from DME (slant correct using station alt and our alt) and from 1.
+    // 4. If DME < 1., dec. 1. by SCALAR, epsilon of 0.1
+    //    If DME > 1., inc. 1. by SCALAR, epsilon of 0.1
+    // 5. Calculate new position by using 2. and 4.
+    //    For dual DME: Steps 1-4 with Unit2 data, use Unit1 2. and 4. and Unit2 2. and 4. to calculate new position as
+    //    intersection
+    //    For Unit3: use Unit1 and Unit2 data
+    // 6. Calculate distance/bearing between (simPos + simPosDelta) and 5.
+    // 7. Save 6. as currentDistanceError/currentRadialError
   } else {
-    errorInitialDist = distanceDriftPerSecond * speedScalar;
-    errorDist = distanceDriftPerSecond * speedScalar;
+    // Radial gain
+    currentRadialError += errorRadial * dTime;
+    // Positional gain
+    double errorDist = distanceDriftPerSecond * speedScalar;
+    currentDistanceError += errorDist * dTime;
+    // Current pos update
+    currentINSPosition = (simPos + simPosDelta).destination(currentDistanceError, currentRadialError);
+    currentINSPosition.bound();
   }
-  double errorRadial = radialDriftPerSecond * speedScalar;
-
-  // Get dT error
-  initialDistanceError += errorInitialDist * dTime;
-  currentDistanceError += errorDist * dTime;
-  radialError += errorRadial * dTime;
-
-  // Get new position
-  initialINSPosition = (simPos + simPosDelta).destination(initialDistanceError, radialError);
-  initialINSPosition.bound();
-  currentINSPosition = (simPos + simPosDelta).destination(currentDistanceError, radialError);
-  currentINSPosition.bound();
 }
 
 void INS::updateMetrics(POSITION &pos) noexcept {
@@ -218,4 +231,49 @@ void INS::remoteUpdateWPT(const uint8_t wpt) noexcept {
   if (unit3 && unit3->remoteActive) {
     unit3->waypoints[wpt] = _wpt;
   }
+}
+
+void INS::dmeUpdateChecks(const double dTime) noexcept {
+  // Not armed, skip
+  if (!dmeArmed) return;
+
+  // Count time
+  if (dmeArmed || dmeUpdating) {
+    timeInDME += dTime;
+  }
+
+  // Not min time, skip
+  if (timeInDME < MIN_DME_TIME) return;
+
+  // Get DME value
+  double dmeDist = -1;
+  bool valid = id == ID_UNIT_1 ? varManager.getVar(SIM_VAR_NAV_DME_1, dmeDist)
+                               : (id == ID_UNIT_2 ? varManager.getVar(SIM_VAR_NAV_DME_2, dmeDist) : false);
+
+  // Drop out of DME if not valid
+  if (!valid || dmeDist < 0) {
+    dmeArmed = dmeUpdating = false;
+    activeDME = 0;
+    if (id == ID_UNIT_1) indicators.indicator.DME1 = false;
+    if (id == ID_UNIT_2) indicators.indicator.DME2 = false;
+  }
+
+  // Check distance, drop out if not reasonable
+  double alt = DMEs[activeDME - 1].altitude;
+  varManager.getVar(SIM_VAR_PLANE_ALTITUDE, alt);
+
+  double gcDist =
+      DMEs[activeDME - 1].position.distanceTo((currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition));
+  double slantCorrectedDMEDist = std::sqrt(std::pow((alt - DMEs[activeDME - 1].altitude) * 0.000164579, 2) + std::pow(dmeDist, 2));
+  if (std::abs(gcDist - slantCorrectedDMEDist) > 0.5) {
+    dmeArmed = dmeUpdating = false;
+    activeDME = 0;
+    if (id == ID_UNIT_1) indicators.indicator.DME1 = false;
+    if (id == ID_UNIT_2) indicators.indicator.DME2 = false;
+    return;
+  }
+
+  dmeUpdating = true;
+  if (id == ID_UNIT_1) indicators.indicator.DME1 = true;
+  if (id == ID_UNIT_2) indicators.indicator.DME2 = true;
 }
