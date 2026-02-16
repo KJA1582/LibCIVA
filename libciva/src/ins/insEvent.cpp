@@ -1,5 +1,7 @@
 #include "ins/ins.h"
 
+#pragma region Static Helpers
+
 static void readLat(DISPLAY &display, uint8_t &read, const uint8_t value) noexcept {
   display.characters.LEFT_1 = display.characters.LEFT_2;
   display.characters.LEFT_2 = display.characters.LEFT_3;
@@ -131,6 +133,8 @@ static double convertLon(DISPLAY &display) noexcept {
   double lonM = display.characters.RIGHT_4 * 10 + display.characters.RIGHT_5 + (double)display.characters.RIGHT_6 / 10.0;
   return (display.characters.E ? 1 : -1) * (lonD + lonM / 60.0);
 }
+
+#pragma endregion
 
 void INS::incDataSelectorPos() noexcept {
   if (dataSelector != DATA_SELECTOR::DSRTKSTS) {
@@ -465,7 +469,7 @@ void INS::handleInsert() noexcept {
       // Eradication
       if (display.characters.RIGHT_6 == 1) {
         currentINSPosition = initialINSPosition;
-        currentTrippleMixPosition = {999, 999};
+        currentTripleMixPosition = {999, 999};
         accuracyIndex = 0;
         activePerformanceIndex = 5;
         dmeArmed = dmeUpdating = false;
@@ -485,8 +489,18 @@ void INS::handleInsert() noexcept {
         activeDME = 0;
         if (id == ID_UNIT_1) indicators.indicator.DME1 = false;
         if (id == ID_UNIT_2) indicators.indicator.DME2 = false;
-        if (currentTrippleMixPosition.isValid()) currentINSPosition = currentTrippleMixPosition;
-        currentTrippleMixPosition = {999, 999};
+        if (currentTripleMixPosition.isValid()) {
+          double simLat = 999;
+          double simLon = 999;
+          varManager.getVar(SIM_VAR_PLANE_LATITUDE, simLat);
+          varManager.getVar(SIM_VAR_PLANE_LONGITUDE, simLon);
+          POSITION simPos = {simLat, simLon};
+
+          currentINSPosition = currentTripleMixPosition;
+          currentDistanceError = (simPos + simPosDelta).distanceTo(currentINSPosition);
+          currentRadialError = (simPos + simPosDelta).bearingTo(currentINSPosition);
+        }
+        currentTripleMixPosition = {999, 999};
       }
 
       break;
@@ -506,7 +520,7 @@ void INS::handleInsert() noexcept {
         currentLegStart = display.characters.FROM;
         currentLegEnd = display.characters.TO;
 
-        waypoints[0] = currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition;
+        waypoints[0] = currentTripleMixPosition.isValid() ? currentTripleMixPosition : currentINSPosition;
         timeInLeg = 0;
       }
 
@@ -593,8 +607,8 @@ void INS::handleClear() noexcept {
   }
   // Reset displayed
   if (insertMode == INSERT_MODE::PRE_POS_LON || insertMode == INSERT_MODE::POS_LON) {
-    if (currentTrippleMixPosition.isValid()) {
-      displayPosition = currentTrippleMixPosition;
+    if (currentTripleMixPosition.isValid()) {
+      displayPosition = currentTripleMixPosition;
     } else if (currentINSPosition.isValid()) {
       displayPosition = currentINSPosition;
     } else {

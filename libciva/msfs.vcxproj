@@ -151,6 +151,7 @@
     <ClCompile Include="src\ins\insDisplay.cpp" />
     <ClCompile Include="src\ins\insEvent.cpp" />
     <ClCompile Include="src\ins\insSetGet.cpp" />
+    <ClCompile Include="src\ins\insUpdates.cpp" />
     <ClCompile Include="src\logger\logger.cpp" />
     <ClCompile Include="src\types\types.cpp" />
     <ClCompile Include="src\varManager\varManager.cpp" />

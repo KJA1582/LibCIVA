@@ -15,15 +15,13 @@ Simulation of a Delco Electronics Carousel IV-A unit with flight program CIV-A-2
   - 02 49
   - 02 63
   - 04 41
-
-## Planned
-
+  - 04 43
+  - 04 57
 - DME Update with one DME connected to units 1 and 2, with unit 3 receiving data from units 1 and 2 via unit interconnect.
   - Dual DME update using an offside DME, if both units 1 and 2 perform DME updating, the units will exchange update data via 
     unit interconnect.
-- Failures:
-  - 04 43
-  - 04 57
+
+## Planned
 
 ## Wishes
 
@@ -136,11 +134,19 @@ Values 0 through 9, corresponding with the thumb wheel on the unit
 | 6     | WIND      |
 | 7     | DSRTK/STS |
 
-### LIBCIVA_CROSS_TRACK_ERROR_VAR_UNIT_x
+### LIBCIVA_CROSS_TRACK_ERROR_UNIT_x
 
 Calculated cross track error in nmi.  
 Negative values indicate INS is left of course (right turn to get back).
 
-### LIBCIVA_DESIRED_TRACK_VAR_UNIT_x
+### LIBCIVA_DESIRED_TRACK_UNIT_x
 
 Calculated desired track in degrees.
+
+### LIBCIVA_DISTANCE_UNIT_x
+
+Along track remaining distance to active waypoint.
+
+### LIBCIVA_VALID_UNIT_x
+
+Indicates if outputs are valid.

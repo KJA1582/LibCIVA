@@ -16,6 +16,7 @@
 #include <iostream>
 
 constexpr double PI = 3.14159265358979323846;
+constexpr double EPSILON = 2.22044604925031308085e-16;
 constexpr double DEG2RAD = PI / 180.0;
 constexpr double RAD2DEG = 180.0 / PI;
 
@@ -189,12 +190,14 @@ struct POSITION {
   POSITION destination(const double distance, const double bearing) const noexcept;
   void bound() noexcept;
   bool inFront(const POSITION &pos, const double track) const noexcept;
-  POSITION POSITION::intersection(const double bearing1, const POSITION &pos2, const double bearing2) noexcept;
+  POSITION intersection(const double bearing1, const POSITION &pos2, const double bearing2) noexcept;
 
   // Not bound checked
   inline POSITION operator+(const POSITION &rhs) const noexcept { return {latitude + rhs.latitude, longitude + rhs.longitude}; }
   // Not bound checked
   inline POSITION operator-(const POSITION &rhs) const noexcept { return {latitude - rhs.latitude, longitude - rhs.longitude}; }
+  // Not bound checked
+  inline POSITION operator*(double scalar) const noexcept { return {latitude * scalar, longitude * scalar}; }
   // Not bound checked
   inline POSITION operator/(double scalar) const noexcept { return {latitude / scalar, longitude / scalar}; }
 

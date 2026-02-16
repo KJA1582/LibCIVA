@@ -57,6 +57,7 @@ constexpr auto CHARGE_RATE = 3;                  // 3 seconds of runtime per sec
 constexpr auto MAX_DME_RANGE = 250;              // Maximum range upon which DME updating can occur
 constexpr auto DME_CORRECTION = 1.0 / 300.0;     // 1nmi per 5 min
 constexpr auto DME_AI_TIME = 300;                // 5min
+constexpr auto MIX_EASE_TIME = 60;               // Triple mix ease-on-off
 
 constexpr auto DISPLAY_CHAR_RIGHT = 10;
 constexpr auto DISPLAY_CHAR_LEFT = 11;
@@ -88,8 +89,8 @@ class INS {
   POSITION initialINSPosition = {999, 999};
   // Current INS position with updates
   POSITION currentINSPosition = {999, 999};
-  // Current INS tripple mix position with updates
-  POSITION currentTrippleMixPosition = {999, 999};
+  // Current INS triple mix position with updates
+  POSITION currentTripleMixPosition = {999, 999};
   // HOLD mode
   POSITION holdINSPosition = {999, 999};
   POSITION holdPosition = {999, 999};
@@ -161,6 +162,8 @@ class INS {
   double baseRadialDriftPerSecond = 0;
   // Distance drift in nmi/s
   double distanceDriftPerSecond = 0;
+  // Easing timer
+  double mixEaseTime = 0;
   // Current INS State
   INS_STATE state = INS_STATE::OFF;
   // Current align submode
@@ -218,23 +221,25 @@ class INS {
 #pragma endregion
 
   void advanceActionMalfunctionIndex() noexcept;
+  const POSITION currentNavPosition(const double dTime) noexcept;
 
   void updateSimPosDelta() noexcept;
   void updateCurrentINSPosition(const double dTime) noexcept;
-  void updateMetrics(POSITION &pos) noexcept;
-  void updateNav(POSITION &pos, const double dTime) noexcept;
-  void updateDisplay(POSITION &pos) noexcept;
+  void updateMetrics(const double dTime) noexcept;
+  void updateNav(const double dTime) noexcept;
+  void updateDisplay(const double dTime) noexcept;
 
   void temperatureBatterySim(const double dTime) noexcept;
-  void align(const double dTime) noexcept;
   void calculateTrack() noexcept;
+  void formatActionMalfunctionCode(const bool showingMalf) noexcept;
+  void alertLamp(const double dTime) noexcept;
+
+  void align(const double dTime) noexcept;
+
   void handleOutOfBounds() noexcept;
   void dmeUpdateChecks(const double dTime) noexcept;
 
   void exportVars() const noexcept;
-
-  void formatActionMalfunctionCode(const bool showingMalf) noexcept;
-  void alertLamp(POSITION &pos, const double dTime) noexcept;
 
   void reset(const bool full) noexcept;
   inline void clearDisplay() noexcept {
@@ -292,7 +297,7 @@ public:
 
 #pragma endregion
 
-#pragma region Remote Update
+#pragma region Remote Update / Insert
 
   void remoteUpdateDME(const uint8_t dme, const bool resetDMEUpdate = false) noexcept;
   void remoteUpdateWPT(const uint8_t wpt) noexcept;

@@ -92,37 +92,10 @@ void INS::reset(const bool full) noexcept {
   radialScalarAlignTime = MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME;
   initialDistanceError = currentDistanceError = 0;
   indicators.indicator.READY_NAV = false;
-  currentTrippleMixPosition = {999, 999};
+  currentTripleMixPosition = {999, 999};
   dmeArmed = dmeUpdating = false;
   activeDME = 0;
   activePerformanceIndex = 5;
-}
-
-void INS::calculateTrack() noexcept {
-  double trueHeading = 0;
-  double windDir = 0;
-  double windSpeed = 0;
-  double tas = 0;
-  double gs = 0;
-
-  if (varManager.getVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, trueHeading) &&
-      varManager.getVar(SIM_VAR_AMBIENT_WIND_DIRECTION, windDir) && varManager.getVar(SIM_VAR_AMBIENT_WIND_VELOCITY, windSpeed) &&
-      varManager.getVar(SIM_VAR_AIRSPEED_TRUE, tas) && varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs)) {
-
-    if (gs < MIN_GS) {
-      track = trueHeading;
-
-      return;
-    }
-
-    double _trueHeading = trueHeading * DEG2RAD;
-    double _windDir = std::fmod(windDir + 180, 360) * DEG2RAD;
-
-    track = std::fmod(360 + (std::atan2(tas * std::sin(_trueHeading) + windSpeed * std::sin(_windDir),
-                                        tas * std::cos(_trueHeading) + windSpeed * std::cos(_windDir))) *
-                                RAD2DEG,
-                      360);
-  }
 }
 
 void INS::handleOutOfBounds() noexcept {
@@ -173,185 +146,57 @@ void INS::handleOutOfBounds() noexcept {
   }
 }
 
-void INS::exportVars() const noexcept {
-  varManager.setVar(DISPLAY_VAR + id, display.value);
-  varManager.setVar(INDICATORS_VAR + id, indicators.value);
-  varManager.setVar(MODE_SELECTOR_POS_VAR + id, (double)modeSelector);
-  varManager.setVar(DATA_SELECTOR_POS_VAR + id, (double)dataSelector);
-  varManager.setVar(WAYPOINT_SELECTOR_POS_VAR + id, (double)waypointSelector);
-  varManager.setVar(AUTO_MAN_POS_VAR + id, (double)autoMode);
-  varManager.setVar(CROSS_TRACK_ERROR_VAR + id, crossTrackError);
-  varManager.setVar(DESIRED_TRACK_VAR + id, desiredTrack);
-  varManager.setVar(DISTANCE_VAR + id, remainingDistance);
-  varManager.setVar(VALID + id, (double)valid);
-}
-
-void INS::updatePreMix(const double dTime) noexcept {
-  // Oven/Battery
-  temperatureBatterySim(dTime);
-  if (state > INS_STATE::OFF && (batteryRuntime == 0 || batteryTest == BATTERY_TEST::FAILED)) {
-    state = INS_STATE::FAIL;
-    indicators.value = 0;
-    indicators.indicator.MSU_BAT = true;
-    valid = false;
-    clearDisplay();
-  }
-
-  // Aux data
-  if (state < INS_STATE::ATT && state >= INS_STATE::ALIGN &&
-      (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
-    // Ground track
-    calculateTrack();
-
-    // Out of bound errors
-    handleOutOfBounds();
-  }
-  // Switching to ATT
-  if (state < INS_STATE::ATT && modeSelector == MODE_SELECTOR::ATT) {
-    state = INS_STATE::ATT;
-    timeInMode = 0;
-    valid = false;
-    clearDisplay();
-
+void INS::dmeUpdateChecks(const double dTime) noexcept {
+  // Unit 3 has no DME connection so is updating whenever 1 or 2 are updating
+  if (id == ID_UNIT_3) {
+    dmeUpdating = ((unit2 && unit2->dmeUpdating) || (unit3 && unit3->dmeUpdating));
     return;
   }
-  // Going to OFF
-  if (state > INS_STATE::OFF && modeSelector == MODE_SELECTOR::OFF) {
-    if (currentINSPosition.isValid()) {
-      config->setLastINSPosition(currentINSPosition);
-    }
-    config->setLastDMEs(DMEs);
 
-    config->save();
+  // Not armed, skip
+  if (!dmeArmed) return;
 
-    state = INS_STATE::OFF;
-    reset(true);
-  }
-  // Main state
-  switch (state) {
-    case INS_STATE::OFF: {
-      if (modeSelector != MODE_SELECTOR::OFF) {
-        // Upmode
-        if (batteryRuntime == 0) return;
-
-        state = INS_STATE::STBY;
-        displayPosition = config->getLastINSPosition();
-        config->getLastDMEs(DMEs);
-        indicators.indicator.INSERT = true;
-        dmeMode = DME_MODE::INV;
-        // Init error radial and distance
-        baseRadialDriftPerSecond = distributionRadial->operator()(*randomGen);
-        distanceDriftPerSecond = std::abs(distributionDistance->operator()(*randomGen)) / 3600.0;
-        valid = true;
-
-        timeInMode = 0;
-      }
-      break;
-    }
-    case INS_STATE::STBY: {
-      if (modeSelector != MODE_SELECTOR::STBY) {
-        // Upmode
-        state = INS_STATE::ALIGN;
-      }
-      break;
-    }
-    case INS_STATE::ALIGN: {
-      align(dTime);
-
-      break;
-    }
-    case INS_STATE::NAV: {
-      if (modeSelector == MODE_SELECTOR::STBY) {
-        // Downmode
-        state = INS_STATE::STBY;
-        reset(false);
-      } else if (modeSelector == MODE_SELECTOR::ALIGN) {
-        // Downmode
-        state = INS_STATE::ALIGN;
-        alignSubmode = ALIGN_SUBMODE::MODE_9;
-        radialScalarAlignTime = MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME;
-        initialDistanceError = currentDistanceError = 0;
-        indicators.indicator.ALERT = false;
-      }
-
-      dmeUpdateChecks(dTime);
-
-      updateCurrentINSPosition(dTime);
-
-      // AI
-      if (timeInMode >= TIME_PER_AI) {
-        accuracyIndex++;
-        timeInMode = 0;
-      }
-
-      break;
-    }
-    case INS_STATE::ATT:
-    case INS_STATE::FAIL: {
-      break;
-    }
-  }
-}
-
-void INS::updateMix() noexcept {
-  if (unit2 && unit3 && activePerformanceIndex == 4 && state == INS_STATE::NAV && unit2->state == INS_STATE::NAV &&
-      unit3->state == INS_STATE::NAV) {
-    POSITION mix = (currentINSPosition + unit2->currentINSPosition + unit3->currentINSPosition) / 3.0;
-
-    currentTrippleMixPosition = mix;
-  } else {
-    currentTrippleMixPosition = {999, 999};
+  // Count time
+  if (dmeArmed || dmeUpdating) {
+    timeInDME += dTime;
   }
 
-#ifndef NDEBUG
-  double lat;
-  double lon;
-  varManager.getVar(SIM_VAR_PLANE_LATITUDE, lat);
-  varManager.getVar(SIM_VAR_PLANE_LONGITUDE, lon);
+  // Not min time, skip
+  if (timeInDME < MIN_DME_TIME) return;
 
-  DataLogger::GetInstance() << id << ";" << currentINSPosition << ";" << initialINSPosition << ";" << currentTrippleMixPosition
-                            << ";" << lat << "," << lon << "\n";
-  if (unit2)
-    DataLogger::GetInstance() << unit2->id << ";" << unit2->currentINSPosition << ";" << unit2->initialINSPosition << ";"
-                              << unit2->currentTrippleMixPosition << ";" << lat << "," << lon << "\n";
-  if (unit3)
-    DataLogger::GetInstance() << unit3->id << ";" << unit3->currentINSPosition << ";" << unit3->initialINSPosition << ";"
-                              << unit3->currentTrippleMixPosition << ";" << lat << "," << lon << "\n";
-#endif
-}
+  // Get DME value
+  double dmeDist = -1;
+  bool valid = id == ID_UNIT_1 ? varManager.getVar(SIM_VAR_NAV_DME_1, dmeDist)
+                               : (id == ID_UNIT_2 ? varManager.getVar(SIM_VAR_NAV_DME_2, dmeDist) : false);
 
-void INS::updatePostMix(const double dTime) noexcept {
-  if (valid) {
-    // NAV
-    if (state == INS_STATE::NAV) {
-      alertLamp(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition, dTime);
-      updateMetrics(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition);
-      updateNav(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition, dTime);
-    }
-
-    // Display
-    if (state > INS_STATE::OFF && state < INS_STATE::ATT) {
-      updateDisplay(currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition);
-    }
+  // Drop out of DME if not valid
+  if (!valid || dmeDist < 0) {
+    dmeArmed = dmeUpdating = false;
+    activeDME = 0;
+    if (id == ID_UNIT_1) indicators.indicator.DME1 = false;
+    if (id == ID_UNIT_2) indicators.indicator.DME2 = false;
   }
 
-  // Exports
-  exportVars();
+  // Check distance, drop out if not reasonable
+  DME dme = DMEs[activeDME - 1];
 
-  // Time step
-  timeInMode += dTime;
-}
+  double alt = dme.altitude;
+  varManager.getVar(SIM_VAR_PLANE_ALTITUDE, alt);
 
-void INSContainer::update(const double dTime) const noexcept {
-  unit1->updatePreMix(dTime);
-  if (unit2) unit2->updatePreMix(dTime);
-  if (unit3) unit3->updatePreMix(dTime);
+  double gcDist = dme.position.distanceTo((currentINSPosition));
+  double slantCorrectedDMEDist = std::sqrt(std::pow(dmeDist, 2) - std::pow((alt - dme.altitude) * 0.000164579, 2));
+  if (std::abs(gcDist - slantCorrectedDMEDist) > 0.5) {
+    dmeArmed = dmeUpdating = false;
+    activeDME = 0;
+    if (id == ID_UNIT_1) indicators.indicator.DME1 = false;
+    if (id == ID_UNIT_2) indicators.indicator.DME2 = false;
+    return;
+  }
 
-  unit1->updateMix();
-  if (unit2) unit2->updateMix();
-  if (unit3) unit3->updateMix();
-
-  unit1->updatePostMix(dTime);
-  if (unit2) unit2->updatePostMix(dTime);
-  if (unit3) unit3->updatePostMix(dTime);
+  if (!dmeUpdating) {
+    dmeUpdating = true;
+    if (id == ID_UNIT_1) indicators.indicator.DME1 = true;
+    if (id == ID_UNIT_2) indicators.indicator.DME2 = true;
+    timeInMode = 0;
+  }
 }

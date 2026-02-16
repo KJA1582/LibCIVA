@@ -38,32 +38,4 @@ public:
   static Logger &GetInstance() noexcept;
 };
 
-#ifndef NDEBUG
-
-class DataLogger {
-protected:
-  std::ofstream file;
-
-  DataLogger() noexcept;
-
-  static DataLogger *singleton_;
-
-public:
-  ~DataLogger() noexcept;
-
-  DataLogger(DataLogger &other) = delete;
-  void operator=(const DataLogger &) = delete;
-
-  template <typename T> inline DataLogger &operator<<(const T &val) {
-    this->file << val;
-    file.flush();
-
-    return *this;
-  }
-
-  static DataLogger &GetInstance() noexcept;
-};
-
-#endif
-
 #endif

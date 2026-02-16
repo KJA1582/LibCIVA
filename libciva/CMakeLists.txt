@@ -22,11 +22,12 @@ set(header
 )
 set(sources
 	"src/config/config.cpp"
-	"src/ins/ins.cpp"
-	"src/ins/insSetGet.cpp"
-	"src/ins/insEvent.cpp"
 	"src/ins/modes/align.cpp"
+	"src/ins/ins.cpp"
 	"src/ins/insDisplay.cpp"
+	"src/ins/insEvent.cpp"
+	"src/ins/insSetGet.cpp"
+	"src/ins/insUpdates.cpp"
 	"src/logger/logger.cpp"
 	"src/types/types.cpp"
 	"src/varManager/varManager.cpp"

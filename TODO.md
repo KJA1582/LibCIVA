@@ -9,11 +9,7 @@
 
 # Updating
 
-TODO: Test AI reduction
-
 # Multi Unit
-
-Smooth shift to and from triple mix
 
 # Sim specific
 

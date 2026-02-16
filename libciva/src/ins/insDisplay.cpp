@@ -1,5 +1,7 @@
 #include "ins/ins.h"
 
+#pragma region Static Helpers
+
 static void formatPos(DISPLAY &display, POSITION pos) noexcept {
   if (pos.latitude == 999) {
     display.characters.N = display.characters.S = false;
@@ -118,6 +120,8 @@ static void formatTri(DISPLAY &display, const double value, const bool left, con
   }
 }
 
+#pragma endregion
+
 void INS::formatActionMalfunctionCode(const bool showingMalf) noexcept {
   uint8_t action = 0;
   uint8_t malf = 0;
@@ -172,7 +176,9 @@ void INS::formatActionMalfunctionCode(const bool showingMalf) noexcept {
   }
 }
 
-void INS::updateDisplay(POSITION &pos) noexcept {
+void INS::updateDisplay(const double dTime) noexcept {
+  const POSITION pos = currentNavPosition(dTime);
+
   if (inTestMode) {
     uint64_t d;
     d = 0xFF88888888F88888;
@@ -544,13 +550,15 @@ void INS::updateDisplay(POSITION &pos) noexcept {
   }
 }
 
-void INS::alertLamp(POSITION &pos, const double dTime) noexcept {
+void INS::alertLamp(const double dTime) noexcept {
   static double flashTime = 0;
 
   double gs = 0;
   bool gsValid = varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs);
 
   if (gsValid) {
+    const POSITION pos = currentNavPosition(dTime);
+
     double legDist = waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd]);
     double remDist = pos.distanceTo(waypoints[currentLegEnd]);
 

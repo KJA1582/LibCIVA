@@ -90,6 +90,8 @@ struct EXPORT {
   double autoManPos;
   double crossTrackError;
   double desiredTrack;
+  double distance;
+  double valid;
 };
 
 #endif
