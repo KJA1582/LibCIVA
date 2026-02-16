@@ -17,8 +17,8 @@ WinVarManager::WinVarManager() noexcept : VarManager() {
   setVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, 249.2);
   setVar(SIM_VAR_PLANE_LATITUDE, 50);
   setVar(SIM_VAR_PLANE_LONGITUDE, 8);
-  setVar(SIM_VAR_NAV_DME_1, 38.9); // for station at 50N009E, 1000ft
-  setVar(SIM_VAR_NAV_DME_2, 60.2); // for station at 51N008E, 1500ft
+  setVar(SIM_VAR_NAV_DME_1, 38.9); // for station at 50N009E, 1000ft, 112.00
+  setVar(SIM_VAR_NAV_DME_2, 60.2); // for station at 51N008E, 1500ft, 111.00
   setVar(SIM_VAR_SIMULATION_RATE, 1);
   setVar(SIM_VAR_PLANE_ALTITUDE, 32000);
 }

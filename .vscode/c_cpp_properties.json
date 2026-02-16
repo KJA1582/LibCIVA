@@ -15,6 +15,7 @@
                 "UNICODE",
                 "_UNICODE",
                 "_LIBCPP_STD_VER=14",
+                "__cplusplus=201402L",
                 "WORK_DIR=\"\\work\""
             ],
             "windowsSdkVersion": "10.0.26100.0",

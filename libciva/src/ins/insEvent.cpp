@@ -464,9 +464,14 @@ void INS::handleInsert() noexcept {
 
       // Eradication
       if (display.characters.RIGHT_6 == 1) {
-        activePerformanceIndex = 5;
         currentINSPosition = initialINSPosition;
+        currentTrippleMixPosition = {999, 999};
         accuracyIndex = 0;
+        activePerformanceIndex = 5;
+        dmeArmed = dmeUpdating = false;
+        activeDME = 0;
+        if (id == ID_UNIT_1) indicators.indicator.DME1 = false;
+        if (id == ID_UNIT_2) indicators.indicator.DME2 = false;
         updateSimPosDelta();
       }
       // Aided
@@ -476,6 +481,10 @@ void INS::handleInsert() noexcept {
       // Unaided
       else {
         activePerformanceIndex = 5;
+        dmeArmed = dmeUpdating = false;
+        activeDME = 0;
+        if (id == ID_UNIT_1) indicators.indicator.DME1 = false;
+        if (id == ID_UNIT_2) indicators.indicator.DME2 = false;
         if (currentTrippleMixPosition.isValid()) currentINSPosition = currentTrippleMixPosition;
         currentTrippleMixPosition = {999, 999};
       }
@@ -485,10 +494,10 @@ void INS::handleInsert() noexcept {
     case INSERT_MODE::WPT_CHG_FROM:
     case INSERT_MODE::WPT_CHG_TO: {
       if (dmeMode != DME_MODE::INV) {
-        if (hasDME) {
+        if (hasDME && activePerformanceIndex == 4) {
           activeDME = display.characters.TO;
           timeInDME = 0;
-          dmeArmed = true;
+          dmeArmed = activeDME > 0;
           dmeUpdating = false;
           if (id == ID_UNIT_1) indicators.indicator.DME1 = false;
           if (id == ID_UNIT_2) indicators.indicator.DME2 = false;
@@ -645,7 +654,7 @@ void INS::handleInstantAlign() noexcept {
   double lat;
   double lon;
   if (varManager.getVar(SIM_VAR_PLANE_LATITUDE, lat) && varManager.getVar(SIM_VAR_PLANE_LONGITUDE, lon)) {
-    initialINSPosition = currentINSPosition = {lat, lon};
+    initialINSPosition = currentINSPosition = displayPosition = {lat, lon};
   }
 
   alignSubmode = ALIGN_SUBMODE::MODE_0;

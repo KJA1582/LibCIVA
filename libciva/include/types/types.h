@@ -15,8 +15,9 @@
 #include <cstdint>
 #include <iostream>
 
-constexpr double DEG2RAD = 3.14159265358979323846 / 180.0;
-constexpr double RAD2DEG = 180.0 / 3.14159265358979323846;
+constexpr double PI = 3.14159265358979323846;
+constexpr double DEG2RAD = PI / 180.0;
+constexpr double RAD2DEG = 180.0 / PI;
 
 enum class UNIT_COUNT : uint8_t {
   ONE,
@@ -188,6 +189,7 @@ struct POSITION {
   POSITION destination(const double distance, const double bearing) const noexcept;
   void bound() noexcept;
   bool inFront(const POSITION &pos, const double track) const noexcept;
+  POSITION POSITION::intersection(const double bearing1, const POSITION &pos2, const double bearing2) noexcept;
 
   // Not bound checked
   inline POSITION operator+(const POSITION &rhs) const noexcept { return {latitude + rhs.latitude, longitude + rhs.longitude}; }

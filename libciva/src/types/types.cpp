@@ -75,3 +75,46 @@ bool POSITION::inFront(const POSITION &pos, const double track) const noexcept {
   double brg = this->bearingTo(pos);
   return std::abs(std::fmod(brg - track + 540, 360) - 180) < 90;
 }
+
+POSITION POSITION::intersection(const double bearing1, const POSITION &pos, const double bearing2) noexcept {
+  double φ1 = latitude * DEG2RAD;
+  double λ1 = longitude * DEG2RAD;
+  double φ2 = pos.latitude * DEG2RAD;
+  double λ2 = pos.longitude * DEG2RAD;
+  double θ13 = bearing1 * DEG2RAD;
+  double θ23 = bearing2 * DEG2RAD;
+  double Δφ = φ2 - φ1;
+  double Δλ = λ2 - λ1;
+
+  // angular distance p1-p2
+  double δ12 = 2 * std::asin(std::sqrt(std::sin(Δφ / 2) * std::sin(Δφ / 2) +
+                                       std::cos(φ1) * std::cos(φ2) * std::sin(Δλ / 2) * std::sin(Δλ / 2)));
+  if (std::abs(δ12) < DBL_EPSILON) *this; // coincident points
+
+  // initial/final bearings between points
+  double cosθa = (std::sin(φ2) - std::sin(φ1) * std::cos(δ12)) / (std::sin(δ12) * std::cos(φ1));
+  double cosθb = (std::sin(φ1) - std::sin(φ2) * std::cos(δ12)) / (std::sin(δ12) * std::cos(φ2));
+  double θa = std::acos(std::min(std::max(cosθa, -1.0), 1.0)); // protect against rounding errors
+  double θb = std::acos(std::min(std::max(cosθb, -1.0), 1.0)); // protect against rounding errors
+
+  double θ12 = std::sin(λ2 - λ1) > 0 ? θa : 2 * PI - θa;
+  double θ21 = std::sin(λ2 - λ1) > 0 ? 2 * PI - θb : θb;
+
+  double α1 = θ13 - θ12; // angle 2-1-3
+  double α2 = θ21 - θ23; // angle 1-2-3
+
+  if (std::sin(α1) == 0 && std::sin(α2) == 0) return {999, 999}; // infinite intersections
+  if (std::sin(α1) * std::sin(α2) < 0) return {999, 999};        // ambiguous intersection (antipodal/360°)
+
+  double cosα3 = -std::cos(α1) * std::cos(α2) + std::sin(α1) * std::sin(α2) * std::cos(δ12);
+
+  double δ13 = std::atan2(std::sin(δ12) * std::sin(α1) * std::sin(α2), std::cos(α2) + std::cos(α1) * cosα3);
+
+  double φ3 =
+      std::asin(std::min(std::max(std::sin(φ1) * std::cos(δ13) + std::cos(φ1) * std::sin(δ13) * std::cos(θ13), -1.0), 1.0));
+
+  double Δλ13 = std::atan2(std::sin(θ13) * std::sin(δ13) * std::cos(φ1), std::cos(δ13) - std::sin(φ1) * std::sin(φ3));
+  double λ3 = λ1 + Δλ13;
+
+  return {φ3 * RAD2DEG, λ3 * RAD2DEG};
+}

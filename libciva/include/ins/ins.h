@@ -11,8 +11,6 @@
 #define __restrict__
 #endif
 
-#define _USE_MATH_DEFINES
-
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -20,6 +18,7 @@
 #include <memory>
 #include <random>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "config/config.h"
@@ -56,6 +55,8 @@ constexpr auto EXPANDED_BATTERY_DURATION = 1800; // 30 min
 constexpr auto MIN_BATTERY_DURATION = 600;       // 10 min
 constexpr auto CHARGE_RATE = 3;                  // 3 seconds of runtime per second gained
 constexpr auto MAX_DME_RANGE = 250;              // Maximum range upon which DME updating can occur
+constexpr auto DME_CORRECTION = 1.0 / 300.0;     // 1nmi per 5 min
+constexpr auto DME_AI_TIME = 300;                // 5min
 
 constexpr auto DISPLAY_CHAR_RIGHT = 10;
 constexpr auto DISPLAY_CHAR_LEFT = 11;
@@ -120,8 +121,8 @@ class INS {
 
 #pragma region Multi Unit
 
-  std::shared_ptr<INS> unit2;
-  std::shared_ptr<INS> unit3;
+  INS *unit2;
+  INS *unit3;
 
 #pragma endregion
 
@@ -145,6 +146,8 @@ class INS {
   double crossTrackError = 0;
   // Desired track
   double desiredTrack = 0;
+  // Remaining distance to waypoint (from along pos)
+  double remainingDistance = 0;
   // Initial INS accumulated distance error
   double initialDistanceError = 0;
   // Current INS position accumulated distance error
@@ -197,8 +200,6 @@ class INS {
   bool holdRequiresForce = false;
   // AUTO/MAN
   bool autoMode = true;
-  // If battery is expanded
-  bool hasExpandedBattery = false;
   // If DME is connected
   bool hasDME = false;
   // If DME is armed
@@ -207,6 +208,8 @@ class INS {
   bool dmeUpdating = false;
   // Remote active
   bool remoteActive = false;
+  // If battery is expanded
+  bool hasExpandedBattery = false;
   // External power state
   bool externalPower = false;
   // Signals valid
@@ -260,8 +263,8 @@ public:
 
 #pragma region Public Getter / Setter
 
-  inline void connectUnit2(std::shared_ptr<INS> &unit) noexcept { unit2 = unit; }
-  inline void connectUnit3(std::shared_ptr<INS> &unit) noexcept { unit3 = unit; }
+  inline void connectUnit2(INS *unit) noexcept { unit2 = unit; }
+  inline void connectUnit3(INS *unit) noexcept { unit3 = unit; }
 
 #pragma endregion
 
@@ -314,19 +317,14 @@ public:
     if (count == UNIT_COUNT::THREE)
       unit3 = std::make_shared<INS>(varManager, ID_UNIT_3, configBaseID + "_3", WORK_DIR, false, hasExtendedBattery);
 
-    if (count > UNIT_COUNT::ONE) unit1->connectUnit2(unit2);
-    if (count == UNIT_COUNT::THREE) unit1->connectUnit3(unit3);
+    if (count > UNIT_COUNT::ONE) unit1->connectUnit2(unit2.get());
+    if (count == UNIT_COUNT::THREE) unit1->connectUnit3(unit3.get());
 
-    if (count > UNIT_COUNT::ONE) unit2->connectUnit2(unit1);
-    if (count == UNIT_COUNT::THREE) unit2->connectUnit3(unit3);
+    if (count > UNIT_COUNT::ONE) unit2->connectUnit2(unit1.get());
+    if (count == UNIT_COUNT::THREE) unit2->connectUnit3(unit3.get());
 
-    if (count == UNIT_COUNT::THREE) unit3->connectUnit2(unit1);
-    if (count == UNIT_COUNT::THREE) unit3->connectUnit3(unit2);
-  }
-  inline ~INSContainer() noexcept {
-    unit1->~INS();
-    if (unit2) unit2->~INS();
-    if (unit3) unit3->~INS();
+    if (count == UNIT_COUNT::THREE) unit3->connectUnit2(unit1.get());
+    if (count == UNIT_COUNT::THREE) unit3->connectUnit3(unit2.get());
   }
 
   void update(const double dTime) const noexcept;

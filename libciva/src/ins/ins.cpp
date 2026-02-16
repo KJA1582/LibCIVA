@@ -78,7 +78,6 @@ void INS::reset(const bool full) noexcept {
     }
 
     insertMode = INSERT_MODE::INV;
-    activePerformanceIndex = 5;
     malfunctionCodeDisplayed = inTestMode = false;
     dmeMode = DME_MODE::INV;
 
@@ -93,6 +92,10 @@ void INS::reset(const bool full) noexcept {
   radialScalarAlignTime = MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME;
   initialDistanceError = currentDistanceError = 0;
   indicators.indicator.READY_NAV = false;
+  currentTrippleMixPosition = {999, 999};
+  dmeArmed = dmeUpdating = false;
+  activeDME = 0;
+  activePerformanceIndex = 5;
 }
 
 void INS::calculateTrack() noexcept {
@@ -179,6 +182,7 @@ void INS::exportVars() const noexcept {
   varManager.setVar(AUTO_MAN_POS_VAR + id, (double)autoMode);
   varManager.setVar(CROSS_TRACK_ERROR_VAR + id, crossTrackError);
   varManager.setVar(DESIRED_TRACK_VAR + id, desiredTrack);
+  varManager.setVar(DISTANCE_VAR + id, remainingDistance);
   varManager.setVar(VALID + id, (double)valid);
 }
 
@@ -275,7 +279,7 @@ void INS::updatePreMix(const double dTime) noexcept {
       updateCurrentINSPosition(dTime);
 
       // AI
-      if (timeInMode >= TIME_PER_AI && accuracyIndex < 9) {
+      if (timeInMode >= TIME_PER_AI) {
         accuracyIndex++;
         timeInMode = 0;
       }
@@ -343,8 +347,9 @@ void INSContainer::update(const double dTime) const noexcept {
   if (unit2) unit2->updatePreMix(dTime);
   if (unit3) unit3->updatePreMix(dTime);
 
-  // Unit 1 updates *all* via interconnect pointers
   unit1->updateMix();
+  if (unit2) unit2->updateMix();
+  if (unit3) unit3->updateMix();
 
   unit1->updatePostMix(dTime);
   if (unit2) unit2->updatePostMix(dTime);

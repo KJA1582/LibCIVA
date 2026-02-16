@@ -1,5 +1,34 @@
 #include "ins/ins.h"
 
+static std::pair<double, double> dmeCorrection(const DME &dme, const POSITION &pos, const VarManager &varManager,
+                                               const std::string &dmeID, const double dTime) {
+
+  double dist = -1;
+
+  double distFromStation = dme.position.distanceTo(pos);
+  double bearing = dme.position.bearingTo(pos);
+
+  double alt = dme.altitude;
+  varManager.getVar(SIM_VAR_PLANE_ALTITUDE, alt);
+
+  double dmeDist = 0;
+  bool valid = varManager.getVar(dmeID, dmeDist);
+  double slantCorrectedDMEDist = std::sqrt(std::pow(dmeDist, 2) - std::pow((alt - dme.altitude) * 0.000164579, 2));
+
+  double distDelta = slantCorrectedDMEDist - distFromStation;
+
+  // GC dist is more than received dist
+  if (distDelta < -0.001) {
+    dist = distFromStation - DME_CORRECTION * dTime;
+  }
+  // GC dist is less than received dist
+  else if (distDelta > 0.001) {
+    dist = distFromStation + DME_CORRECTION * dTime;
+  }
+
+  return std::pair<double, double>(dist, bearing);
+}
+
 void INS::advanceActionMalfunctionIndex() noexcept {
   uint8_t index = std::max(1, (displayActionMalfunctionCodeIndex + 1) % 8);
   while (true) {
@@ -98,19 +127,77 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
   initialINSPosition = (simPos + simPosDelta).destination(initialDistanceError, initialRadialError);
   initialINSPosition.bound();
 
-  if (dmeUpdating) {
-    // TODO: DME Update error and time adjustments
-    // 1. Get Distance from station to currentINS
-    // 2. Get Bearing from station to currentINS
-    // 3. Compare distance from DME (slant correct using station alt and our alt) and from 1.
-    // 4. If DME < 1., dec. 1. by SCALAR, epsilon of 0.1
-    //    If DME > 1., inc. 1. by SCALAR, epsilon of 0.1
-    // 5. Calculate new position by using 2. and 4.
-    //    For dual DME: Steps 1-4 with Unit2 data, use Unit1 2. and 4. and Unit2 2. and 4. to calculate new position as
-    //    intersection
-    //    For Unit3: use Unit1 and Unit2 data
-    // 6. Calculate distance/bearing between (simPos + simPosDelta) and 5.
-    // 7. Save 6. as currentDistanceError/currentRadialError
+  if (activePerformanceIndex == 4 && (dmeUpdating || (unit2 && unit2->dmeUpdating) || (unit3 && unit3->dmeUpdating))) {
+    std::pair<double, double> unit1Data = {-1, 0};
+    std::pair<double, double> unit2Data = {-1, 0};
+    DME *unit1DME;
+    DME *unit2DME;
+
+    // Get DME corrected distance error and bearing error
+    if (id == ID_UNIT_1) {
+      if (dmeUpdating) {
+        unit1DME = &DMEs[activeDME - 1];
+        unit1Data = dmeCorrection(*unit1DME, currentINSPosition, varManager, SIM_VAR_NAV_DME_1, dTime);
+      }
+      if (unit2 && unit2->dmeUpdating) {
+        unit2DME = &unit2->DMEs[unit2->activeDME - 1];
+        unit2Data = dmeCorrection(*unit2DME, unit2->currentINSPosition, varManager, SIM_VAR_NAV_DME_2, dTime);
+      }
+    } else if (id == ID_UNIT_2) {
+      if (dmeUpdating) {
+        unit2DME = &DMEs[activeDME - 1];
+        unit2Data = dmeCorrection(*unit2DME, currentINSPosition, varManager, SIM_VAR_NAV_DME_2, dTime);
+      }
+      if (unit2 && unit2->dmeUpdating) {
+        unit1DME = &unit2->DMEs[unit2->activeDME - 1];
+        unit1Data = dmeCorrection(*unit1DME, unit2->currentINSPosition, varManager, SIM_VAR_NAV_DME_1, dTime);
+      }
+    } else if (id == ID_UNIT_3) {
+      if (unit2 && unit2->dmeUpdating) {
+        unit1DME = &unit2->DMEs[unit2->activeDME - 1];
+        unit1Data = dmeCorrection(*unit1DME, unit2->currentINSPosition, varManager, SIM_VAR_NAV_DME_1, dTime);
+      }
+      if (unit3 && unit3->dmeUpdating) {
+        unit2DME = &unit3->DMEs[unit3->activeDME - 1];
+        unit2Data = dmeCorrection(*unit2DME, unit3->currentINSPosition, varManager, SIM_VAR_NAV_DME_2, dTime);
+      }
+    }
+
+    // Calculate DME corrected position
+    POSITION newPosUnit1 = {999, 999};
+    POSITION newPosUnit2 = {999, 999};
+    POSITION newPos = {999, 999};
+    if (unit1Data.first > 0) {
+      newPosUnit1 = unit1DME->position.destination(unit1Data.first, unit1Data.second);
+    }
+    if (unit2Data.first > 0) {
+      newPosUnit2 = unit2DME->position.destination(unit2Data.first, unit2Data.second);
+    }
+
+    // Validate new INS position
+    if (newPosUnit1.isValid() && newPosUnit2.isValid()) {
+      newPos = (newPosUnit1 + newPosUnit2) / 2.0;
+    } else if (newPosUnit1.isValid()) {
+      newPos = newPosUnit1;
+    } else if (newPosUnit2.isValid()) {
+      newPos = newPosUnit2;
+    }
+
+    // Set errors based on new INS position
+    if (newPos.isValid()) {
+      currentDistanceError = (simPos + simPosDelta).distanceTo(newPos);
+      currentRadialError = (simPos + simPosDelta).bearingTo(newPos);
+      currentINSPosition = newPos;
+      // Since unit 3 cannot update if others are "done", use unit2 or 2 position
+    } else if (id == ID_UNIT_3) {
+      currentINSPosition = unit2 ? unit2->currentINSPosition : unit3 ? unit3->currentINSPosition : currentINSPosition;
+    }
+
+    // AI
+    if (timeInMode >= DME_AI_TIME) {
+      accuracyIndex = std::max(newPosUnit1.isValid() && newPosUnit2.isValid() ? 0 : 1, accuracyIndex - 1);
+      timeInMode = 0;
+    }
   } else {
     // Radial gain
     currentRadialError += errorRadial * dTime;
@@ -143,6 +230,8 @@ void INS::updateMetrics(POSITION &pos) noexcept {
   double alongDist = pos.alongTrackDistance(waypoints[currentLegStart], waypoints[currentLegEnd]);
   double legCrs = waypoints[currentLegStart].bearingTo(waypoints[currentLegEnd]);
   POSITION alongPos = waypoints[currentLegStart].destination(alongDist, legCrs);
+
+  remainingDistance = alongPos.distanceTo(waypoints[currentLegEnd]);
 
   /* XTK */
 
@@ -234,6 +323,12 @@ void INS::remoteUpdateWPT(const uint8_t wpt) noexcept {
 }
 
 void INS::dmeUpdateChecks(const double dTime) noexcept {
+  // Unit 3 has no DME connection so is updating whenever 1 or 2 are updating
+  if (id == ID_UNIT_3) {
+    dmeUpdating = ((unit2 && unit2->dmeUpdating) || (unit3 && unit3->dmeUpdating));
+    return;
+  }
+
   // Not armed, skip
   if (!dmeArmed) return;
 
@@ -259,12 +354,13 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
   }
 
   // Check distance, drop out if not reasonable
-  double alt = DMEs[activeDME - 1].altitude;
+  DME dme = DMEs[activeDME - 1];
+
+  double alt = dme.altitude;
   varManager.getVar(SIM_VAR_PLANE_ALTITUDE, alt);
 
-  double gcDist =
-      DMEs[activeDME - 1].position.distanceTo((currentTrippleMixPosition.isValid() ? currentTrippleMixPosition : currentINSPosition));
-  double slantCorrectedDMEDist = std::sqrt(std::pow((alt - DMEs[activeDME - 1].altitude) * 0.000164579, 2) + std::pow(dmeDist, 2));
+  double gcDist = dme.position.distanceTo((currentINSPosition));
+  double slantCorrectedDMEDist = std::sqrt(std::pow(dmeDist, 2) - std::pow((alt - dme.altitude) * 0.000164579, 2));
   if (std::abs(gcDist - slantCorrectedDMEDist) > 0.5) {
     dmeArmed = dmeUpdating = false;
     activeDME = 0;
@@ -273,7 +369,10 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
     return;
   }
 
-  dmeUpdating = true;
-  if (id == ID_UNIT_1) indicators.indicator.DME1 = true;
-  if (id == ID_UNIT_2) indicators.indicator.DME2 = true;
+  if (!dmeUpdating) {
+    dmeUpdating = true;
+    if (id == ID_UNIT_1) indicators.indicator.DME1 = true;
+    if (id == ID_UNIT_2) indicators.indicator.DME2 = true;
+    timeInMode = 0;
+  }
 }

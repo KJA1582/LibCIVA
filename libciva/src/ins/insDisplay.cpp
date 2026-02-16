@@ -488,7 +488,7 @@ void INS::updateDisplay(POSITION &pos) noexcept {
 
       if (state == INS_STATE::NAV) {
         display.characters.RIGHT_1 = 1;
-        display.characters.RIGHT_5 = accuracyIndex;
+        display.characters.RIGHT_5 = std::min(accuracyIndex, (uint8_t)9);
       } else {
         display.characters.RIGHT_1 = 0;
         display.characters.RIGHT_5 = (uint8_t)alignSubmode;
