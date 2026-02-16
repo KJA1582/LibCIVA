@@ -1,7 +1,7 @@
 ﻿#include "civa24.h"
 
-std::unique_ptr<VarManager> varManager;
-std::unique_ptr<INSContainer> ins;
+std::unique_ptr<libciva::VarManager> varManager;
+std::unique_ptr<libciva::INSContainer> ins;
 
 HANDLE simConnect = 0;
 
@@ -9,38 +9,38 @@ HANDLE simConnect = 0;
 
 constexpr auto EVENT = "L:LIBCIVA_EVENT";
 
-std::string DISPLAY_VAR_UNIT_1 = std::string(DISPLAY_VAR) + ID_UNIT_1;
-std::string INDICATORS_VAR_UNIT_1 = std::string(INDICATORS_VAR) + ID_UNIT_1;
-std::string MODE_SELECTOR_POS_VAR_UNIT_1 = std::string(MODE_SELECTOR_POS_VAR) + ID_UNIT_1;
-std::string DATA_SELECTOR_POS_VAR_UNIT_1 = std::string(DATA_SELECTOR_POS_VAR) + ID_UNIT_1;
-std::string WAYPOINT_SELECTOR_POS_VAR_UNIT_1 = std::string(WAYPOINT_SELECTOR_POS_VAR) + ID_UNIT_1;
-std::string AUTO_MAN_POS_VAR_UNIT_1 = std::string(AUTO_MAN_POS_VAR) + ID_UNIT_1;
-std::string CROSS_TRACK_ERROR_VAR_UNIT_1 = std::string(CROSS_TRACK_ERROR_VAR) + ID_UNIT_1;
-std::string DESIRED_TRACK_VAR_UNIT_1 = std::string(DESIRED_TRACK_VAR) + ID_UNIT_1;
-std::string DISTANCE_VAR_UNIT_1 = std::string(DISTANCE_VAR) + ID_UNIT_1;
-std::string VALID_UNIT_1 = std::string(VALID) + ID_UNIT_1;
+std::string DISPLAY_VAR_UNIT_1 = std::string(libciva::DISPLAY_VAR) + libciva::ID_UNIT_1;
+std::string INDICATORS_VAR_UNIT_1 = std::string(libciva::INDICATORS_VAR) +libciva:: ID_UNIT_1;
+std::string MODE_SELECTOR_POS_VAR_UNIT_1 = std::string(libciva::MODE_SELECTOR_POS_VAR) + libciva::ID_UNIT_1;
+std::string DATA_SELECTOR_POS_VAR_UNIT_1 = std::string(libciva::DATA_SELECTOR_POS_VAR) + libciva::ID_UNIT_1;
+std::string WAYPOINT_SELECTOR_POS_VAR_UNIT_1 = std::string(libciva::WAYPOINT_SELECTOR_POS_VAR) + libciva::ID_UNIT_1;
+std::string AUTO_MAN_POS_VAR_UNIT_1 = std::string(libciva::AUTO_MAN_POS_VAR) + libciva::ID_UNIT_1;
+std::string CROSS_TRACK_ERROR_VAR_UNIT_1 = std::string(libciva::CROSS_TRACK_ERROR_VAR) + libciva::ID_UNIT_1;
+std::string DESIRED_TRACK_VAR_UNIT_1 = std::string(libciva::DESIRED_TRACK_VAR) + libciva::ID_UNIT_1;
+std::string DISTANCE_VAR_UNIT_1 = std::string(libciva::DISTANCE_VAR) + libciva::ID_UNIT_1;
+std::string VALID_UNIT_1 = std::string(libciva::VALID) + libciva::ID_UNIT_1;
 
-std::string DISPLAY_VAR_UNIT_2 = std::string(DISPLAY_VAR) + ID_UNIT_2;
-std::string INDICATORS_VAR_UNIT_2 = std::string(INDICATORS_VAR) + ID_UNIT_2;
-std::string MODE_SELECTOR_POS_VAR_UNIT_2 = std::string(MODE_SELECTOR_POS_VAR) + ID_UNIT_2;
-std::string DATA_SELECTOR_POS_VAR_UNIT_2 = std::string(DATA_SELECTOR_POS_VAR) + ID_UNIT_2;
-std::string WAYPOINT_SELECTOR_POS_VAR_UNIT_2 = std::string(WAYPOINT_SELECTOR_POS_VAR) + ID_UNIT_2;
-std::string AUTO_MAN_POS_VAR_UNIT_2 = std::string(AUTO_MAN_POS_VAR) + ID_UNIT_2;
-std::string CROSS_TRACK_ERROR_VAR_UNIT_2 = std::string(CROSS_TRACK_ERROR_VAR) + ID_UNIT_2;
-std::string DESIRED_TRACK_VAR_UNIT_2 = std::string(DESIRED_TRACK_VAR) + ID_UNIT_2;
-std::string DISTANCE_VAR_UNIT_2 = std::string(DISTANCE_VAR) + ID_UNIT_2;
-std::string VALID_UNIT_2 = std::string(VALID) + ID_UNIT_2;
+std::string DISPLAY_VAR_UNIT_2 = std::string(libciva::DISPLAY_VAR) + libciva::ID_UNIT_2;
+std::string INDICATORS_VAR_UNIT_2 = std::string(libciva::INDICATORS_VAR) + libciva::ID_UNIT_2;
+std::string MODE_SELECTOR_POS_VAR_UNIT_2 = std::string(libciva::MODE_SELECTOR_POS_VAR) + libciva::ID_UNIT_2;
+std::string DATA_SELECTOR_POS_VAR_UNIT_2 = std::string(libciva::DATA_SELECTOR_POS_VAR) + libciva::ID_UNIT_2;
+std::string WAYPOINT_SELECTOR_POS_VAR_UNIT_2 = std::string(libciva::WAYPOINT_SELECTOR_POS_VAR) + libciva::ID_UNIT_2;
+std::string AUTO_MAN_POS_VAR_UNIT_2 = std::string(libciva::AUTO_MAN_POS_VAR) + libciva::ID_UNIT_2;
+std::string CROSS_TRACK_ERROR_VAR_UNIT_2 = std::string(libciva::CROSS_TRACK_ERROR_VAR) + libciva::ID_UNIT_2;
+std::string DESIRED_TRACK_VAR_UNIT_2 = std::string(libciva::DESIRED_TRACK_VAR) + libciva::ID_UNIT_2;
+std::string DISTANCE_VAR_UNIT_2 = std::string(libciva::DISTANCE_VAR) + libciva::ID_UNIT_2;
+std::string VALID_UNIT_2 = std::string(libciva::VALID) + libciva::ID_UNIT_2;
 
-std::string DISPLAY_VAR_UNIT_3 = std::string(DISPLAY_VAR) + ID_UNIT_3;
-std::string INDICATORS_VAR_UNIT_3 = std::string(INDICATORS_VAR) + ID_UNIT_3;
-std::string MODE_SELECTOR_POS_VAR_UNIT_3 = std::string(MODE_SELECTOR_POS_VAR) + ID_UNIT_3;
-std::string DATA_SELECTOR_POS_VAR_UNIT_3 = std::string(DATA_SELECTOR_POS_VAR) + ID_UNIT_3;
-std::string WAYPOINT_SELECTOR_POS_VAR_UNIT_3 = std::string(WAYPOINT_SELECTOR_POS_VAR) + ID_UNIT_3;
-std::string AUTO_MAN_POS_VAR_UNIT_3 = std::string(AUTO_MAN_POS_VAR) + ID_UNIT_3;
-std::string CROSS_TRACK_ERROR_VAR_UNIT_3 = std::string(CROSS_TRACK_ERROR_VAR) + ID_UNIT_3;
-std::string DESIRED_TRACK_VAR_UNIT_3 = std::string(DESIRED_TRACK_VAR) + ID_UNIT_3;
-std::string DISTANCE_VAR_UNIT_3 = std::string(DISTANCE_VAR) + ID_UNIT_3;
-std::string VALID_UNIT_3 = std::string(VALID) + ID_UNIT_3;
+std::string DISPLAY_VAR_UNIT_3 = std::string(libciva::DISPLAY_VAR) + libciva::ID_UNIT_3;
+std::string INDICATORS_VAR_UNIT_3 = std::string(libciva::INDICATORS_VAR) + libciva::ID_UNIT_3;
+std::string MODE_SELECTOR_POS_VAR_UNIT_3 = std::string(libciva::MODE_SELECTOR_POS_VAR) + libciva::ID_UNIT_3;
+std::string DATA_SELECTOR_POS_VAR_UNIT_3 = std::string(libciva::DATA_SELECTOR_POS_VAR) + libciva::ID_UNIT_3;
+std::string WAYPOINT_SELECTOR_POS_VAR_UNIT_3 = std::string(libciva::WAYPOINT_SELECTOR_POS_VAR) + libciva::ID_UNIT_3;
+std::string AUTO_MAN_POS_VAR_UNIT_3 = std::string(libciva::AUTO_MAN_POS_VAR) + libciva::ID_UNIT_3;
+std::string CROSS_TRACK_ERROR_VAR_UNIT_3 = std::string(libciva::CROSS_TRACK_ERROR_VAR) + libciva::ID_UNIT_3;
+std::string DESIRED_TRACK_VAR_UNIT_3 = std::string(libciva::DESIRED_TRACK_VAR) + libciva::ID_UNIT_3;
+std::string DISTANCE_VAR_UNIT_3 = std::string(libciva::DISTANCE_VAR) + libciva::ID_UNIT_3;
+std::string VALID_UNIT_3 = std::string(libciva::VALID) + libciva::ID_UNIT_3;
 
 #pragma endregion
 
@@ -164,7 +164,7 @@ static void handleEvent(int event) {
         if (unit3) unit3->handleExternalPower(false);
         break;
       default:
-        Logger::GetInstance() << "Unknown event " << event << "\n";
+        libciva::Logger::GetInstance() << "Unknown event " << event << "\n";
     }
   });
 
@@ -185,17 +185,17 @@ static void setupSimConnect() {
   hr = SimConnect_Open(&simConnect, "libciva", NULL, 0, NULL, 0);
   if (FAILED(hr)) return;
 
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_AIRSPEED_TRUE, "KNOT");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_AMBIENT_TEMPERATURE, "CELSIUS");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_AMBIENT_WIND_DIRECTION, "DEGREE");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_AMBIENT_WIND_VELOCITY, "KNOT");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_GROUND_VELOCITY, "KNOT");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_PLANE_HEADING_DEGREES_TRUE, "DEGREE");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_PLANE_LATITUDE, "DEGREE");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_PLANE_LONGITUDE, "DEGREE");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_NAV_DME_1, "NAUTICAL MILE");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_NAV_DME_2, "NAUTICAL MILE");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_SIMULATION_RATE, "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AIRSPEED_TRUE, "KNOT");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_TEMPERATURE, "CELSIUS");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_WIND_DIRECTION, "DEGREE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_WIND_VELOCITY, "KNOT");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_GROUND_VELOCITY, "KNOT");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_PLANE_HEADING_DEGREES_TRUE, "DEGREE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_PLANE_LATITUDE, "DEGREE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_PLANE_LONGITUDE, "DEGREE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_NAV_DME_1, "NAUTICAL MILE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_NAV_DME_2, "NAUTICAL MILE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_SIMULATION_RATE, "NUMBER");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, EVENT, "NUMBER");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "ATC ID", NULL, SIMCONNECT_DATATYPE_STRING32);
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "PLANE ALTITUDE", "FEET");
@@ -276,28 +276,29 @@ static void handleSimConnect() {
 
         case SIMCONNECT_RECV_ID_OPEN: {
           SIMCONNECT_RECV_OPEN *openData = (SIMCONNECT_RECV_OPEN *)pData;
-          Logger::GetInstance() << "Connected to " << openData->szApplicationName << "\n";
+          libciva::Logger::GetInstance() << "Connected to " << openData->szApplicationName << "\n";
           break;
         }
         case SIMCONNECT_RECV_ID_SIMOBJECT_DATA: {
           SIMCONNECT_RECV_SIMOBJECT_DATA *pObjData = (SIMCONNECT_RECV_SIMOBJECT_DATA *)pData;
           DATA *data = (DATA *)&pObjData->dwData;
-          varManager->setVar(SIM_VAR_AIRSPEED_TRUE, data->airspeedTrue);
-          varManager->setVar(SIM_VAR_AMBIENT_TEMPERATURE, data->ambientTemp);
-          varManager->setVar(SIM_VAR_AMBIENT_WIND_DIRECTION, data->windDirection);
-          varManager->setVar(SIM_VAR_AMBIENT_WIND_VELOCITY, data->windSpeed);
-          varManager->setVar(SIM_VAR_GROUND_VELOCITY, data->groundSpeed);
-          varManager->setVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, data->headingTrue);
-          varManager->setVar(SIM_VAR_PLANE_LATITUDE, data->latitude);
-          varManager->setVar(SIM_VAR_PLANE_LONGITUDE, data->longitude);
-          varManager->setVar(SIM_VAR_NAV_DME_1, data->navDME1);
-          varManager->setVar(SIM_VAR_NAV_DME_2, data->navDME2);
-          varManager->setVar(SIM_VAR_SIMULATION_RATE, data->simRate);
-          varManager->setVar(SIM_VAR_PLANE_ALTITUDE, data->altitude);
+          varManager->setVar(libciva::SIM_VAR_AIRSPEED_TRUE, data->airspeedTrue);
+          varManager->setVar(libciva::SIM_VAR_AMBIENT_TEMPERATURE, data->ambientTemp);
+          varManager->setVar(libciva::SIM_VAR_AMBIENT_WIND_DIRECTION, data->windDirection);
+          varManager->setVar(libciva::SIM_VAR_AMBIENT_WIND_VELOCITY, data->windSpeed);
+          varManager->setVar(libciva::SIM_VAR_GROUND_VELOCITY, data->groundSpeed);
+          varManager->setVar(libciva::SIM_VAR_PLANE_HEADING_DEGREES_TRUE, data->headingTrue);
+          varManager->setVar(libciva::SIM_VAR_PLANE_LATITUDE, data->latitude);
+          varManager->setVar(libciva::SIM_VAR_PLANE_LONGITUDE, data->longitude);
+          varManager->setVar(libciva::SIM_VAR_NAV_DME_1, data->navDME1);
+          varManager->setVar(libciva::SIM_VAR_NAV_DME_2, data->navDME2);
+          varManager->setVar(libciva::SIM_VAR_SIMULATION_RATE, data->simRate);
+          varManager->setVar(libciva::SIM_VAR_PLANE_ALTITUDE, data->altitude);
 
           if (data->atcID != NULL && !ins) {
-            Logger::GetInstance() << "Booting INS for " << data->atcID;
-            ins = std::make_unique<INSContainer>(*varManager, UNIT_COUNT::THREE, UNIT_HAS_DME::BOTH, data->atcID, true);
+            libciva::Logger::GetInstance() << "Booting INS for " << data->atcID;
+            ins = std::make_unique<libciva::INSContainer>(*varManager, libciva::UNIT_COUNT::THREE, libciva::UNIT_HAS_DME::BOTH,
+                                                          data->atcID, true, true);
           }
 
           if (data->event != 0) {
@@ -309,7 +310,7 @@ static void handleSimConnect() {
         }
         case SIMCONNECT_RECV_ID_EXCEPTION: {
           SIMCONNECT_RECV_EXCEPTION *except = (SIMCONNECT_RECV_EXCEPTION *)pData;
-          Logger::GetInstance() << "SimConnect Exception: " << except->dwException << "\n";
+          libciva::Logger::GetInstance() << "SimConnect Exception: " << except->dwException << "\n";
           break;
         }
         default:
@@ -370,11 +371,11 @@ static void exportVars() {
 #pragma endregion
 
 extern "C" MSFS_CALLBACK bool LibCIVA_gauge_init(FsContext ctx, sGaugeInstallData *p_install_data) {
-  Logger::GetInstance() << "Starting libCIVA\n";
+  libciva::Logger::GetInstance() << "Starting libCIVA\n";
 
   setupSimConnect();
 
-  varManager = std::make_unique<VarManager>();
+  varManager = std::make_unique<libciva::VarManager>();
 
   return true;
 }
@@ -387,7 +388,7 @@ extern "C" MSFS_CALLBACK bool LibCIVA_gauge_update(FsContext ctx, float dTime) {
   handleSimConnect();
 
   double simRate = 1;
-  varManager->getVar(SIM_VAR_SIMULATION_RATE, simRate);
+  varManager->getVar(libciva::SIM_VAR_SIMULATION_RATE, simRate);
   ins->update(dTime * simRate);
 
   exportVars();
@@ -401,8 +402,8 @@ extern "C" MSFS_CALLBACK bool LibCIVA_gauge_kill(FsContext ctx) {
   SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA,
                                     SIMCONNECT_OBJECT_ID_USER_AIRCRAFT, SIMCONNECT_PERIOD_NEVER);
 
-  Logger::GetInstance() << "Stopped libCIVA\n";
-  Logger::GetInstance().~Logger();
+  libciva::Logger::GetInstance() << "Stopped libCIVA\n";
+  libciva::Logger::GetInstance().~Logger();
 
   return true;
 }

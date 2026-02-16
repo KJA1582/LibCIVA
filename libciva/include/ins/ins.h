@@ -1,6 +1,7 @@
 #ifndef INS_H
 #define INS_H
 
+// For MSFS so IntelliSense doesn't crap out
 #ifndef __INTELLISENSE__
 #define MODULE_EXPORT __attribute__((visibility("default")))
 #define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
@@ -25,6 +26,8 @@
 #include "logger/logger.h"
 #include "types/types.h"
 #include "varManager/varManager.h"
+
+namespace libciva {
 
 constexpr auto MIN_MODE_8 = 51;
 constexpr auto MAX_MODE_7 = 90;        // Not specified in manual, but "shortly"
@@ -203,6 +206,8 @@ class INS {
   bool holdRequiresForce = false;
   // AUTO/MAN
   bool autoMode = true;
+  // If ADEU is connected
+  bool hasADEU = false;
   // If DME is connected
   bool hasDME = false;
   // If DME is armed
@@ -251,8 +256,8 @@ class INS {
 public:
 #pragma region Lifecycle
 
-  INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir, const bool hasDME,
-      const bool hasExpandedBattery)
+  INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir, const bool hasADEU,
+      const bool hasDME, const bool hasExpandedBattery)
   noexcept;
   ~INS() noexcept;
 
@@ -302,6 +307,17 @@ public:
   void remoteUpdateDME(const uint8_t dme, const bool resetDMEUpdate = false) noexcept;
   void remoteUpdateWPT(const uint8_t wpt) noexcept;
 
+  // DMEs are *moved*
+  // Updating DME in use will drop out of DME updating
+  // All DMEs are updated
+  void remoteInsertDME(const DME dme[9]) noexcept;
+
+  // WPTs are *moved*
+  // Only unused waypoints are updated, if leg is 3-6, then 7,8,9,1,2 are updated
+  // If leg is 0-3, 4,5,6,7,8,9 are updated
+  // At most 8 waypoints will be imported (2,3,4,5,6,7,8,9)
+  void remoteInsertWPT(const POSITION wpt[9]) noexcept;
+
 #pragma endregion
 };
 
@@ -312,15 +328,15 @@ class INSContainer {
 
 public:
   inline INSContainer(VarManager &varManager, UNIT_COUNT count, UNIT_HAS_DME dme, const std::string &configBaseID,
-                      const bool hasExtendedBattery) noexcept {
+                      const bool hasADEU, const bool hasExtendedBattery) noexcept {
     unit1 = std::make_shared<INS>(varManager, ID_UNIT_1, configBaseID + "_1", WORK_DIR,
-                                  dme == UNIT_HAS_DME::ONE || dme == UNIT_HAS_DME::BOTH, hasExtendedBattery);
+                                  dme == UNIT_HAS_DME::ONE || dme == UNIT_HAS_DME::BOTH, hasADEU, hasExtendedBattery);
 
     if (count > UNIT_COUNT::ONE)
       unit2 = std::make_shared<INS>(varManager, ID_UNIT_2, configBaseID + "_2", WORK_DIR,
-                                    dme == UNIT_HAS_DME::TWO || dme == UNIT_HAS_DME::BOTH, hasExtendedBattery);
+                                    dme == UNIT_HAS_DME::TWO || dme == UNIT_HAS_DME::BOTH, hasADEU, hasExtendedBattery);
     if (count == UNIT_COUNT::THREE)
-      unit3 = std::make_shared<INS>(varManager, ID_UNIT_3, configBaseID + "_3", WORK_DIR, false, hasExtendedBattery);
+      unit3 = std::make_shared<INS>(varManager, ID_UNIT_3, configBaseID + "_3", WORK_DIR, false, hasADEU, hasExtendedBattery);
 
     if (count > UNIT_COUNT::ONE) unit1->connectUnit2(unit2.get());
     if (count == UNIT_COUNT::THREE) unit1->connectUnit3(unit3.get());
@@ -338,5 +354,7 @@ public:
     callback(unit1, unit2, unit3);
   }
 };
+
+} // namespace libciva
 
 #endif

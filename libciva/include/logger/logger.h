@@ -1,6 +1,7 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
+// For MSFS so IntelliSense doesn't crap out
 #ifndef __INTELLISENSE__
 #define MODULE_EXPORT __attribute__((visibility("default")))
 #define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
@@ -13,6 +14,8 @@
 
 #include <fstream>
 #include <iomanip>
+
+namespace libciva {
 
 class Logger {
 protected:
@@ -37,5 +40,7 @@ public:
 
   static Logger &GetInstance() noexcept;
 };
+
+} // namespace libciva
 
 #endif

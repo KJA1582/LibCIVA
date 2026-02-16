@@ -8,28 +8,28 @@ static uint8_t convertCharacter(uint8_t c) {
   return 48 + c;
 }
 
-WinVarManager::WinVarManager() noexcept : VarManager() {
-  setVar(SIM_VAR_AMBIENT_TEMPERATURE, 15);
-  setVar(SIM_VAR_AMBIENT_WIND_DIRECTION, 284);
-  setVar(SIM_VAR_AMBIENT_WIND_VELOCITY, 36);
-  setVar(SIM_VAR_AIRSPEED_TRUE, 500);
-  setVar(SIM_VAR_GROUND_VELOCITY, 500);
-  setVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, 249.2);
-  setVar(SIM_VAR_PLANE_LATITUDE, 50);
-  setVar(SIM_VAR_PLANE_LONGITUDE, 8);
-  setVar(SIM_VAR_NAV_DME_1, 38.9); // for station at 50N009E, 1000ft, 112.00
-  setVar(SIM_VAR_NAV_DME_2, 60.2); // for station at 51N008E, 1500ft, 111.00
-  setVar(SIM_VAR_SIMULATION_RATE, 1);
-  setVar(SIM_VAR_PLANE_ALTITUDE, 32000);
+WinVarManager::WinVarManager() noexcept : libciva::VarManager() {
+  setVar(libciva::SIM_VAR_AMBIENT_TEMPERATURE, 15);
+  setVar(libciva::SIM_VAR_AMBIENT_WIND_DIRECTION, 284);
+  setVar(libciva::SIM_VAR_AMBIENT_WIND_VELOCITY, 36);
+  setVar(libciva::SIM_VAR_AIRSPEED_TRUE, 500);
+  setVar(libciva::SIM_VAR_GROUND_VELOCITY, 500);
+  setVar(libciva::SIM_VAR_PLANE_HEADING_DEGREES_TRUE, 249.2);
+  setVar(libciva::SIM_VAR_PLANE_LATITUDE, 50);
+  setVar(libciva::SIM_VAR_PLANE_LONGITUDE, 8);
+  setVar(libciva::SIM_VAR_NAV_DME_1, 38.9); // for station at 50N009E, 1000ft, 112.00
+  setVar(libciva::SIM_VAR_NAV_DME_2, 60.2); // for station at 51N008E, 1500ft, 111.00
+  setVar(libciva::SIM_VAR_SIMULATION_RATE, 1);
+  setVar(libciva::SIM_VAR_PLANE_ALTITUDE, 32000);
 }
 
 void WinVarManager::dump() const noexcept {
   for (auto it = store.begin(); it != store.end(); ++it) {
-    if (it->first.find(DISPLAY_VAR) != std::string::npos) {
-      const DISPLAY v = *reinterpret_cast<const DISPLAY *>(&it->second);
-      auto iIt = store.lower_bound(INDICATORS_VAR); // FIXME: This selects the wrong unit
+    if (it->first.find(libciva::DISPLAY_VAR) != std::string::npos) {
+      const libciva::DISPLAY v = *reinterpret_cast<const libciva::DISPLAY *>(&it->second);
+      auto iIt = store.lower_bound(libciva::INDICATORS_VAR); // FIXME: This selects the wrong unit
       if (iIt == store.end()) continue;
-      const INDICATORS i = *reinterpret_cast<const INDICATORS *>(&iIt->second);
+      const libciva::INDICATORS i = *reinterpret_cast<const libciva::INDICATORS *>(&iIt->second);
 
       std::cout << "                         |";
       std::cout << convertCharacter(v.characters.LEFT_1);
@@ -69,8 +69,8 @@ void WinVarManager::dump() const noexcept {
         std::cout << convertCharacter(v.characters.TO);
       }
       std::cout << "|";
-    } else if (it->first.find(INDICATORS_VAR) != std::string::npos) {
-      const INDICATORS i = *reinterpret_cast<const INDICATORS *>(&it->second);
+    } else if (it->first.find(libciva::INDICATORS_VAR) != std::string::npos) {
+      const libciva::INDICATORS i = *reinterpret_cast<const libciva::INDICATORS *>(&it->second);
 
       std::cout << "       ";
       std::cout << (i.indicator.HOLD ? "HOLD|" : "\033[90mHOLD\033[0m|");
@@ -86,7 +86,7 @@ void WinVarManager::dump() const noexcept {
       std::cout << (i.indicator.DME1 ? "\033[92mDME 1\033[0m|" : "\033[90mDME 1\033[0m|");
       std::cout << (i.indicator.DME2 ? "\033[92mDME 2\033[0m" : "\033[90mDME 2\033[0m");
       std::cout << "               ";
-    } else if (it->first.find(MODE_SELECTOR_POS_VAR) != std::string::npos) {
+    } else if (it->first.find(libciva::MODE_SELECTOR_POS_VAR) != std::string::npos) {
       std::cout << "                                 ";
       std::cout << (it->second == 0 ? "OFF|" : "\033[90mOFF\033[0m|");
       std::cout << (it->second == 1 ? "STBY|" : "\033[90mSTBY\033[0m|");
@@ -94,7 +94,7 @@ void WinVarManager::dump() const noexcept {
       std::cout << (it->second == 3 ? "NAV|" : "\033[90mNAV\033[0m|");
       std::cout << (it->second == 4 ? "ATT" : "\033[90mATT\033[0m");
 
-    } else if (it->first.find(DATA_SELECTOR_POS_VAR) != std::string::npos) {
+    } else if (it->first.find(libciva::DATA_SELECTOR_POS_VAR) != std::string::npos) {
       std::cout << (it->second == 0 ? "TK/GS|" : "\033[90mTK/GS\033[0m|");
       std::cout << (it->second == 1 ? "HDG/DA|" : "\033[90mHDG/DA\033[0m|");
       std::cout << (it->second == 2 ? "XTK/TKE|" : "\033[90mXTK/TKE\033[0m|");

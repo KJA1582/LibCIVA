@@ -1,5 +1,7 @@
 #include "types/types.h"
 
+namespace libciva {
+
 constexpr double R = 3440; // nmi
 
 double POSITION::distanceTo(const POSITION &target) const noexcept {
@@ -118,3 +120,5 @@ POSITION POSITION::intersection(const double bearing1, const POSITION &pos, cons
 
   return {φ3 * RAD2DEG, λ3 * RAD2DEG};
 }
+
+} // namespace libciva

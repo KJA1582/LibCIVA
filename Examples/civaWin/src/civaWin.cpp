@@ -1,7 +1,7 @@
 ﻿#include "civaWin.h"
 
 std::unique_ptr<WinVarManager> winVarManager;
-std::unique_ptr<INSContainer> ins;
+std::unique_ptr<libciva::INSContainer> ins;
 
 std::thread INSThread;
 std::mutex lock;
@@ -26,23 +26,23 @@ static void handleSimConnect() {
       case SIMCONNECT_RECV_ID_SIMOBJECT_DATA: {
         SIMCONNECT_RECV_SIMOBJECT_DATA *pObjData = (SIMCONNECT_RECV_SIMOBJECT_DATA *)pData;
         DATA *data = (DATA *)&pObjData->dwData;
-        winVarManager->setVar(SIM_VAR_AIRSPEED_TRUE, data->airspeedTrue);
-        winVarManager->setVar(SIM_VAR_AMBIENT_TEMPERATURE, data->ambientTemp);
-        winVarManager->setVar(SIM_VAR_AMBIENT_WIND_DIRECTION, data->windDirection);
-        winVarManager->setVar(SIM_VAR_AMBIENT_WIND_VELOCITY, data->windSpeed);
-        winVarManager->setVar(SIM_VAR_GROUND_VELOCITY, data->groundSpeed);
-        winVarManager->setVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, data->headingTrue);
-        winVarManager->setVar(SIM_VAR_PLANE_LATITUDE, data->latitude);
-        winVarManager->setVar(SIM_VAR_PLANE_LONGITUDE, data->longitude);
-        winVarManager->setVar(SIM_VAR_NAV_DME_1, data->navDME1);
-        winVarManager->setVar(SIM_VAR_NAV_DME_2, data->navDME2);
-        winVarManager->setVar(SIM_VAR_SIMULATION_RATE, data->simRate);
-        winVarManager->setVar(SIM_VAR_PLANE_ALTITUDE, data->altitude);
+        winVarManager->setVar(libciva::SIM_VAR_AIRSPEED_TRUE, data->airspeedTrue);
+        winVarManager->setVar(libciva::SIM_VAR_AMBIENT_TEMPERATURE, data->ambientTemp);
+        winVarManager->setVar(libciva::SIM_VAR_AMBIENT_WIND_DIRECTION, data->windDirection);
+        winVarManager->setVar(libciva::SIM_VAR_AMBIENT_WIND_VELOCITY, data->windSpeed);
+        winVarManager->setVar(libciva::SIM_VAR_GROUND_VELOCITY, data->groundSpeed);
+        winVarManager->setVar(libciva::SIM_VAR_PLANE_HEADING_DEGREES_TRUE, data->headingTrue);
+        winVarManager->setVar(libciva::SIM_VAR_PLANE_LATITUDE, data->latitude);
+        winVarManager->setVar(libciva::SIM_VAR_PLANE_LONGITUDE, data->longitude);
+        winVarManager->setVar(libciva::SIM_VAR_NAV_DME_1, data->navDME1);
+        winVarManager->setVar(libciva::SIM_VAR_NAV_DME_2, data->navDME2);
+        winVarManager->setVar(libciva::SIM_VAR_SIMULATION_RATE, data->simRate);
+        winVarManager->setVar(libciva::SIM_VAR_PLANE_ALTITUDE, data->altitude);
         break;
       }
       case SIMCONNECT_RECV_ID_EXCEPTION: {
         SIMCONNECT_RECV_EXCEPTION *except = (SIMCONNECT_RECV_EXCEPTION *)pData;
-        Logger::GetInstance() << "SimConnect Exception: " << except->dwException << "\n";
+        libciva::Logger::GetInstance() << "SimConnect Exception: " << except->dwException << "\n";
         break;
       }
       default:
@@ -67,7 +67,7 @@ static void runner() {
     {
       std::lock_guard<std::mutex> guard(lock);
       double simRate = 1;
-      winVarManager->getVar(SIM_VAR_SIMULATION_RATE, simRate);
+      winVarManager->getVar(libciva::SIM_VAR_SIMULATION_RATE, simRate);
       ins->update(delta.count() * 1e-9 * simRate);
     }
 
@@ -115,18 +115,18 @@ static void setupSimConnect() {
   hr = SimConnect_Open(&simConnect, "civaWin", NULL, 0, NULL, 0);
   if (FAILED(hr)) return;
 
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_AIRSPEED_TRUE, "KNOT");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_AMBIENT_TEMPERATURE, "CELSIUS");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_AMBIENT_WIND_DIRECTION, "DEGREE");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_AMBIENT_WIND_VELOCITY, "KNOT");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_GROUND_VELOCITY, "KNOT");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_PLANE_HEADING_DEGREES_TRUE, "DEGREE");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_PLANE_LATITUDE, "DEGREE");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_PLANE_LONGITUDE, "DEGREE");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_NAV_DME_1, "NAUTICAL MILE");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_NAV_DME_2, "NAUTICAL MILE");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_SIMULATION_RATE, "NUMBER");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, SIM_VAR_PLANE_ALTITUDE, "FEET");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AIRSPEED_TRUE, "KNOT");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_TEMPERATURE, "CELSIUS");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_WIND_DIRECTION, "DEGREE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_WIND_VELOCITY, "KNOT");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_GROUND_VELOCITY, "KNOT");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_PLANE_HEADING_DEGREES_TRUE, "DEGREE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_PLANE_LATITUDE, "DEGREE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_PLANE_LONGITUDE, "DEGREE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_NAV_DME_1, "NAUTICAL MILE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_NAV_DME_2, "NAUTICAL MILE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_SIMULATION_RATE, "NUMBER");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_PLANE_ALTITUDE, "FEET");
 
   SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA, SIMCONNECT_OBJECT_ID_USER,
                                     SIMCONNECT_PERIOD_VISUAL_FRAME);
@@ -138,7 +138,8 @@ int main() {
 
   winVarManager = std::make_unique<WinVarManager>();
 
-  ins = std::make_unique<INSContainer>(*winVarManager, UNIT_COUNT::THREE, UNIT_HAS_DME::BOTH, "", false);
+  ins = std::make_unique<libciva::INSContainer>(*winVarManager, libciva::UNIT_COUNT::THREE, libciva::UNIT_HAS_DME::BOTH, "", true,
+                                                false);
 
   INSThread = std::thread(runner);
 

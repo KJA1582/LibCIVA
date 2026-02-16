@@ -1,5 +1,7 @@
 #include "varManager/varManager.h"
 
+namespace libciva {
+
 VarManager::VarManager() noexcept {
   setVar(SIM_VAR_AMBIENT_TEMPERATURE, 15);
   setVar(SIM_VAR_AMBIENT_WIND_DIRECTION, 0);
@@ -26,3 +28,5 @@ bool VarManager::getVar(const std::string &name, double &value) const noexcept {
 
   return false;
 }
+
+} // namespace libciva

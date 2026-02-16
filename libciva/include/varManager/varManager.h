@@ -1,6 +1,7 @@
 #ifndef VAR_MANAGER_H
 #define VAR_MANAGER_H
 
+// For MSFS so IntelliSense doesn't crap out
 #ifndef __INTELLISENSE__
 #define MODULE_EXPORT __attribute__((visibility("default")))
 #define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
@@ -14,6 +15,8 @@
 #include <cstdint>
 #include <map>
 #include <string>
+
+namespace libciva {
 
 constexpr auto DISPLAY_VAR = "LIBCIVA_DISPLAY_";
 constexpr auto INDICATORS_VAR = "LIBCIVA_INDICATORS_";
@@ -50,5 +53,7 @@ public:
   virtual void setVar(const std::string &name, double value) noexcept;
   virtual bool getVar(const std::string &name, double &value) const noexcept;
 };
+
+} // namespace libciva
 
 #endif

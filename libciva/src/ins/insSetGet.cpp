@@ -1,5 +1,7 @@
 #include "ins/ins.h"
 
+namespace libciva {
+
 void INS::advanceActionMalfunctionIndex() noexcept {
   uint8_t index = std::max(1, (displayActionMalfunctionCodeIndex + 1) % 8);
   while (true) {
@@ -114,3 +116,5 @@ void INS::exportVars() const noexcept {
   varManager.setVar(DISTANCE_VAR + id, remainingDistance);
   varManager.setVar(VALID + id, (double)valid);
 }
+
+} // namespace libciva

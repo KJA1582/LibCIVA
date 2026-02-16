@@ -1,5 +1,7 @@
 #include "ins/ins.h"
 
+namespace libciva {
+
 #pragma region Static Helpers
 
 static void readLat(DISPLAY &display, uint8_t &read, const uint8_t value) noexcept {
@@ -418,7 +420,7 @@ void INS::handleInsert() noexcept {
           activeDME = 0;
         }
 
-        remoteUpdateDME(waypointSelector - 1, true);
+        remoteUpdateDME(waypointSelector - 1, activeDME == 0);
 
       } else if (dmeMode == DME_MODE::INV) {
         waypoints[waypointSelector].longitude = lon;
@@ -439,7 +441,11 @@ void INS::handleInsert() noexcept {
 
       DMEs[waypointSelector - 1].altitude = alt;
 
-      remoteUpdateDME(waypointSelector - 1);
+      if (activeDME == waypointSelector - 1) {
+        activeDME = 0;
+      }
+
+      remoteUpdateDME(waypointSelector - 1, activeDME == 0);
 
       break;
     }
@@ -685,3 +691,5 @@ void INS::handleRemote() noexcept {
 }
 
 void INS::handleExternalPower(const bool powered) noexcept { externalPower = powered; }
+
+} // namespace libciva

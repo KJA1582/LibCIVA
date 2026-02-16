@@ -1,10 +1,13 @@
 #include "ins/ins.h"
 
+namespace libciva {
+
 #pragma region Lifecycle
 
 INS::INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir,
-         const bool hasDME, const bool hasExpandedBattery) noexcept
-    : varManager(varManager), id(id), actionMalfunctionCodes(), hasDME(hasDME), hasExpandedBattery(hasExpandedBattery) {
+         const bool hasADEU, const bool hasDME, const bool hasExpandedBattery) noexcept
+    : varManager(varManager), id(id), actionMalfunctionCodes(), hasADEU(hasADEU), hasDME(hasDME),
+      hasExpandedBattery(hasExpandedBattery) {
   clearDisplay();
 
   // Init all things from global vars
@@ -200,3 +203,5 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
     timeInMode = 0;
   }
 }
+
+} // namespace libciva

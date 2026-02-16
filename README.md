@@ -20,12 +20,11 @@ Simulation of a Delco Electronics Carousel IV-A unit with flight program CIV-A-2
 - DME Update with one DME connected to units 1 and 2, with unit 3 receiving data from units 1 and 2 via unit interconnect.
   - Dual DME update using an offside DME, if both units 1 and 2 perform DME updating, the units will exchange update data via 
     unit interconnect.
+- ADEU import logic (no failures)
 
 ## Planned
 
 ## Wishes
-
-- ADEU
 
 # Build
 
@@ -46,7 +45,7 @@ msbuild .\libciva.sln # Or whatever generator is applicable for your system
 
 ### For MSFS/MSFS2024
 
-To build for the simulators, a VS2022 solution file and project files are provided.
+To build for the simulators, a VS2022 solution and project files are provided.
 
 ## Examples
 

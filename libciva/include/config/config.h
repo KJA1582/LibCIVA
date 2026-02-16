@@ -1,6 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+// For MSFS so IntelliSense doesn't crap out
 #ifndef __INTELLISENSE__
 #define MODULE_EXPORT __attribute__((visibility("default")))
 #define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
@@ -17,6 +18,8 @@
 #include <string>
 
 #include "../types/types.h"
+
+namespace libciva {
 
 class Config {
   const std::string basePath;
@@ -49,5 +52,7 @@ public:
   inline void setLastINSPosition(POSITION pos) noexcept { lastINSPosition = pos; }
   inline void setLastDMEs(const DME (&DMEs)[9]) noexcept { std::memcpy(lastDMEs, DMEs, sizeof(DMEs)); }
 };
+
+} // namespace libciva
 
 #endif

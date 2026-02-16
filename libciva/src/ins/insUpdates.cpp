@@ -1,5 +1,7 @@
 #include "ins/ins.h"
 
+namespace libciva {
+
 #pragma region Static Helpers
 
 static std::pair<double, double> dmeCorrection(const DME &dme, const POSITION &pos, const VarManager &varManager,
@@ -431,4 +433,35 @@ void INS::remoteUpdateWPT(const uint8_t wpt) noexcept {
   }
 }
 
+void INS::remoteInsertDME(const DME dme[9]) noexcept {
+  if (!remoteActive || !hasADEU) return;
+
+  for (size_t i = 0; i < 9; i++) {
+    if (!dme[i].position.isValid()) continue;
+
+    memmove(&DMEs[i], &dme[i], sizeof(DME));
+    if (i == activeDME) {
+      activeDME = 0;
+      dmeArmed = dmeUpdating = false;
+    }
+  }
+}
+
+void INS::remoteInsertWPT(const POSITION wpt[9]) noexcept {
+  if (!remoteActive || !hasADEU) return;
+
+  size_t i = (currentLegEnd % 9) + 1;
+  while (true) {
+    if (i == currentLegStart || (i == 1 && currentLegStart == 0)) break;
+
+    if (wpt[i].isValid()) {
+      memmove(&waypoints[i], &wpt[i], sizeof(POSITION));
+    }
+
+    i = (i % 9) + 1;
+  }
+}
+
 #pragma endregion
+
+} // namespace libciva

@@ -1,5 +1,7 @@
 #include "ins/ins.h"
 
+namespace libciva {
+
 void INS::align(const double dTime) noexcept {
   if (modeSelector == MODE_SELECTOR::STBY) {
     // Downmode
@@ -90,3 +92,5 @@ void INS::align(const double dTime) noexcept {
     }
   }
 }
+
+} // namespace libciva

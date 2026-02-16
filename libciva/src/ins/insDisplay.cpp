@@ -1,5 +1,7 @@
 #include "ins/ins.h"
 
+namespace libciva {
+
 #pragma region Static Helpers
 
 static void formatPos(DISPLAY &display, POSITION pos) noexcept {
@@ -585,3 +587,5 @@ void INS::alertLamp(const double dTime) noexcept {
     }
   }
 }
+
+} // namespace libciva
