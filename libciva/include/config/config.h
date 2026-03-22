@@ -28,7 +28,6 @@ class Config {
   POSITION lastINSPosition = {999, 999};
   DME lastDMEs[9] = {{{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0},
                      {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}};
-  char expectedBankAngle = 30;
 
 public:
   Config(const std::string &workDir, const std::string &id) noexcept;
@@ -38,7 +37,6 @@ public:
 
   inline POSITION getLastINSPosition() const noexcept { return lastINSPosition; }
   inline void getLastDMEs(DME (&DMEs)[9]) const noexcept { std::memcpy(DMEs, lastDMEs, sizeof(lastDMEs)); }
-  inline char getExpectedBankAngle() const noexcept { return expectedBankAngle; }
 
   inline void setLastINSPosition(POSITION pos) noexcept { lastINSPosition = pos; }
   inline void setLastDMEs(const DME (&DMEs)[9]) noexcept { std::memcpy(lastDMEs, DMEs, sizeof(DMEs)); }
