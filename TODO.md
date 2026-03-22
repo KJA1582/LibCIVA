@@ -19,6 +19,10 @@
 
 # Sim specific
 
+- GS Inaccuracy due to accel
+  - Residual GS
+  - Track longitudinal acceleration
+
 # MSFS Unit specific
 
 # Documentation

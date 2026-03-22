@@ -48,10 +48,10 @@ void INS::temperatureBatterySim(const double dTime) noexcept {
   bool shouldHeat = state > INS_STATE::OFF;
   double ambient = varManager.sim.ambientTemperature;
   // Exit if at operating tem or ambient in case of heating or no heating
-  if (shouldHeat && ovenTemperature >= config->getOperatingTempInC()) return;
+  if (shouldHeat && ovenTemperature >= OPERATING_TEMP) return;
 
   double cooling = shouldHeat ? 0.0 : 0.02;
-  double loss = cooling * (ovenTemperature - ambient) * (dTime / config->getUnitMass());
+  double loss = cooling * (ovenTemperature - ambient) * (dTime / UNIT_MASS);
 
   // Ambient following
   if (!shouldHeat) {
@@ -59,8 +59,8 @@ void INS::temperatureBatterySim(const double dTime) noexcept {
     return;
   }
 
-  double energy = config->getHeaterWattage() * config->getHeaterEfficiency() * dTime;
-  double dTemp = energy / (config->getUnitMass() * config->getUnitSpecificHeat());
+  double energy = HEATER_WATTAGE * HEATER_EFFICIENCY * dTime;
+  double dTemp = energy / (UNIT_MASS * UNIT_SPECIFIC_HEAT);
 
   ovenTemperature = ovenTemperature + dTemp - loss;
 }

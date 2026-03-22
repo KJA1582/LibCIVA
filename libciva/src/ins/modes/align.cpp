@@ -28,7 +28,7 @@ void INS::align(const double dTime) noexcept {
 
   switch (alignSubmode) {
     case ALIGN_SUBMODE::MODE_9: {
-      if (ovenTemperature >= config->getOperatingTempInC()) {
+      if (ovenTemperature >= OPERATING_TEMP) {
         alignSubmode = ALIGN_SUBMODE::MODE_8;
         timeInMode = 0;
       }

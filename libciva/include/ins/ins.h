@@ -29,6 +29,12 @@
 
 namespace libciva {
 
+constexpr double OPERATING_TEMP = 76;      // °C
+constexpr double HEATER_WATTAGE = 2000;    // W
+constexpr double HEATER_EFFICIENCY = 0.9;  // %
+constexpr double UNIT_MASS = 5;            // kg
+constexpr double UNIT_SPECIFIC_HEAT = 900; // J/(kg * K)
+
 constexpr auto MIN_MODE_8 = 51;
 constexpr auto MAX_MODE_7 = 90;        // Not specified in manual, but "shortly"
 constexpr auto MAX_MODE_6 = 420;       // Rest of the ~8.5min MODE 7 and 6

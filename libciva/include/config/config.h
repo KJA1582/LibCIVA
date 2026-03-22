@@ -24,11 +24,7 @@ namespace libciva {
 class Config {
   const std::string basePath;
   const std::string id;
-  double operatingTempInC = 76;
-  double heaterWattage = 2000;
-  double heaterEfficiency = 0.9;
-  double unitMassInKG = 5;
-  double unitSpecificHeat = 900;
+
   POSITION lastINSPosition = {999, 999};
   DME lastDMEs[9] = {{{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0},
                      {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}};
@@ -40,11 +36,6 @@ public:
 
   void save() const noexcept;
 
-  inline double getOperatingTempInC() const noexcept { return operatingTempInC; }
-  inline double getHeaterWattage() const noexcept { return heaterWattage; }
-  inline double getHeaterEfficiency() const noexcept { return heaterEfficiency; }
-  inline double getUnitMass() const noexcept { return unitMassInKG; }
-  inline double getUnitSpecificHeat() const noexcept { return unitSpecificHeat; }
   inline POSITION getLastINSPosition() const noexcept { return lastINSPosition; }
   inline void getLastDMEs(DME (&DMEs)[9]) const noexcept { std::memcpy(DMEs, lastDMEs, sizeof(lastDMEs)); }
   inline char getExpectedBankAngle() const noexcept { return expectedBankAngle; }
