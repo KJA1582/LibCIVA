@@ -25,9 +25,6 @@
     <ClCompile Include="src\types\types.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\varManager\varManager.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\config\config.h">

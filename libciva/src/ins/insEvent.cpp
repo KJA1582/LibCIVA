@@ -480,8 +480,8 @@ void INS::handleInsert() noexcept {
         activePerformanceIndex = 5;
         dmeArmed = dmeUpdating = false;
         activeDME = 0;
-        if (id == ID_UNIT_1) indicators.indicator.DME1 = false;
-        if (id == ID_UNIT_2) indicators.indicator.DME2 = false;
+        if (unitIndex == 0) indicators.indicator.DME1 = false;
+        if (unitIndex == 1) indicators.indicator.DME2 = false;
         updateSimPosDelta();
       }
       // Aided
@@ -493,13 +493,11 @@ void INS::handleInsert() noexcept {
         activePerformanceIndex = 5;
         dmeArmed = dmeUpdating = false;
         activeDME = 0;
-        if (id == ID_UNIT_1) indicators.indicator.DME1 = false;
-        if (id == ID_UNIT_2) indicators.indicator.DME2 = false;
+        if (unitIndex == 0) indicators.indicator.DME1 = false;
+        if (unitIndex == 1) indicators.indicator.DME2 = false;
         if (currentTripleMixPosition.isValid()) {
-          double simLat = 999;
-          double simLon = 999;
-          varManager.getVar(SIM_VAR_PLANE_LATITUDE, simLat);
-          varManager.getVar(SIM_VAR_PLANE_LONGITUDE, simLon);
+          double simLat = varManager.sim.planeLatitude;
+          double simLon = varManager.sim.planeLongitude;
           POSITION simPos = {simLat, simLon};
 
           currentINSPosition = currentTripleMixPosition;
@@ -519,8 +517,8 @@ void INS::handleInsert() noexcept {
           timeInDME = 0;
           dmeArmed = activeDME > 0;
           dmeUpdating = false;
-          if (id == ID_UNIT_1) indicators.indicator.DME1 = false;
-          if (id == ID_UNIT_2) indicators.indicator.DME2 = false;
+          if (unitIndex == 0) indicators.indicator.DME1 = false;
+          if (unitIndex == 1) indicators.indicator.DME2 = false;
         }
       } else {
         currentLegStart = display.characters.FROM;
@@ -671,11 +669,9 @@ void INS::handleAutoMan() noexcept { autoMode = !autoMode; }
 void INS::handleInstantAlign() noexcept {
   if (modeSelector != MODE_SELECTOR::ALIGN) return;
 
-  double lat;
-  double lon;
-  if (varManager.getVar(SIM_VAR_PLANE_LATITUDE, lat) && varManager.getVar(SIM_VAR_PLANE_LONGITUDE, lon)) {
-    initialINSPosition = currentINSPosition = displayPosition = {lat, lon};
-  }
+  double lat = varManager.sim.planeLatitude;
+  double lon = varManager.sim.planeLongitude;
+  initialINSPosition = currentINSPosition = displayPosition = {lat, lon};
 
   alignSubmode = ALIGN_SUBMODE::MODE_0;
   ovenTemperature = config->getOperatingTempInC();

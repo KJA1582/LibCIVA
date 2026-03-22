@@ -78,43 +78,38 @@ const POSITION INS::currentNavPosition(const double dTime) noexcept {
 }
 
 void INS::calculateTrack() noexcept {
-  double trueHeading = 0;
-  double windDir = 0;
-  double windSpeed = 0;
-  double tas = 0;
-  double gs = 0;
+  double trueHeading = varManager.sim.planeHeadingDegreesTrue;
+  double windDir = varManager.sim.ambientWindDirection;
+  double windSpeed = varManager.sim.ambientWindVelocity;
+  double tas = varManager.sim.airspeedTrue;
+  double gs = varManager.sim.groundVelocity;
 
-  if (varManager.getVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, trueHeading) &&
-      varManager.getVar(SIM_VAR_AMBIENT_WIND_DIRECTION, windDir) && varManager.getVar(SIM_VAR_AMBIENT_WIND_VELOCITY, windSpeed) &&
-      varManager.getVar(SIM_VAR_AIRSPEED_TRUE, tas) && varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs)) {
-
-    if (gs < MIN_GS) {
-      track = trueHeading;
-
-      return;
-    }
-
-    double _trueHeading = trueHeading * DEG2RAD;
-    double _windDir = std::fmod(windDir + 180, 360) * DEG2RAD;
-
-    track = std::fmod(360 + (std::atan2(tas * std::sin(_trueHeading) + windSpeed * std::sin(_windDir),
-                                        tas * std::cos(_trueHeading) + windSpeed * std::cos(_windDir))) *
-                                RAD2DEG,
-                      360);
+  if (gs < MIN_GS) {
+    track = trueHeading;
+    return;
   }
+
+  double _trueHeading = trueHeading * DEG2RAD;
+  double _windDir = std::fmod(windDir + 180, 360) * DEG2RAD;
+
+  track = std::fmod(360 + (std::atan2(tas * std::sin(_trueHeading) + windSpeed * std::sin(_windDir),
+                                      tas * std::cos(_trueHeading) + windSpeed * std::cos(_windDir))) *
+                              RAD2DEG,
+                    360);
 }
 
 void INS::exportVars() const noexcept {
-  varManager.setVar(DISPLAY_VAR + id, display.value);
-  varManager.setVar(INDICATORS_VAR + id, indicators.value);
-  varManager.setVar(MODE_SELECTOR_POS_VAR + id, (double)modeSelector);
-  varManager.setVar(DATA_SELECTOR_POS_VAR + id, (double)dataSelector);
-  varManager.setVar(WAYPOINT_SELECTOR_POS_VAR + id, (double)waypointSelector);
-  varManager.setVar(AUTO_MAN_POS_VAR + id, (double)autoMode);
-  varManager.setVar(CROSS_TRACK_ERROR_VAR + id, crossTrackError);
-  varManager.setVar(DESIRED_TRACK_VAR + id, desiredTrack);
-  varManager.setVar(DISTANCE_VAR + id, remainingDistance);
-  varManager.setVar(VALID + id, (double)valid);
+  auto &unit = varManager.unit[unitIndex];
+  unit.display = display.value;
+  unit.indicators = indicators.value;
+  unit.modeSelectorPos = (double)modeSelector;
+  unit.dataSelectorPos = (double)dataSelector;
+  unit.waypointSelectorPos = (double)waypointSelector;
+  unit.autoManPos = (double)autoMode;
+  unit.crossTrackError = crossTrackError;
+  unit.desiredTrack = desiredTrack;
+  unit.distance = remainingDistance;
+  unit.valid = (double)valid;
 }
 
 } // namespace libciva

@@ -71,12 +71,10 @@ constexpr auto ID_UNIT_2 = "UNIT_2";
 constexpr auto ID_UNIT_3 = "UNIT_3";
 
 class INS {
-  // Global vars manager
   VarManager &varManager;
+  uint8_t unitIndex; // 0 to 2, corresponding to units 1 to 3
   // INS Config
   std::unique_ptr<Config> config;
-  // Unit ID
-  const std::string id;
   // List of active malfunctions
   ACTION_MALFUNCTION_CODES actionMalfunctionCodes;
   // Random
@@ -256,7 +254,7 @@ class INS {
 public:
 #pragma region Lifecycle
 
-  INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir, const bool hasADEU,
+  INS(VarManager &varManager, const uint8_t id, const std::string &configID, const std::string &workDir, const bool hasADEU,
       const bool hasDME, const bool hasExpandedBattery)
   noexcept;
   ~INS() noexcept;
@@ -329,14 +327,14 @@ class INSContainer {
 public:
   inline INSContainer(VarManager &varManager, UNIT_COUNT count, UNIT_HAS_DME dme, const std::string &configBaseID,
                       const bool hasADEU, const bool hasExtendedBattery) noexcept {
-    unit1 = std::make_shared<INS>(varManager, ID_UNIT_1, configBaseID + "_1", WORK_DIR,
+    unit1 = std::make_shared<INS>(varManager, 0, configBaseID + "_1", WORK_DIR,
                                   dme == UNIT_HAS_DME::ONE || dme == UNIT_HAS_DME::BOTH, hasADEU, hasExtendedBattery);
 
     if (count > UNIT_COUNT::ONE)
-      unit2 = std::make_shared<INS>(varManager, ID_UNIT_2, configBaseID + "_2", WORK_DIR,
+      unit2 = std::make_shared<INS>(varManager, 1, configBaseID + "_2", WORK_DIR,
                                     dme == UNIT_HAS_DME::TWO || dme == UNIT_HAS_DME::BOTH, hasADEU, hasExtendedBattery);
     if (count == UNIT_COUNT::THREE)
-      unit3 = std::make_shared<INS>(varManager, ID_UNIT_3, configBaseID + "_3", WORK_DIR, false, hasADEU, hasExtendedBattery);
+      unit3 = std::make_shared<INS>(varManager, 2, configBaseID + "_3", WORK_DIR, false, hasADEU, hasExtendedBattery);
 
     if (count > UNIT_COUNT::ONE) unit1->connectUnit2(unit2.get());
     if (count == UNIT_COUNT::THREE) unit1->connectUnit3(unit3.get());

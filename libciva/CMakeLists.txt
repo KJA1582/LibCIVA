@@ -30,7 +30,6 @@ set(sources
 	"src/ins/insUpdates.cpp"
 	"src/logger/logger.cpp"
 	"src/types/types.cpp"
-	"src/varManager/varManager.cpp"
 )
 
 if(SHARED)

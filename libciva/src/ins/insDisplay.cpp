@@ -199,22 +199,16 @@ void INS::updateDisplay(const double dTime) noexcept {
     }
   }
 
-  double gs;
-  bool gsValid = varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs);
-  double trueHeading;
-  bool trueHeadingValid = varManager.getVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, trueHeading);
+  double gs = varManager.sim.groundVelocity;
+  double trueHeading = varManager.sim.planeHeadingDegreesTrue;
 
   // Main display
   switch (dataSelector) {
     case DATA_SELECTOR::TKGS: {
       uint16_t _track = 0;
 
-      if (!gsValid) {
-        gs = 0;
-
-        if (trueHeadingValid || gs < MIN_GS) {
-          _track = (uint16_t)(std::round(trueHeading * 10));
-        }
+      if (gs <= 0) {
+        _track = (uint16_t)(std::round(trueHeading * 10));
       } else {
         _track = (uint16_t)(std::round(track * 10));
       }
@@ -243,13 +237,7 @@ void INS::updateDisplay(const double dTime) noexcept {
       break;
     }
     case DATA_SELECTOR::HDGDA: {
-      uint16_t heading = 0;
-
-      if (!trueHeadingValid) {
-        heading = 0;
-      } else {
-        heading = (uint16_t)(std::round(trueHeading * 10));
-      }
+      uint16_t heading = (uint16_t)(std::round(trueHeading * 10));
 
       int16_t driftAngle = (int16_t)std::round(((uint16_t)deltaAngle(heading / 10.0, track) % 180));
       uint8_t driftAngleDir = DISPLAY_CHAR_RIGHT;
@@ -279,12 +267,8 @@ void INS::updateDisplay(const double dTime) noexcept {
     case DATA_SELECTOR::XTKTKE: {
       uint16_t _track = 0;
 
-      if (!gsValid) {
-        gs = 0;
-
-        if (trueHeadingValid || gs < MIN_GS) {
-          _track = (uint16_t)(std::round(trueHeading));
-        }
+      if (gs < MIN_GS) {
+        _track = (uint16_t)(std::round(trueHeading));
       } else {
         _track = (uint16_t)(std::round(track));
       }
@@ -410,7 +394,7 @@ void INS::updateDisplay(const double dTime) noexcept {
         dist = waypoints[display.characters.FROM].distanceTo(waypoints[display.characters.TO]);
         if (state >= INS_STATE::ALIGN &&
             (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
-          time = gsValid && gs > MIN_GS_TIME ? (int16_t)std::round(std::min(9999.0, (dist / gs) * 600)) : 9999;
+          time = gs > MIN_GS_TIME ? (int16_t)std::round(std::min(9999.0, (dist / gs) * 600)) : 9999;
         } else {
           time = 9999;
         }
@@ -418,7 +402,7 @@ void INS::updateDisplay(const double dTime) noexcept {
         dist = pos.distanceTo(waypoints[currentLegEnd]);
         if (state >= INS_STATE::ALIGN &&
             (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
-          time = gsValid && gs > MIN_GS_TIME ? (int16_t)std::round(std::min(9999.0, (dist / gs) * 600)) : 9999;
+          time = gs > MIN_GS_TIME ? (int16_t)std::round(std::min(9999.0, (dist / gs) * 600)) : 9999;
         } else {
           time = 9999;
         }
@@ -436,8 +420,7 @@ void INS::updateDisplay(const double dTime) noexcept {
       break;
     }
     case DATA_SELECTOR::WIND: {
-      double tas = 0;
-      bool tasValid = varManager.getVar(SIM_VAR_AIRSPEED_TRUE, tas);
+      double tas = varManager.sim.airspeedTrue;
 
       display.characters.LEFT_DEC_1 = display.characters.LEFT_DEC_2 = display.characters.LEFT_DEG_1 =
           display.characters.RIGHT_DEC_1 = display.characters.RIGHT_DEC_2 = display.characters.RIGHT_DEG_1 =
@@ -448,20 +431,16 @@ void INS::updateDisplay(const double dTime) noexcept {
           display.characters.RIGHT_1 = display.characters.RIGHT_2 = display.characters.RIGHT_3 = display.characters.RIGHT_4 =
               display.characters.RIGHT_5 = DISPLAY_CHAR_BLANK;
 
-      if (!tasValid || gs < MIN_GS || tas < MIN_TAS_WIND || tas > MAX_TAS_WIND ||
+      if (tas <= 0 || gs < MIN_GS || tas < MIN_TAS_WIND || tas > MAX_TAS_WIND ||
           !(state >= INS_STATE::ALIGN &&
             (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7)))) {
         display.characters.LEFT_5 = display.characters.RIGHT_6 = 0;
       } else {
-        double dir = 0;
-        double speed = 0;
-        if (varManager.getVar(SIM_VAR_AMBIENT_WIND_DIRECTION, dir) && varManager.getVar(SIM_VAR_AMBIENT_WIND_VELOCITY, speed)) {
-          dir = std::round(dir);
-          speed = std::min(std::round(speed), 606.0);
+        double dir = std::round(varManager.sim.ambientWindDirection);
+        double speed = std::min(std::round(varManager.sim.ambientWindVelocity), 606.0);
 
-          formatTri(display, dir, true, false, 0);
-          formatTri(display, speed, false, false, 0);
-        }
+        formatTri(display, dir, true, false, 0);
+        formatTri(display, speed, false, false, 0);
       }
 
       break;
@@ -555,10 +534,9 @@ void INS::updateDisplay(const double dTime) noexcept {
 void INS::alertLamp(const double dTime) noexcept {
   static double flashTime = 0;
 
-  double gs = 0;
-  bool gsValid = varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs);
+  double gs = varManager.sim.groundVelocity;
 
-  if (gsValid) {
+  if (gs > 0) {
     const POSITION pos = currentNavPosition(dTime);
 
     double legDist = waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd]);

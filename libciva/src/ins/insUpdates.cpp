@@ -5,18 +5,15 @@ namespace libciva {
 #pragma region Static Helpers
 
 static std::pair<double, double> dmeCorrection(const DME &dme, const POSITION &pos, const VarManager &varManager,
-                                               const std::string &dmeID, const double dTime) {
+                                               const double dmeDist, const double dTime) {
 
   double dist = -1;
 
   double distFromStation = dme.position.distanceTo(pos);
   double bearing = dme.position.bearingTo(pos);
 
-  double alt = dme.altitude;
-  varManager.getVar(SIM_VAR_PLANE_ALTITUDE, alt);
+  double alt = varManager.sim.planeAltitude;
 
-  double dmeDist = 0;
-  varManager.getVar(dmeID, dmeDist);
   double slantCorrectedDMEDist = std::sqrt(std::pow(dmeDist, 2) - std::pow((alt - dme.altitude) * 0.000164579, 2));
 
   double distDelta = slantCorrectedDMEDist - distFromStation;
@@ -38,10 +35,8 @@ static std::pair<double, double> dmeCorrection(const DME &dme, const POSITION &p
 #pragma region Private
 
 void INS::updateSimPosDelta() noexcept {
-  double simLat = 999;
-  double simLon = 999;
-  varManager.getVar(SIM_VAR_PLANE_LATITUDE, simLat);
-  varManager.getVar(SIM_VAR_PLANE_LONGITUDE, simLon);
+  double simLat = varManager.sim.planeLatitude;
+  double simLon = varManager.sim.planeLongitude;
   POSITION simPos = {simLat, simLon};
 
   if (simPos.isValid()) {
@@ -50,15 +45,13 @@ void INS::updateSimPosDelta() noexcept {
 }
 
 void INS::updateCurrentINSPosition(const double dTime) noexcept {
-  double simLat = 999;
-  double simLon = 999;
-  double groundSpeed = 0;
-  varManager.getVar(SIM_VAR_PLANE_LATITUDE, simLat);
-  varManager.getVar(SIM_VAR_PLANE_LONGITUDE, simLon);
+  double simLat = varManager.sim.planeLatitude;
+  double simLon = varManager.sim.planeLongitude;
+  double groundSpeed = varManager.sim.groundVelocity;
 
   POSITION simPos = {simLat, simLon};
 
-  if (!simPos.isValid() || !varManager.getVar(SIM_VAR_GROUND_VELOCITY, groundSpeed)) return;
+  if (!simPos.isValid()) return;
 
   // Max error at 500 GS
   double speedScalar = std::max(0.1, groundSpeed / DRIFT_GS);
@@ -79,32 +72,32 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
     DME *unit2DME;
 
     // Get DME corrected distance error and bearing error
-    if (id == ID_UNIT_1) {
+    if (unitIndex == 0) {
       if (dmeUpdating) {
         unit1DME = &DMEs[activeDME - 1];
-        unit1Data = dmeCorrection(*unit1DME, currentINSPosition, varManager, SIM_VAR_NAV_DME_1, dTime);
+        unit1Data = dmeCorrection(*unit1DME, currentINSPosition, varManager, varManager.sim.navDme1, dTime);
       }
       if (unit2 && unit2->dmeUpdating) {
         unit2DME = &unit2->DMEs[unit2->activeDME - 1];
-        unit2Data = dmeCorrection(*unit2DME, unit2->currentINSPosition, varManager, SIM_VAR_NAV_DME_2, dTime);
+        unit2Data = dmeCorrection(*unit2DME, unit2->currentINSPosition, varManager, varManager.sim.navDme2, dTime);
       }
-    } else if (id == ID_UNIT_2) {
+    } else if (unitIndex == 1) {
       if (dmeUpdating) {
         unit2DME = &DMEs[activeDME - 1];
-        unit2Data = dmeCorrection(*unit2DME, currentINSPosition, varManager, SIM_VAR_NAV_DME_2, dTime);
+        unit2Data = dmeCorrection(*unit2DME, currentINSPosition, varManager, varManager.sim.navDme2, dTime);
       }
       if (unit2 && unit2->dmeUpdating) {
         unit1DME = &unit2->DMEs[unit2->activeDME - 1];
-        unit1Data = dmeCorrection(*unit1DME, unit2->currentINSPosition, varManager, SIM_VAR_NAV_DME_1, dTime);
+        unit1Data = dmeCorrection(*unit1DME, unit2->currentINSPosition, varManager, varManager.sim.navDme1, dTime);
       }
-    } else if (id == ID_UNIT_3) {
+    } else if (unitIndex == 2) {
       if (unit2 && unit2->dmeUpdating) {
         unit1DME = &unit2->DMEs[unit2->activeDME - 1];
-        unit1Data = dmeCorrection(*unit1DME, unit2->currentINSPosition, varManager, SIM_VAR_NAV_DME_1, dTime);
+        unit1Data = dmeCorrection(*unit1DME, unit2->currentINSPosition, varManager, varManager.sim.navDme1, dTime);
       }
       if (unit3 && unit3->dmeUpdating) {
         unit2DME = &unit3->DMEs[unit3->activeDME - 1];
-        unit2Data = dmeCorrection(*unit2DME, unit3->currentINSPosition, varManager, SIM_VAR_NAV_DME_2, dTime);
+        unit2Data = dmeCorrection(*unit2DME, unit3->currentINSPosition, varManager, varManager.sim.navDme2, dTime);
       }
     }
 
@@ -134,7 +127,7 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
       currentRadialError = (simPos + simPosDelta).bearingTo(newPos);
       currentINSPosition = newPos;
       // Since unit 3 cannot update if others are "done", use unit2 or 2 position
-    } else if (id == ID_UNIT_3) {
+    } else if (unitIndex == 2) {
       currentINSPosition = unit2 ? unit2->currentINSPosition : unit3 ? unit3->currentINSPosition : currentINSPosition;
     }
 
@@ -156,18 +149,12 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
 }
 
 void INS::updateMetrics(const double dTime) noexcept {
-  double gs;
-  bool gsValid = varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs);
-  double trueHeading;
-  bool trueHeadingValid = varManager.getVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, trueHeading);
+  double gs = varManager.sim.groundVelocity;
+  double trueHeading = varManager.sim.planeHeadingDegreesTrue;
 
   uint16_t _track = 0;
-  if (!gsValid) {
-    gs = 0;
-
-    if (trueHeadingValid || gs < MIN_GS) {
-      _track = (uint16_t)(std::round(trueHeading));
-    }
+  if (gs <= 0) {
+    _track = (uint16_t)(std::round(trueHeading));
   } else {
     _track = (uint16_t)(std::round(track));
   }
@@ -197,11 +184,10 @@ void INS::updateNav(const double dTime) noexcept {
   // Skip if not in auto
   if (!autoMode) return;
 
-  double gs;
-  bool gsValid = varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs);
+  double gs = varManager.sim.groundVelocity;
 
   // Invalid/slow speed, skip
-  if (!gsValid || gs <= 1) return;
+  if (gs <= 1) return;
 
   const POSITION pos = currentNavPosition(dTime);
 

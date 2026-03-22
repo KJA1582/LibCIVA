@@ -160,7 +160,6 @@
     <ClCompile Include="src\ins\insUpdates.cpp" />
     <ClCompile Include="src\logger\logger.cpp" />
     <ClCompile Include="src\types\types.cpp" />
-    <ClCompile Include="src\varManager\varManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\config\config.h" />

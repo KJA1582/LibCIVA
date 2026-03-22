@@ -26,18 +26,18 @@ static void handleSimConnect() {
       case SIMCONNECT_RECV_ID_SIMOBJECT_DATA: {
         SIMCONNECT_RECV_SIMOBJECT_DATA *pObjData = (SIMCONNECT_RECV_SIMOBJECT_DATA *)pData;
         DATA *data = (DATA *)&pObjData->dwData;
-        winVarManager->setVar(libciva::SIM_VAR_AIRSPEED_TRUE, data->airspeedTrue);
-        winVarManager->setVar(libciva::SIM_VAR_AMBIENT_TEMPERATURE, data->ambientTemp);
-        winVarManager->setVar(libciva::SIM_VAR_AMBIENT_WIND_DIRECTION, data->windDirection);
-        winVarManager->setVar(libciva::SIM_VAR_AMBIENT_WIND_VELOCITY, data->windSpeed);
-        winVarManager->setVar(libciva::SIM_VAR_GROUND_VELOCITY, data->groundSpeed);
-        winVarManager->setVar(libciva::SIM_VAR_PLANE_HEADING_DEGREES_TRUE, data->headingTrue);
-        winVarManager->setVar(libciva::SIM_VAR_PLANE_LATITUDE, data->latitude);
-        winVarManager->setVar(libciva::SIM_VAR_PLANE_LONGITUDE, data->longitude);
-        winVarManager->setVar(libciva::SIM_VAR_NAV_DME_1, data->navDME1);
-        winVarManager->setVar(libciva::SIM_VAR_NAV_DME_2, data->navDME2);
-        winVarManager->setVar(libciva::SIM_VAR_SIMULATION_RATE, data->simRate);
-        winVarManager->setVar(libciva::SIM_VAR_PLANE_ALTITUDE, data->altitude);
+        winVarManager->sim.airspeedTrue = data->airspeedTrue;
+        winVarManager->sim.ambientTemperature = data->ambientTemp;
+        winVarManager->sim.ambientWindDirection = data->windDirection;
+        winVarManager->sim.ambientWindVelocity = data->windSpeed;
+        winVarManager->sim.groundVelocity = data->groundSpeed;
+        winVarManager->sim.planeHeadingDegreesTrue = data->headingTrue;
+        winVarManager->sim.planeLatitude = data->latitude;
+        winVarManager->sim.planeLongitude = data->longitude;
+        winVarManager->sim.navDme1 = data->navDME1;
+        winVarManager->sim.navDme2 = data->navDME2;
+        winVarManager->sim.simulationRate = data->simRate;
+        winVarManager->sim.planeAltitude = data->altitude;
         break;
       }
       case SIMCONNECT_RECV_ID_EXCEPTION: {
@@ -66,9 +66,7 @@ static void runner() {
 
     {
       std::lock_guard<std::mutex> guard(lock);
-      double simRate = 1;
-      winVarManager->getVar(libciva::SIM_VAR_SIMULATION_RATE, simRate);
-      ins->update(delta.count() * 1e-9 * simRate);
+      ins->update(delta.count() * 1e-9 * winVarManager->sim.simulationRate);
     }
 
     HANDLE handle;

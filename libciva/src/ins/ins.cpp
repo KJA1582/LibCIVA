@@ -4,14 +4,13 @@ namespace libciva {
 
 #pragma region Lifecycle
 
-INS::INS(VarManager &varManager, const std::string &id, const std::string &configID, const std::string &workDir,
-         const bool hasADEU, const bool hasDME, const bool hasExpandedBattery) noexcept
-    : varManager(varManager), id(id), actionMalfunctionCodes(), hasADEU(hasADEU), hasDME(hasDME),
+INS::INS(VarManager &varManager, const uint8_t id, const std::string &configID, const std::string &workDir, const bool hasADEU,
+         const bool hasDME, const bool hasExpandedBattery) noexcept
+    : varManager(varManager), unitIndex(id), actionMalfunctionCodes(), hasADEU(hasADEU), hasDME(hasDME),
       hasExpandedBattery(hasExpandedBattery) {
   clearDisplay();
 
-  // Init all things from global vars
-  varManager.getVar(SIM_VAR_AMBIENT_TEMPERATURE, ovenTemperature);
+  ovenTemperature = varManager.sim.ambientTemperature;
 
   config = std::make_unique<Config>(workDir, configID);
   randomGen = std::make_unique<std::mt19937>((std::random_device())());
@@ -47,25 +46,23 @@ void INS::temperatureBatterySim(const double dTime) noexcept {
 
   // Oven
   bool shouldHeat = state > INS_STATE::OFF;
-  double ambient = 0;
-  if (varManager.getVar(SIM_VAR_AMBIENT_TEMPERATURE, ambient)) {
-    // Exit if at operating tem or ambient in case of heating or no heating
-    if (shouldHeat && ovenTemperature >= config->getOperatingTempInC()) return;
+  double ambient = varManager.sim.ambientTemperature;
+  // Exit if at operating tem or ambient in case of heating or no heating
+  if (shouldHeat && ovenTemperature >= config->getOperatingTempInC()) return;
 
-    double cooling = shouldHeat ? 0.0 : 0.02;
-    double loss = cooling * (ovenTemperature - ambient) * (dTime / config->getUnitMass());
+  double cooling = shouldHeat ? 0.0 : 0.02;
+  double loss = cooling * (ovenTemperature - ambient) * (dTime / config->getUnitMass());
 
-    // Ambient following
-    if (!shouldHeat) {
-      ovenTemperature -= loss;
-      return;
-    }
-
-    double energy = config->getHeaterWattage() * config->getHeaterEfficiency() * dTime;
-    double dTemp = energy / (config->getUnitMass() * config->getUnitSpecificHeat());
-
-    ovenTemperature = ovenTemperature + dTemp - loss;
+  // Ambient following
+  if (!shouldHeat) {
+    ovenTemperature -= loss;
+    return;
   }
+
+  double energy = config->getHeaterWattage() * config->getHeaterEfficiency() * dTime;
+  double dTemp = energy / (config->getUnitMass() * config->getUnitSpecificHeat());
+
+  ovenTemperature = ovenTemperature + dTemp - loss;
 }
 
 void INS::reset(const bool full) noexcept {
@@ -102,14 +99,8 @@ void INS::reset(const bool full) noexcept {
 }
 
 void INS::handleOutOfBounds() noexcept {
-  double gs;
-  if (!varManager.getVar(SIM_VAR_GROUND_VELOCITY, gs)) {
-    gs = 0;
-  };
-  double trueHeading;
-  if (!varManager.getVar(SIM_VAR_PLANE_HEADING_DEGREES_TRUE, trueHeading)) {
-    trueHeading = 0;
-  }
+  double gs = varManager.sim.groundVelocity;
+  double trueHeading = varManager.sim.planeHeadingDegreesTrue;
 
   if (deltaAngle(trueHeading, track) > MAX_DRIFT_ANGLE) {
     actionMalfunctionCodes.codes.A02_42 = true;
@@ -136,10 +127,8 @@ void INS::handleOutOfBounds() noexcept {
       alignSubmode = ALIGN_SUBMODE::MODE_6;
     }
     // Taxi
-    double simLat = 999;
-    double simLon = 999;
-    varManager.getVar(SIM_VAR_PLANE_LATITUDE, simLat);
-    varManager.getVar(SIM_VAR_PLANE_LONGITUDE, simLon);
+    double simLat = varManager.sim.planeLatitude;
+    double simLon = varManager.sim.planeLongitude;
     POSITION simPos = {simLat, simLon};
 
     if (simPos.isValid() && (simPos + simPosDelta).distanceTo(initialINSPosition) > 0.0001) {
@@ -151,7 +140,7 @@ void INS::handleOutOfBounds() noexcept {
 
 void INS::dmeUpdateChecks(const double dTime) noexcept {
   // Unit 3 has no DME connection so is updating whenever 1 or 2 are updating
-  if (id == ID_UNIT_3) {
+  if (unitIndex == 2) {
     dmeUpdating = ((unit2 && unit2->dmeUpdating) || (unit3 && unit3->dmeUpdating));
     return;
   }
@@ -168,38 +157,36 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
   if (timeInDME < MIN_DME_TIME) return;
 
   // Get DME value
-  double dmeDist = -1;
-  bool valid = id == ID_UNIT_1 ? varManager.getVar(SIM_VAR_NAV_DME_1, dmeDist)
-                               : (id == ID_UNIT_2 ? varManager.getVar(SIM_VAR_NAV_DME_2, dmeDist) : false);
+  double dmeDist = unitIndex == 0 ? varManager.sim.navDme1 : varManager.sim.navDme2;
+  bool valid = dmeDist >= 0;
 
   // Drop out of DME if not valid
   if (!valid || dmeDist < 0) {
     dmeArmed = dmeUpdating = false;
     activeDME = 0;
-    if (id == ID_UNIT_1) indicators.indicator.DME1 = false;
-    if (id == ID_UNIT_2) indicators.indicator.DME2 = false;
+    if (unitIndex == 0) indicators.indicator.DME1 = false;
+    if (unitIndex == 1) indicators.indicator.DME2 = false;
   }
 
   // Check distance, drop out if not reasonable
   DME dme = DMEs[activeDME - 1];
 
-  double alt = dme.altitude;
-  varManager.getVar(SIM_VAR_PLANE_ALTITUDE, alt);
+  double alt = varManager.sim.planeAltitude;
 
   double gcDist = dme.position.distanceTo((currentINSPosition));
   double slantCorrectedDMEDist = std::sqrt(std::pow(dmeDist, 2) - std::pow((alt - dme.altitude) * 0.000164579, 2));
   if (std::abs(gcDist - slantCorrectedDMEDist) > 0.5) {
     dmeArmed = dmeUpdating = false;
     activeDME = 0;
-    if (id == ID_UNIT_1) indicators.indicator.DME1 = false;
-    if (id == ID_UNIT_2) indicators.indicator.DME2 = false;
+    if (unitIndex == 0) indicators.indicator.DME1 = false;
+    if (unitIndex == 1) indicators.indicator.DME2 = false;
     return;
   }
 
   if (!dmeUpdating) {
     dmeUpdating = true;
-    if (id == ID_UNIT_1) indicators.indicator.DME1 = true;
-    if (id == ID_UNIT_2) indicators.indicator.DME2 = true;
+    if (unitIndex == 0) indicators.indicator.DME1 = true;
+    if (unitIndex == 1) indicators.indicator.DME2 = true;
     timeInMode = 0;
   }
 }

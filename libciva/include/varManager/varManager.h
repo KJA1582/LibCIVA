@@ -13,8 +13,6 @@
 #endif
 
 #include <cstdint>
-#include <map>
-#include <string>
 
 namespace libciva {
 
@@ -42,16 +40,36 @@ constexpr auto SIM_VAR_NAV_DME_2 = "NAV DME:2";
 constexpr auto SIM_VAR_SIMULATION_RATE = "SIMULATION RATE";
 constexpr auto SIM_VAR_PLANE_ALTITUDE = "PLANE ALTITUDE";
 
-class VarManager {
-protected:
-  std::map<std::string, double> store;
+struct VarManager {
+  struct UnitExport {
+    double display = 0;
+    double indicators = 0;
+    double modeSelectorPos = 0;
+    double dataSelectorPos = 0;
+    double waypointSelectorPos = 0;
+    double autoManPos = 0;
+    double crossTrackError = 0;
+    double desiredTrack = 0;
+    double distance = 0;
+    double valid = 0;
+  };
 
-public:
-  VarManager() noexcept;
-  virtual ~VarManager() noexcept {}
+  struct SimVars {
+    double ambientTemperature = 15;
+    double ambientWindDirection = 0;
+    double ambientWindVelocity = 0;
+    double airspeedTrue = 0;
+    double groundVelocity = 0;
+    double planeHeadingDegreesTrue = 0;
+    double planeLatitude = 0;
+    double planeLongitude = 0;
+    double navDme1 = -1;
+    double navDme2 = -1;
+    double simulationRate = 1;
+    double planeAltitude = 0;
+  } sim;
 
-  virtual void setVar(const std::string &name, double value) noexcept;
-  virtual bool getVar(const std::string &name, double &value) const noexcept;
+  UnitExport unit[3];
 };
 
 } // namespace libciva

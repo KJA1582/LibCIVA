@@ -10,7 +10,7 @@ HANDLE simConnect = 0;
 constexpr auto EVENT = "L:LIBCIVA_EVENT";
 
 std::string DISPLAY_VAR_UNIT_1 = std::string(libciva::DISPLAY_VAR) + libciva::ID_UNIT_1;
-std::string INDICATORS_VAR_UNIT_1 = std::string(libciva::INDICATORS_VAR) +libciva:: ID_UNIT_1;
+std::string INDICATORS_VAR_UNIT_1 = std::string(libciva::INDICATORS_VAR) + libciva::ID_UNIT_1;
 std::string MODE_SELECTOR_POS_VAR_UNIT_1 = std::string(libciva::MODE_SELECTOR_POS_VAR) + libciva::ID_UNIT_1;
 std::string DATA_SELECTOR_POS_VAR_UNIT_1 = std::string(libciva::DATA_SELECTOR_POS_VAR) + libciva::ID_UNIT_1;
 std::string WAYPOINT_SELECTOR_POS_VAR_UNIT_1 = std::string(libciva::WAYPOINT_SELECTOR_POS_VAR) + libciva::ID_UNIT_1;
@@ -282,18 +282,18 @@ static void handleSimConnect() {
         case SIMCONNECT_RECV_ID_SIMOBJECT_DATA: {
           SIMCONNECT_RECV_SIMOBJECT_DATA *pObjData = (SIMCONNECT_RECV_SIMOBJECT_DATA *)pData;
           DATA *data = (DATA *)&pObjData->dwData;
-          varManager->setVar(libciva::SIM_VAR_AIRSPEED_TRUE, data->airspeedTrue);
-          varManager->setVar(libciva::SIM_VAR_AMBIENT_TEMPERATURE, data->ambientTemp);
-          varManager->setVar(libciva::SIM_VAR_AMBIENT_WIND_DIRECTION, data->windDirection);
-          varManager->setVar(libciva::SIM_VAR_AMBIENT_WIND_VELOCITY, data->windSpeed);
-          varManager->setVar(libciva::SIM_VAR_GROUND_VELOCITY, data->groundSpeed);
-          varManager->setVar(libciva::SIM_VAR_PLANE_HEADING_DEGREES_TRUE, data->headingTrue);
-          varManager->setVar(libciva::SIM_VAR_PLANE_LATITUDE, data->latitude);
-          varManager->setVar(libciva::SIM_VAR_PLANE_LONGITUDE, data->longitude);
-          varManager->setVar(libciva::SIM_VAR_NAV_DME_1, data->navDME1);
-          varManager->setVar(libciva::SIM_VAR_NAV_DME_2, data->navDME2);
-          varManager->setVar(libciva::SIM_VAR_SIMULATION_RATE, data->simRate);
-          varManager->setVar(libciva::SIM_VAR_PLANE_ALTITUDE, data->altitude);
+          varManager->sim.airspeedTrue = data->airspeedTrue;
+          varManager->sim.ambientTemperature = data->ambientTemp;
+          varManager->sim.ambientWindDirection = data->windDirection;
+          varManager->sim.ambientWindVelocity = data->windSpeed;
+          varManager->sim.groundVelocity = data->groundSpeed;
+          varManager->sim.planeHeadingDegreesTrue = data->headingTrue;
+          varManager->sim.planeLatitude = data->latitude;
+          varManager->sim.planeLongitude = data->longitude;
+          varManager->sim.navDme1 = data->navDME1;
+          varManager->sim.navDme2 = data->navDME2;
+          varManager->sim.simulationRate = data->simRate;
+          varManager->sim.planeAltitude = data->altitude;
 
           if (data->atcID != NULL && !ins) {
             libciva::Logger::GetInstance() << "Booting INS for " << data->atcID;
@@ -327,38 +327,38 @@ static void exportVars() {
   EXPORT export2 = {0};
   EXPORT export3 = {0};
 
-  varManager->getVar(DISPLAY_VAR_UNIT_1, export1.displays);
-  varManager->getVar(INDICATORS_VAR_UNIT_1, export1.indicators);
-  varManager->getVar(MODE_SELECTOR_POS_VAR_UNIT_1, export1.modeSelectorPos);
-  varManager->getVar(DATA_SELECTOR_POS_VAR_UNIT_1, export1.dataSelectorPos);
-  varManager->getVar(WAYPOINT_SELECTOR_POS_VAR_UNIT_1, export1.waypointSelectorPos);
-  varManager->getVar(AUTO_MAN_POS_VAR_UNIT_1, export1.autoManPos);
-  varManager->getVar(CROSS_TRACK_ERROR_VAR_UNIT_1, export1.crossTrackError);
-  varManager->getVar(DESIRED_TRACK_VAR_UNIT_1, export1.desiredTrack);
-  varManager->getVar(DISTANCE_VAR_UNIT_1, export1.distance);
-  varManager->getVar(VALID_UNIT_1, export1.valid);
+  export1.displays = varManager->unit[0].display;
+  export1.indicators = varManager->unit[0].indicators;
+  export1.modeSelectorPos = varManager->unit[0].modeSelectorPos;
+  export1.dataSelectorPos = varManager->unit[0].dataSelectorPos;
+  export1.waypointSelectorPos = varManager->unit[0].waypointSelectorPos;
+  export1.autoManPos = varManager->unit[0].autoManPos;
+  export1.crossTrackError = varManager->unit[0].crossTrackError;
+  export1.desiredTrack = varManager->unit[0].desiredTrack;
+  export1.distance = varManager->unit[0].distance;
+  export1.valid = varManager->unit[0].valid;
 
-  varManager->getVar(DISPLAY_VAR_UNIT_2, export2.displays);
-  varManager->getVar(INDICATORS_VAR_UNIT_2, export2.indicators);
-  varManager->getVar(MODE_SELECTOR_POS_VAR_UNIT_2, export2.modeSelectorPos);
-  varManager->getVar(DATA_SELECTOR_POS_VAR_UNIT_2, export2.dataSelectorPos);
-  varManager->getVar(WAYPOINT_SELECTOR_POS_VAR_UNIT_2, export2.waypointSelectorPos);
-  varManager->getVar(AUTO_MAN_POS_VAR_UNIT_2, export2.autoManPos);
-  varManager->getVar(CROSS_TRACK_ERROR_VAR_UNIT_2, export2.crossTrackError);
-  varManager->getVar(DESIRED_TRACK_VAR_UNIT_2, export2.desiredTrack);
-  varManager->getVar(DISTANCE_VAR_UNIT_2, export2.distance);
-  varManager->getVar(VALID_UNIT_2, export2.valid);
+  export2.displays = varManager->unit[1].display;
+  export2.indicators = varManager->unit[1].indicators;
+  export2.modeSelectorPos = varManager->unit[1].modeSelectorPos;
+  export2.dataSelectorPos = varManager->unit[1].dataSelectorPos;
+  export2.waypointSelectorPos = varManager->unit[1].waypointSelectorPos;
+  export2.autoManPos = varManager->unit[1].autoManPos;
+  export2.crossTrackError = varManager->unit[1].crossTrackError;
+  export2.desiredTrack = varManager->unit[1].desiredTrack;
+  export2.distance = varManager->unit[1].distance;
+  export2.valid = varManager->unit[1].valid;
 
-  varManager->getVar(DISPLAY_VAR_UNIT_3, export3.displays);
-  varManager->getVar(INDICATORS_VAR_UNIT_3, export3.indicators);
-  varManager->getVar(MODE_SELECTOR_POS_VAR_UNIT_3, export3.modeSelectorPos);
-  varManager->getVar(DATA_SELECTOR_POS_VAR_UNIT_3, export3.dataSelectorPos);
-  varManager->getVar(WAYPOINT_SELECTOR_POS_VAR_UNIT_3, export3.waypointSelectorPos);
-  varManager->getVar(AUTO_MAN_POS_VAR_UNIT_3, export3.autoManPos);
-  varManager->getVar(CROSS_TRACK_ERROR_VAR_UNIT_3, export3.crossTrackError);
-  varManager->getVar(DESIRED_TRACK_VAR_UNIT_3, export3.desiredTrack);
-  varManager->getVar(DISTANCE_VAR_UNIT_3, export3.distance);
-  varManager->getVar(VALID_UNIT_3, export3.valid);
+  export3.displays = varManager->unit[2].display;
+  export3.indicators = varManager->unit[2].indicators;
+  export3.modeSelectorPos = varManager->unit[2].modeSelectorPos;
+  export3.dataSelectorPos = varManager->unit[2].dataSelectorPos;
+  export3.waypointSelectorPos = varManager->unit[2].waypointSelectorPos;
+  export3.autoManPos = varManager->unit[2].autoManPos;
+  export3.crossTrackError = varManager->unit[2].crossTrackError;
+  export3.desiredTrack = varManager->unit[2].desiredTrack;
+  export3.distance = varManager->unit[2].distance;
+  export3.valid = varManager->unit[2].valid;
 
   SimConnect_SetDataOnSimObject(simConnect, DATA_DEFINITIONS_UNIT_1, SIMCONNECT_OBJECT_ID_USER_AIRCRAFT,
                                 SIMCONNECT_DATA_SET_FLAG_DEFAULT, 0, sizeof(EXPORT), &export1);
@@ -387,9 +387,7 @@ extern "C" MSFS_CALLBACK bool LibCIVA_gauge_update(FsContext ctx, float dTime) {
 
   handleSimConnect();
 
-  double simRate = 1;
-  varManager->getVar(libciva::SIM_VAR_SIMULATION_RATE, simRate);
-  ins->update(dTime * simRate);
+  ins->update(dTime * varManager->sim.simulationRate);
 
   exportVars();
 
