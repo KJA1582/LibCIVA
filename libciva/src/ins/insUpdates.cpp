@@ -206,8 +206,12 @@ void INS::updateNav(const double dTime) noexcept {
   double delta = nextCrs - track;
   while (delta < -180.0) delta += 360.0;
   while (delta >= 180.0) delta -= 360.0;
+
   double turnDist = turnRadius * std::tan((std::abs(delta) * DEG2RAD) / 2.0);
   turnDist /= 6076.1154856;
+
+  // Lead in/out
+  turnDist += gs / LEAD_CORRECTION;
 
   // Turn point hit, advance leg (must be <2deg delta between track and dirto crs)
   if (dist <= turnDist && std::abs(crsToEnd - track) < 2) {

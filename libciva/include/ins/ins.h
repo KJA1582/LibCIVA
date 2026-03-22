@@ -36,6 +36,8 @@ constexpr double UNIT_MASS = 5;            // kg
 constexpr double UNIT_SPECIFIC_HEAT = 900; // J/(kg * K)
 
 constexpr double MAX_BANK_ANGLE = 30; // °
+constexpr double MAX_BANK_RATE = 10;  // °/s
+constexpr double LEAD_CORRECTION = (MAX_BANK_ANGLE / MAX_BANK_RATE) / 3600.0;
 
 constexpr auto MIN_MODE_8 = 51;
 constexpr auto MAX_MODE_7 = 90;        // Not specified in manual, but "shortly"

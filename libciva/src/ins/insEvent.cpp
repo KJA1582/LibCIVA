@@ -367,7 +367,8 @@ void INS::handleInsert() noexcept {
           alignSubmode = ALIGN_SUBMODE::MODE_6;
         }
         // Others, trigger 04-41 if >76nmi from last
-        else if (displayPosition.distanceTo(config->getLastINSPosition()) > MAX_RAMP_DEV) {
+        else if (config->getLastINSPosition().isValid() &&
+                 displayPosition.distanceTo(config->getLastINSPosition()) > MAX_RAMP_DEV) {
           actionMalfunctionCodes.codes.A04_41 = true;
           advanceActionMalfunctionIndex();
           indicators.indicator.WARN = true;
@@ -378,7 +379,7 @@ void INS::handleInsert() noexcept {
       // Since OFF and ATT are early abort, this is STBY only
       // Trigger 04-41 if >76nmi from last
       else {
-        if (displayPosition.distanceTo(config->getLastINSPosition()) > MAX_RAMP_DEV) {
+        if (config->getLastINSPosition().isValid() && displayPosition.distanceTo(config->getLastINSPosition()) > MAX_RAMP_DEV) {
           actionMalfunctionCodes.codes.A04_41 = true;
           advanceActionMalfunctionIndex();
           indicators.indicator.WARN = true;
