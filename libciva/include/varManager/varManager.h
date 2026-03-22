@@ -24,6 +24,8 @@ constexpr auto WAYPOINT_SELECTOR_POS_VAR = "LIBCIVA_WAYPOINT_SELECTOR_POS_";
 constexpr auto AUTO_MAN_POS_VAR = "LIBCIVA_AUTO_MAN_POS_";
 constexpr auto CROSS_TRACK_ERROR_VAR = "LIBCIVA_CROSS_TRACK_ERROR_";
 constexpr auto DESIRED_TRACK_VAR = "LIBCIVA_DESIRED_TRACK_";
+constexpr auto TRACK_VAR = "LIBCIVA_TRACK_";
+constexpr auto TRACK_ANGLE_ERROR_VAR = "LIBCIVA_TRACK_ANGLE_ERROR_";
 constexpr auto DISTANCE_VAR = "LIBCIVA_DISTANCE_";
 constexpr auto VALID = "LIBCIVA_VALID_";
 
@@ -50,6 +52,8 @@ struct VarManager {
     double autoManPos = 0;
     double crossTrackError = 0;
     double desiredTrack = 0;
+    double track = 0;
+    double trackAngleError = 0;
     double distance = 0;
     double valid = 0;
   };

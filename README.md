@@ -142,6 +142,15 @@ Negative values indicate INS is left of course (right turn to get back).
 
 Calculated desired track in degrees.
 
+### LIBCIVA_TRACK_UNIT_x
+
+Calculated track in degrees.
+
+### LIBCIVA_TRACK_ANGLE_ERROR_UNIT_x
+
+Calculated track angle error in degrees.  
+Negative value indicates track is less than desired track (right turn to align).
+
 ### LIBCIVA_DISTANCE_UNIT_x
 
 Along track remaining distance to active waypoint.

@@ -158,6 +158,8 @@ class INS {
   double crossTrackError = 0;
   // Desired track
   double desiredTrack = 0;
+  // Track angle Error, positive is TRK < DTK (right turn to align)
+  double trackAngleError = 0;
   // Remaining distance to waypoint (from along pos)
   double remainingDistance = 0;
   // Initial INS accumulated distance error

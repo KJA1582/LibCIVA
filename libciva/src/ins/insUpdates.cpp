@@ -149,14 +149,11 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
 }
 
 void INS::updateMetrics(const double dTime) noexcept {
-  double gs = varManager.sim.groundVelocity;
-  double trueHeading = varManager.sim.planeHeadingDegreesTrue;
-
-  uint16_t _track = 0;
-  if (gs <= 0) {
-    _track = (uint16_t)(std::round(trueHeading));
+  double _track = 0;
+  if (varManager.sim.groundVelocity <= 0) {
+    _track = varManager.sim.planeHeadingDegreesTrue;
   } else {
-    _track = (uint16_t)(std::round(track));
+    _track = track;
   }
 
   const POSITION pos = currentNavPosition(dTime);
@@ -170,6 +167,10 @@ void INS::updateMetrics(const double dTime) noexcept {
   /* XTK */
 
   crossTrackError = pos.crossTrackDistance(waypoints[currentLegStart], waypoints[currentLegEnd]);
+
+  /* TKE */
+
+  trackAngleError = waypoints[display.characters.FROM].bearingTo(waypoints[display.characters.TO]) - _track;
 
   /* DSRTK */
 

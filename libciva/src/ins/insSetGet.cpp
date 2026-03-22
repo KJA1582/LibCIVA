@@ -99,6 +99,13 @@ void INS::calculateTrack() noexcept {
 }
 
 void INS::exportVars() const noexcept {
+  double _track = 0;
+  if (varManager.sim.groundVelocity <= 0) {
+    _track = (uint16_t)(std::round(varManager.sim.planeHeadingDegreesTrue));
+  } else {
+    _track = (uint16_t)(std::round(track));
+  }
+
   auto &unit = varManager.unit[unitIndex];
   unit.display = display.value;
   unit.indicators = indicators.value;
@@ -108,7 +115,9 @@ void INS::exportVars() const noexcept {
   unit.autoManPos = (double)autoMode;
   unit.crossTrackError = crossTrackError;
   unit.desiredTrack = desiredTrack;
-  unit.distance = remainingDistance;
+  unit.track = track;
+  unit.trackAngleError = trackAngleError;
+  unit.distance = unit.distance = remainingDistance;
   unit.valid = (double)valid;
 }
 
