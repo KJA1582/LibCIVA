@@ -30,6 +30,11 @@ enum DATA_DEFINITIONS : SIMCONNECT_DATA_DEFINITION_ID { DATA_DEFINITIONS_DATA };
 
 enum REQUEST_DEFINITIONS : SIMCONNECT_DATA_REQUEST_ID { REQUEST_DEFINITIONS_DATA };
 
+// Pure AP Demo
+enum EVENT_DEFINITIONS : SIMCONNECT_CLIENT_EVENT_ID {
+  EVENT_DEFINITIONS_AILERON_SET,
+};
+
 struct DATA {
   double airspeedTrue;
   double ambientTemp;
@@ -43,6 +48,10 @@ struct DATA {
   double navDME2;
   double simRate;
   double altitude;
+
+  // Pure AP Demo
+  double rollRateBodyZ;
+  double bankAngle;
 };
 
 #endif

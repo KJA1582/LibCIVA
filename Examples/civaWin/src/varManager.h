@@ -20,6 +20,9 @@
 
 class WinVarManager : public libciva::VarManager {
 public:
+  double rollRate = 0;
+  double bankAngle = 0;
+
   WinVarManager() noexcept;
 
   void dump() const noexcept;

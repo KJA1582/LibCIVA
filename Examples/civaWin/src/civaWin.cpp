@@ -1,4 +1,4 @@
-﻿#include "civaWin.h"
+#include "civaWin.h"
 
 std::unique_ptr<WinVarManager> winVarManager;
 std::unique_ptr<libciva::INSContainer> ins;
@@ -38,6 +38,10 @@ static void handleSimConnect() {
         winVarManager->sim.navDme2 = data->navDME2;
         winVarManager->sim.simulationRate = data->simRate;
         winVarManager->sim.planeAltitude = data->altitude;
+
+        // Pure AP Demo
+        winVarManager->rollRate = data->rollRateBodyZ;
+        winVarManager->bankAngle = data->bankAngle;
         break;
       }
       case SIMCONNECT_RECV_ID_EXCEPTION: {
@@ -101,7 +105,7 @@ static void runner() {
     std::cout << "AUTO/MAN  : A" << std::endl;
     std::cout << "REMOTE    : R" << std::endl;
     std::cout << "INST ALIGN: I" << std::endl;
-    std::cout << "AC POWER  : P" << std::endl << std::endl;
+    std::cout << "AC POWER  : P" << std::endl;
 
     std::cout << "dT was " << delta.count() * 1e-6 << "ms" << std::endl;
   }
@@ -126,6 +130,11 @@ static void setupSimConnect() {
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_SIMULATION_RATE, "NUMBER");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_PLANE_ALTITUDE, "FEET");
 
+  // Pure AP Demo
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "ROTATION VELOCITY BODY Z", "DEGREES PER SECOND");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "PLANE BANK DEGREES", "DEGREE");
+  SimConnect_MapClientEventToSimEvent(simConnect, EVENT_DEFINITIONS_AILERON_SET, "AILERON_SET");
+
   SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA, SIMCONNECT_OBJECT_ID_USER,
                                     SIMCONNECT_PERIOD_VISUAL_FRAME);
   // TODO: SC init
@@ -136,7 +145,7 @@ int main() {
 
   winVarManager = std::make_unique<WinVarManager>();
 
-  ins = std::make_unique<libciva::INSContainer>(*winVarManager, libciva::UNIT_COUNT::THREE, libciva::UNIT_HAS_DME::BOTH, "", true,
+  ins = std::make_unique<libciva::INSContainer>(*winVarManager, libciva::UNIT_COUNT::ONE, libciva::UNIT_HAS_DME::BOTH, "", true,
                                                 false);
 
   INSThread = std::thread(runner);
