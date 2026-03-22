@@ -133,8 +133,8 @@ class INS {
 
 #pragma region Multi Unit
 
-  INS *unit2;
-  INS *unit3;
+  INS *unit2 = NULL;
+  INS *unit3 = NULL;
 
 #pragma endregion
 

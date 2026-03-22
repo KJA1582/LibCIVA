@@ -1,8 +1,5 @@
 # Navigation
 
-- Leg switching assumes 30°
-  - Configurable?
-
 # Other
 
 - ADEU
