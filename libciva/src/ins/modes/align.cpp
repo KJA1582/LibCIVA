@@ -6,6 +6,7 @@ void INS::align(const double dTime) noexcept {
   if (modeSelector == MODE_SELECTOR::STBY) {
     // Downmode
     state = INS_STATE::STBY;
+    valid = SIGNAL_VALIDITY::INV;
     reset(false);
 
     return;
@@ -13,6 +14,7 @@ void INS::align(const double dTime) noexcept {
     // Upmode
     if (alignSubmode <= ALIGN_SUBMODE::MODE_5) {
       state = INS_STATE::NAV;
+      valid = SIGNAL_VALIDITY::NAV;
       indicators.indicator.READY_NAV = false;
       accuracyIndex = 0;
       initialRadialError = currentRadialError = 0;
@@ -58,9 +60,13 @@ void INS::align(const double dTime) noexcept {
       break;
     }
     case ALIGN_SUBMODE::MODE_7: {
-      if (timeInMode >= MAX_MODE_7 && currentINSPosition.isValid() && actionMalfunctionCodes.value == 0) {
-        alignSubmode = ALIGN_SUBMODE::MODE_6;
-        timeInMode = 0;
+      if (timeInMode >= MAX_MODE_7) {
+        valid = SIGNAL_VALIDITY::ATT;
+
+        if (currentINSPosition.isValid() && actionMalfunctionCodes.value == 0) {
+          alignSubmode = ALIGN_SUBMODE::MODE_6;
+          timeInMode = 0;
+        }
       }
       break;
     }

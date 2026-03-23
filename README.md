@@ -159,4 +159,8 @@ Along track remaining distance to active waypoint.
 
 ### LIBCIVA_VALID_UNIT_x
 
-Indicates if outputs are valid.
+| Value | Mode          |
+| ----- | ------------- |
+| 0     | Invalid       |
+| 1     | Attitude only |
+| 2     | Navigation    |

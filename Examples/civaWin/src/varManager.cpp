@@ -105,7 +105,11 @@ void WinVarManager::dump() const noexcept {
     std::cout << "TRK: " << std::right << std::setfill(' ') << std::setw(12) << unit[i].track << std::endl;
     std::cout << "TKE: " << std::right << std::setfill(' ') << std::setw(12) << unit[i].trackAngleError << std::endl;
     std::cout << "DIS: " << std::right << std::setfill(' ') << std::setw(12) << unit[i].distance << std::endl;
-    std::cout << "Valid: " << (unit[i].valid ? "Yes" : "No") << std::endl;
+    std::cout << "Valid: "
+              << (unit[i].valid == (double)libciva::SIGNAL_VALIDITY::INV   ? "Invalid"
+                  : unit[i].valid == (double)libciva::SIGNAL_VALIDITY::NAV ? "Navigation"
+                                                                           : "Attitude only")
+              << std::endl;
     std::cout << std::endl;
   }
 

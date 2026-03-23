@@ -675,6 +675,8 @@ void INS::handleInstantAlign() noexcept {
   initialINSPosition = currentINSPosition = displayPosition = {lat, lon};
 
   alignSubmode = ALIGN_SUBMODE::MODE_0;
+  valid = SIGNAL_VALIDITY::ATT;
+  batteryTest = BATTERY_TEST::COMPLETED;
   ovenTemperature = OPERATING_TEMP;
   indicators.value = 0;
   indicators.indicator.READY_NAV = true;

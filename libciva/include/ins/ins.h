@@ -207,6 +207,8 @@ class INS {
   uint8_t activeDME = 0;
   // DME mode
   DME_MODE dmeMode = DME_MODE::INV;
+  // Signals valid
+  SIGNAL_VALIDITY valid = SIGNAL_VALIDITY::INV;
   // Malfunction code displayed if true, action code otherwise
   bool malfunctionCodeDisplayed = false;
   // Test mode
@@ -230,8 +232,6 @@ class INS {
   bool hasExpandedBattery = false;
   // External power state
   bool externalPower = false;
-  // Signals valid
-  bool valid = false;
 
 #pragma endregion
 

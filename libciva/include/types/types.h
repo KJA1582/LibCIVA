@@ -96,6 +96,12 @@ enum class DME_MODE : int8_t {
   DME_FREQ,
 };
 
+enum class SIGNAL_VALIDITY : int8_t {
+  INV,
+  ATT,
+  NAV,
+};
+
 // Use Bitset to set
 // Use value to unset/check if INV
 // Use ENUM of same name to work with

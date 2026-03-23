@@ -1,15 +1,11 @@
 #include "civaWin.h"
 
-// Pure AP Demo
-#include "lateralAutopilot.h"
-#include "verticalAutopilot.h"
-
 std::unique_ptr<WinVarManager> winVarManager;
 std::unique_ptr<libciva::INSContainer> ins;
 
 // Pure AP Demo
-std::unique_ptr<libciva::LateralAutopilot> lateralAutopilot;
-std::unique_ptr<libciva::VerticalAutopilot> verticalAutopilot;
+std::unique_ptr<LateralAutopilot> lateralAutopilot;
+std::unique_ptr<VerticalAutopilot> verticalAutopilot;
 
 std::thread INSThread;
 std::mutex lock;
@@ -52,6 +48,7 @@ static void handleSimConnect() {
         winVarManager->bankAngle = data->planeBankDegrees;
         winVarManager->pitchRate = data->pitchRateBodyX;
         winVarManager->pitchAngle = data->planePitchDegrees;
+
         break;
       }
       case SIMCONNECT_RECV_ID_EXCEPTION: {
@@ -83,6 +80,9 @@ static void runner() {
       ins->update(delta.count() * 1e-9 * winVarManager->sim.simulationRate);
 
       // Pure AP Demo
+      if (lateralAutopilot->isEnabled() && winVarManager->unit[0].valid != (double)libciva::SIGNAL_VALIDITY::NAV)
+        lateralAutopilot->disable();
+
       lateralAutopilot->update(delta.count() * 1e-9 * winVarManager->sim.simulationRate, winVarManager->bankAngle,
                                winVarManager->rollRate, winVarManager->unit[0].track, winVarManager->unit[0].crossTrackError,
                                winVarManager->unit[0].trackAngleError, winVarManager->unit[0].desiredTrack);
@@ -118,9 +118,12 @@ static void runner() {
                 << openData.dwApplicationBuildMinor << std::endl
                 << std::endl;
     }
-    std::cout << "Selected Unit " << (double)selectedUnit << std::endl << std::endl;
 
-    std::cout << "Unit sel  : 1,2,3,4 (All)" << std::endl;
+    if (selectedUnit == 4) std::cout << "All Units selected" << std::endl << std::endl;
+    else
+      std::cout << "Selected Unit " << (double)selectedUnit << std::endl << std::endl;
+
+    std::cout << "Unit Sel  : 1,2,3,4 (All)" << std::endl;
     std::cout << "Data Entry: Numpad" << std::endl;
     std::cout << "Mode Knob : Arrow left/right" << std::endl;
     std::cout << "Data Knob : Arrow up/down" << std::endl;
@@ -136,8 +139,8 @@ static void runner() {
     std::cout << "REMOTE    : R" << std::endl;
     std::cout << "INST ALIGN: I" << std::endl;
     std::cout << "AC POWER  : P" << std::endl;
-    std::cout << "AP LNAV   : G" << std::endl;
-    std::cout << "AP ALT HLD: V" << std::endl;
+    std::cout << "AP LNAV   : G (" << (lateralAutopilot->isEnabled() ? "ENABLED" : "DISABLED") << ")" << std::endl;
+    std::cout << "AP ALT HLD: V (" << (verticalAutopilot->isEnabled() ? "ENABLED" : "DISABLED") << ")" << std::endl;
 
     std::cout << "dT was " << delta.count() * 1e-6 << "ms" << std::endl;
   }
@@ -172,7 +175,6 @@ static void setupSimConnect() {
 
   SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA, SIMCONNECT_OBJECT_ID_USER,
                                     SIMCONNECT_PERIOD_VISUAL_FRAME);
-  // TODO: SC init
 }
 
 int main() {
@@ -184,8 +186,8 @@ int main() {
                                                 false);
 
   // Pure AP Demo
-  lateralAutopilot = std::make_unique<libciva::LateralAutopilot>();
-  verticalAutopilot = std::make_unique<libciva::VerticalAutopilot>();
+  lateralAutopilot = std::make_unique<LateralAutopilot>();
+  verticalAutopilot = std::make_unique<VerticalAutopilot>();
 
   INSThread = std::thread(runner);
 
@@ -374,6 +376,7 @@ int main() {
                 verticalAutopilot->enable(winVarManager->sim.planeAltitude);
               }
               break;
+
             case VK_ESCAPE:
               __exit = true;
               break;

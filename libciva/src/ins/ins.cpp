@@ -71,7 +71,7 @@ void INS::reset(const bool full) noexcept {
     indicators = {0};
     displayPosition = currentINSPosition = initialINSPosition = {999, 999};
     track = 0;
-    valid = false;
+    valid = SIGNAL_VALIDITY::INV;
 
     for (uint8_t i = 0; i < 10; i++) {
       waypoints[i] = {0, 0};

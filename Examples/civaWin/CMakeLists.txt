@@ -13,7 +13,9 @@ project ("civaWin")
 
 add_executable(civaWin
 	"src/civaWin.cpp"
+	"src/lateralAutopilot.cpp"
 	"src/varManager.cpp"
+	"src/verticalAutopilot.cpp"
 )
 set_property(TARGET civaWin PROPERTY CXX_STANDARD 14)
 target_include_directories(civaWin PRIVATE

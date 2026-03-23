@@ -26,6 +26,10 @@
 
 #include "varManager.h"
 
+// Pure AP Demo
+#include "lateralAutopilot.h"
+#include "verticalAutopilot.h"
+
 enum DATA_DEFINITIONS : SIMCONNECT_DATA_DEFINITION_ID { DATA_DEFINITIONS_DATA };
 
 enum REQUEST_DEFINITIONS : SIMCONNECT_DATA_REQUEST_ID { REQUEST_DEFINITIONS_DATA };

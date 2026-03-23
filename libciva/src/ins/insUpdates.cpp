@@ -244,7 +244,7 @@ void INS::updatePreMix(const double dTime) noexcept {
     state = INS_STATE::FAIL;
     indicators.value = 0;
     indicators.indicator.MSU_BAT = true;
-    valid = false;
+    valid = SIGNAL_VALIDITY::INV;
     clearDisplay();
   }
 
@@ -261,7 +261,7 @@ void INS::updatePreMix(const double dTime) noexcept {
   if (state < INS_STATE::ATT && modeSelector == MODE_SELECTOR::ATT) {
     state = INS_STATE::ATT;
     timeInMode = 0;
-    valid = false;
+    valid = SIGNAL_VALIDITY::ATT;
     clearDisplay();
 
     return;
@@ -293,7 +293,6 @@ void INS::updatePreMix(const double dTime) noexcept {
         // Init error radial and distance
         baseRadialDriftPerSecond = distributionRadial->operator()(*randomGen);
         distanceDriftPerSecond = std::abs(distributionDistance->operator()(*randomGen)) / 3600.0;
-        valid = true;
 
         timeInMode = 0;
       }
@@ -315,10 +314,12 @@ void INS::updatePreMix(const double dTime) noexcept {
       if (modeSelector == MODE_SELECTOR::STBY) {
         // Downmode
         state = INS_STATE::STBY;
+        valid = SIGNAL_VALIDITY::INV;
         reset(false);
       } else if (modeSelector == MODE_SELECTOR::ALIGN) {
         // Downmode
         state = INS_STATE::ALIGN;
+        valid = SIGNAL_VALIDITY::INV;
         alignSubmode = ALIGN_SUBMODE::MODE_9;
         radialScalarAlignTime = MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME;
         initialDistanceError = currentDistanceError = 0;
@@ -356,7 +357,7 @@ void INS::updateMix() noexcept {
 }
 
 void INS::updatePostMix(const double dTime) noexcept {
-  if (valid) {
+  if (valid != SIGNAL_VALIDITY::INV) {
     // NAV
     if (state == INS_STATE::NAV) {
       alertLamp(dTime);

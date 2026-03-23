@@ -166,6 +166,10 @@ class INS {
 };
 ```
 
+### Class Member Ordering
+- Place `private:` section **before** `public:` section in class definitions
+- Debug-only members (e.g., logFile pointers) should be wrapped with `#ifndef NDEBUG`
+
 ### Lambda Expressions
 ```cpp
 ins->handleEvent([event, isUnit1, isUnit2, isUnit3](auto unit1, auto unit2, auto unit3) {
@@ -257,5 +261,7 @@ When adding features to both examples, implement the appropriate interface for e
 | Config                      | `libciva/include/config/config.h`         |
 | civa24 example              | `Examples/civa24/src/civa24.cpp`          |
 | civaWin example             | `Examples/civaWin/src/civaWin.cpp`        |
-| Lateral autopilot (civa24)  | `Examples/civa24/src/lateralAutopilot.h`  |
-| Lateral autopilot (civaWin) | `Examples/civaWin/src/lateralAutopilot.h` |
+| Lateral autopilot (civaWin) | `Examples/civaWin/src/lateralAutopilot.h`  |
+| Lateral autopilot impl      | `Examples/civaWin/src/lateralAutopilot.cpp` |
+| Vertical autopilot (civaWin) | `Examples/civaWin/src/verticalAutopilot.h` |
+| Vertical autopilot impl     | `Examples/civaWin/src/verticalAutopilot.cpp` |
