@@ -136,7 +136,8 @@ Values 0 through 9, corresponding with the thumb wheel on the unit
 ### LIBCIVA_CROSS_TRACK_ERROR_UNIT_x
 
 Calculated cross track error in nmi.  
-Negative values indicate INS is left of course (right turn to get back).
+Negative values indicate INS is left of course (right turn to get back).  
+Positive values indicate INS is right of course (left turn to get back).
 
 ### LIBCIVA_DESIRED_TRACK_UNIT_x
 
@@ -144,12 +145,13 @@ Calculated desired track in degrees.
 
 ### LIBCIVA_TRACK_UNIT_x
 
-Calculated track in degrees.
+Calculated true track in degrees.
 
 ### LIBCIVA_TRACK_ANGLE_ERROR_UNIT_x
 
 Calculated track angle error in degrees.  
-Negative value indicates track is less than desired track (right turn to align).
+Negative value indicates track is right of the desired track (left turn to align).  
+Positive value indicates track is left of the desired track (right turn to align).
 
 ### LIBCIVA_DISTANCE_UNIT_x
 

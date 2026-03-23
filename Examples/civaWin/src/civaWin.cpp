@@ -1,7 +1,13 @@
 #include "civaWin.h"
 
+// Pure AP Demo
+#include "lateralAutopilot.h"
+
 std::unique_ptr<WinVarManager> winVarManager;
 std::unique_ptr<libciva::INSContainer> ins;
+
+// Pure AP Demo
+std::unique_ptr<libciva::LateralAutopilot> lateralAutopilot;
 
 std::thread INSThread;
 std::mutex lock;
@@ -71,6 +77,17 @@ static void runner() {
     {
       std::lock_guard<std::mutex> guard(lock);
       ins->update(delta.count() * 1e-9 * winVarManager->sim.simulationRate);
+
+      // Pure AP Demo
+      lateralAutopilot->update(delta.count() * 1e-9 * winVarManager->sim.simulationRate, winVarManager->bankAngle,
+                               winVarManager->rollRate, winVarManager->unit[0].track, winVarManager->unit[0].crossTrackError,
+                               winVarManager->unit[0].trackAngleError, winVarManager->unit[0].desiredTrack);
+
+      if (simConnect != NULL && lateralAutopilot->isEnabled()) {
+        int16_t aileron = lateralAutopilot->getOutput();
+        SimConnect_TransmitClientEvent(simConnect, SIMCONNECT_OBJECT_ID_USER, EVENT_DEFINITIONS_AILERON_SET, aileron,
+                                       SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
+      }
     }
 
     HANDLE handle;
@@ -147,6 +164,9 @@ int main() {
 
   ins = std::make_unique<libciva::INSContainer>(*winVarManager, libciva::UNIT_COUNT::ONE, libciva::UNIT_HAS_DME::BOTH, "", true,
                                                 false);
+
+  // Pure AP Demo
+  lateralAutopilot = std::make_unique<libciva::LateralAutopilot>();
 
   INSThread = std::thread(runner);
 
@@ -318,6 +338,15 @@ int main() {
               unit1->handleExternalPower(power);
               if (unit2) unit2->handleExternalPower(power);
               if (unit2) unit3->handleExternalPower(power);
+              break;
+
+              // Pure AP Demo
+            case 'G':
+              if (lateralAutopilot->isEnabled()) {
+                lateralAutopilot->disable();
+              } else {
+                lateralAutopilot->enable();
+              }
               break;
             case VK_ESCAPE:
               __exit = true;

@@ -168,10 +168,6 @@ void INS::updateMetrics(const double dTime) noexcept {
 
   crossTrackError = pos.crossTrackDistance(waypoints[currentLegStart], waypoints[currentLegEnd]);
 
-  /* TKE */
-
-  trackAngleError = waypoints[display.characters.FROM].bearingTo(waypoints[display.characters.TO]) - _track;
-
   /* DSRTK */
 
   if (alongDist < waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd])) {
@@ -179,6 +175,10 @@ void INS::updateMetrics(const double dTime) noexcept {
   } else {
     desiredTrack = legCrs;
   }
+
+  /* TKE */
+
+  trackAngleError = deltaAngle(desiredTrack, _track);
 }
 
 void INS::updateNav(const double dTime) noexcept {
@@ -219,7 +219,7 @@ void INS::updateNav(const double dTime) noexcept {
 
 #ifndef NDEBUG
     Logger::GetInstance() << "Leg changed at " << dist << "/" << turnDist << " remaining from WPT " << (int)currentLegStart
-                          << " along " << track << " to WPT " << (int)currentLegEnd << ". Next crs " << nextCrs << "to WPT "
+                          << " along " << track << " to WPT " << (int)currentLegEnd << ". Next crs " << nextCrs << " to WPT "
                           << (int)((currentLegEnd % 9) + 1) << "\n";
 #endif
 

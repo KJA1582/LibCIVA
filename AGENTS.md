@@ -90,18 +90,18 @@ Use MSFS compatibility macros for IntelliSense compatibility:
 
 ### Naming Conventions
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Classes | PascalCase | `class INS` |
-| Structs | PascalCase | `struct POSITION` |
-| Enums | PascalCase | `enum class INS_STATE` |
-| Enum values | PascalCase | `INS_STATE::NAV` |
-| Constants | PascalCase | `constexpr double MAX_BANK_ANGLE` |
-| Member variables | camelCase | `double crossTrackError` |
-| Functions | camelCase | `void updateMix() noexcept` |
-| Private helpers | camelCase | `void calculateTrack() noexcept` |
-| Files | lowercase with underscores | `insUpdates.cpp`, `varManager.h` |
-| Directories | lowercase with underscores | `include/ins/`, `src/logger/` |
+| Type             | Convention                 | Example                           |
+| ---------------- | -------------------------- | --------------------------------- |
+| Classes          | PascalCase                 | `class INS`                       |
+| Structs          | PascalCase                 | `struct POSITION`                 |
+| Enums            | PascalCase                 | `enum class INS_STATE`            |
+| Enum values      | PascalCase                 | `INS_STATE::NAV`                  |
+| Constants        | PascalCase                 | `constexpr double MAX_BANK_ANGLE` |
+| Member variables | camelCase                  | `double crossTrackError`          |
+| Functions        | camelCase                  | `void updateMix() noexcept`       |
+| Private helpers  | camelCase                  | `void calculateTrack() noexcept`  |
+| Files            | lowercase with underscores | `insUpdates.cpp`, `varManager.h`  |
+| Directories      | lowercase with underscores | `include/ins/`, `src/logger/`     |
 
 ### Enums
 Use `enum class` for strong typing:
@@ -187,7 +187,7 @@ constexpr double EPSILON = 2.22044604925031308085e-16;
 ### Angle Normalization
 Helper function for wrapping angles:
 ```cpp
-static inline double deltaAngle(const double x, const double y) noexcept {
+static inline double absDeltaAngle(const double x, const double y) noexcept {
   constexpr auto c = 180.0;
   return c - fabs(fmod(fabs(x - y), 2 * c) - c);
 }
@@ -247,15 +247,15 @@ When adding features to both examples, implement the appropriate interface for e
 
 ## File Locations
 
-| Component | Path |
-|-----------|------|
-| Main INS class | `libciva/include/ins/ins.h` |
-| INS implementation | `libciva/src/ins/ins.cpp` |
-| Type definitions | `libciva/include/types/types.h` |
-| VarManager | `libciva/include/varManager/varManager.h` |
-| Logger | `libciva/include/logger/logger.h` |
-| Config | `libciva/include/config/config.h` |
-| civa24 example | `Examples/civa24/src/civa24.cpp` |
-| civaWin example | `Examples/civaWin/src/civaWin.cpp` |
-| Lateral autopilot (civa24) | `Examples/civa24/src/lateralAutopilot.h` |
+| Component                   | Path                                      |
+| --------------------------- | ----------------------------------------- |
+| Main INS class              | `libciva/include/ins/ins.h`               |
+| INS implementation          | `libciva/src/ins/ins.cpp`                 |
+| Type definitions            | `libciva/include/types/types.h`           |
+| VarManager                  | `libciva/include/varManager/varManager.h` |
+| Logger                      | `libciva/include/logger/logger.h`         |
+| Config                      | `libciva/include/config/config.h`         |
+| civa24 example              | `Examples/civa24/src/civa24.cpp`          |
+| civaWin example             | `Examples/civaWin/src/civaWin.cpp`        |
+| Lateral autopilot (civa24)  | `Examples/civa24/src/lateralAutopilot.h`  |
 | Lateral autopilot (civaWin) | `Examples/civaWin/src/lateralAutopilot.h` |

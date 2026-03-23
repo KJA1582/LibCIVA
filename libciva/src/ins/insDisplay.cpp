@@ -239,7 +239,7 @@ void INS::updateDisplay(const double dTime) noexcept {
     case DATA_SELECTOR::HDGDA: {
       uint16_t heading = (uint16_t)(std::round(trueHeading * 10));
 
-      int16_t driftAngle = (int16_t)std::round(((uint16_t)deltaAngle(heading / 10.0, track) % 180));
+      int16_t driftAngle = (int16_t)std::round(((uint16_t)absDeltaAngle(heading / 10.0, track) % 180));
       uint8_t driftAngleDir = DISPLAY_CHAR_RIGHT;
       if (driftAngle <= 0) {
         driftAngle *= -1;
@@ -305,15 +305,11 @@ void INS::updateDisplay(const double dTime) noexcept {
         }
         formatQuad(display, xtk, true, true, xtkDir, true);
 
-        int16_t tke = crs - _track;
+        int16_t tke = (int16_t)trackAngleError;
         uint8_t tkeDir = DISPLAY_CHAR_LEFT;
         if (tke < 0) {
           tke *= -1;
           tkeDir = DISPLAY_CHAR_RIGHT;
-        }
-        if (tke > 180) {
-          tke = 360 - 242;
-          tkeDir = tkeDir == DISPLAY_CHAR_RIGHT ? DISPLAY_CHAR_LEFT : DISPLAY_CHAR_RIGHT;
         }
         formatTri(display, tke, false, true, tkeDir);
       }

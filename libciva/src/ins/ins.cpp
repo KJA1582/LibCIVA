@@ -102,7 +102,7 @@ void INS::handleOutOfBounds() noexcept {
   double gs = varManager.sim.groundVelocity;
   double trueHeading = varManager.sim.planeHeadingDegreesTrue;
 
-  if (deltaAngle(trueHeading, track) > MAX_DRIFT_ANGLE) {
+  if (absDeltaAngle(trueHeading, track) > MAX_DRIFT_ANGLE) {
     actionMalfunctionCodes.codes.A02_42 = true;
     advanceActionMalfunctionIndex();
     indicators.indicator.WARN = true;
