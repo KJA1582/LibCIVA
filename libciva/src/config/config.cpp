@@ -7,8 +7,22 @@ Config::Config(const std::string &basePath, const std::string &id) noexcept : ba
   if (file) {
     file.read((char *)&lastINSPosition, sizeof(lastINSPosition));
     file.read((char *)&lastDMEs, sizeof(lastDMEs));
-
     file.close();
+
+    if (!lastINSPosition.isValid()) {
+      lastINSPosition = {999, 999};
+    }
+    for (auto &dme : lastDMEs) {
+      if (!dme.position.isValid()) {
+        dme = {{0, 0}, 0, 0};
+      }
+      if (dme.frequency > 0 && (dme.frequency < 10800 || dme.frequency > 13595)) {
+        dme.frequency = 0;
+      }
+      if (dme.altitude > 15) {
+        dme.altitude = 0;
+      }
+    }
   }
 }
 

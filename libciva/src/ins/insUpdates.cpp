@@ -425,7 +425,7 @@ void INS::remoteUpdateWPT(const uint8_t wpt) noexcept {
   }
 }
 
-void INS::remoteInsertDME(const DME dme[9]) noexcept {
+void INS::remoteInsertDME(const DME (&dme)[9]) noexcept {
   if (!remoteActive || !hasADEU) return;
 
   for (size_t i = 0; i < 9; i++) {
@@ -439,7 +439,7 @@ void INS::remoteInsertDME(const DME dme[9]) noexcept {
   }
 }
 
-void INS::remoteInsertWPT(const POSITION wpt[9]) noexcept {
+void INS::remoteInsertWPT(const POSITION (&wpt)[9]) noexcept {
   if (!remoteActive || !hasADEU) return;
 
   size_t i = (currentLegEnd % 9) + 1;

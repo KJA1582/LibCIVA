@@ -319,12 +319,12 @@ public:
 
   // Updating DME in use will drop out of DME updating
   // All DMEs are updated
-  void remoteInsertDME(const DME dme[9]) noexcept;
+  void remoteInsertDME(const DME (&dme)[9]) noexcept;
 
   // Only unused waypoints are updated, if leg is 3-6, then 7,8,9,1,2 are updated
   // If leg is 0-3, 4,5,6,7,8,9 are updated
   // At most 8 waypoints will be imported (2,3,4,5,6,7,8,9)
-  void remoteInsertWPT(const POSITION wpt[9]) noexcept;
+  void remoteInsertWPT(const POSITION (&wpt)[9]) noexcept;
 
 #pragma endregion
 };

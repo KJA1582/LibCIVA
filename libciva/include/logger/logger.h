@@ -23,8 +23,6 @@ protected:
 
   Logger() noexcept;
 
-  static Logger *singleton_;
-
 public:
   ~Logger() noexcept;
 
