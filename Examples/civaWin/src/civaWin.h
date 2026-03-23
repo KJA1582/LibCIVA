@@ -33,6 +33,7 @@ enum REQUEST_DEFINITIONS : SIMCONNECT_DATA_REQUEST_ID { REQUEST_DEFINITIONS_DATA
 // Pure AP Demo
 enum EVENT_DEFINITIONS : SIMCONNECT_CLIENT_EVENT_ID {
   EVENT_DEFINITIONS_AILERON_SET,
+  EVENT_DEFINITIONS_ELEVATOR_SET,
 };
 
 struct DATA {
@@ -51,7 +52,9 @@ struct DATA {
 
   // Pure AP Demo
   double rollRateBodyZ;
-  double bankAngle;
+  double planeBankDegrees;
+  double pitchRateBodyX;
+  double planePitchDegrees;
 };
 
 #endif

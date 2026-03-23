@@ -22,6 +22,8 @@ class WinVarManager : public libciva::VarManager {
 public:
   double rollRate = 0;
   double bankAngle = 0;
+  double pitchRate = 0;
+  double pitchAngle = 0;
 
   WinVarManager() noexcept;
 

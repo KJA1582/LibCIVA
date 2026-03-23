@@ -17,8 +17,15 @@
       "type": "node"
     },
     {
-      "name": "AP PID Analysis",
+      "name": "AP LNAV PID Analysis",
       "program": "${workspaceFolder}/graph_lateral_ap.py",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "type": "debugpy"
+    },
+    {
+      "name": "AP VNAV PID Analysis",
+      "program": "${workspaceFolder}/graph_vertical_ap.py",
       "request": "launch",
       "cwd": "${workspaceFolder}",
       "type": "debugpy"

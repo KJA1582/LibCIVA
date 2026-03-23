@@ -25,6 +25,8 @@ WinVarManager::WinVarManager() noexcept {
   // Pure AP Demo
   rollRate = 0;
   bankAngle = 0;
+  pitchRate = 0;
+  pitchAngle = 0;
 }
 
 void WinVarManager::dump() const noexcept {
@@ -124,4 +126,6 @@ void WinVarManager::dump() const noexcept {
   // Pure AP Demo
   std::cout << "  Roll Rate:        " << rollRate << std::endl;
   std::cout << "  Bank Angle:       " << bankAngle << std::endl;
+  std::cout << "  Pitch Rate:        " << pitchRate << std::endl;
+  std::cout << "  Pitch Angle:       " << pitchAngle << std::endl;
 }

@@ -2,12 +2,14 @@
 
 // Pure AP Demo
 #include "lateralAutopilot.h"
+#include "verticalAutopilot.h"
 
 std::unique_ptr<WinVarManager> winVarManager;
 std::unique_ptr<libciva::INSContainer> ins;
 
 // Pure AP Demo
 std::unique_ptr<libciva::LateralAutopilot> lateralAutopilot;
+std::unique_ptr<libciva::VerticalAutopilot> verticalAutopilot;
 
 std::thread INSThread;
 std::mutex lock;
@@ -47,7 +49,9 @@ static void handleSimConnect() {
 
         // Pure AP Demo
         winVarManager->rollRate = data->rollRateBodyZ;
-        winVarManager->bankAngle = data->bankAngle;
+        winVarManager->bankAngle = data->planeBankDegrees;
+        winVarManager->pitchRate = data->pitchRateBodyX;
+        winVarManager->pitchAngle = data->planePitchDegrees;
         break;
       }
       case SIMCONNECT_RECV_ID_EXCEPTION: {
@@ -83,9 +87,18 @@ static void runner() {
                                winVarManager->rollRate, winVarManager->unit[0].track, winVarManager->unit[0].crossTrackError,
                                winVarManager->unit[0].trackAngleError, winVarManager->unit[0].desiredTrack);
 
+      verticalAutopilot->update(delta.count() * 1e-9 * winVarManager->sim.simulationRate, winVarManager->sim.planeAltitude,
+                                winVarManager->pitchAngle, winVarManager->pitchRate);
+
       if (simConnect != NULL && lateralAutopilot->isEnabled()) {
         int16_t aileron = lateralAutopilot->getOutput();
         SimConnect_TransmitClientEvent(simConnect, SIMCONNECT_OBJECT_ID_USER, EVENT_DEFINITIONS_AILERON_SET, aileron,
+                                       SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
+      }
+
+      if (simConnect != NULL && verticalAutopilot->isEnabled()) {
+        int16_t elevator = verticalAutopilot->getOutput();
+        SimConnect_TransmitClientEvent(simConnect, SIMCONNECT_OBJECT_ID_USER, EVENT_DEFINITIONS_ELEVATOR_SET, elevator,
                                        SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
       }
     }
@@ -123,7 +136,8 @@ static void runner() {
     std::cout << "REMOTE    : R" << std::endl;
     std::cout << "INST ALIGN: I" << std::endl;
     std::cout << "AC POWER  : P" << std::endl;
-    std::cout << "AP POWER  : G" << std::endl;
+    std::cout << "AP LNAV   : G" << std::endl;
+    std::cout << "AP ALT HLD: V" << std::endl;
 
     std::cout << "dT was " << delta.count() * 1e-6 << "ms" << std::endl;
   }
@@ -151,7 +165,10 @@ static void setupSimConnect() {
   // Pure AP Demo
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "ROTATION VELOCITY BODY Z", "DEGREES PER SECOND");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "PLANE BANK DEGREES", "DEGREE");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "ROTATION VELOCITY BODY X", "DEGREES PER SECOND");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "PLANE PITCH DEGREES", "DEGREE");
   SimConnect_MapClientEventToSimEvent(simConnect, EVENT_DEFINITIONS_AILERON_SET, "AILERON_SET");
+  SimConnect_MapClientEventToSimEvent(simConnect, EVENT_DEFINITIONS_ELEVATOR_SET, "ELEVATOR_SET");
 
   SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA, SIMCONNECT_OBJECT_ID_USER,
                                     SIMCONNECT_PERIOD_VISUAL_FRAME);
@@ -168,6 +185,7 @@ int main() {
 
   // Pure AP Demo
   lateralAutopilot = std::make_unique<libciva::LateralAutopilot>();
+  verticalAutopilot = std::make_unique<libciva::VerticalAutopilot>();
 
   INSThread = std::thread(runner);
 
@@ -347,6 +365,13 @@ int main() {
                 lateralAutopilot->disable();
               } else {
                 lateralAutopilot->enable();
+              }
+              break;
+            case 'V':
+              if (verticalAutopilot->isEnabled()) {
+                verticalAutopilot->disable();
+              } else {
+                verticalAutopilot->enable(winVarManager->sim.planeAltitude);
               }
               break;
             case VK_ESCAPE:
