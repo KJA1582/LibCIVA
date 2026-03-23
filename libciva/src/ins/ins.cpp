@@ -135,6 +135,7 @@ void INS::handleOutOfBounds() noexcept {
       actionMalfunctionCodes.codes.A04_57 = true;
       indicators.indicator.WARN = true;
       advanceActionMalfunctionIndex();
+      alignSubmode = ALIGN_SUBMODE::MODE_6;
     }
   }
 }
