@@ -684,6 +684,9 @@ void INS::handleInstantAlign() noexcept {
 }
 
 void INS::handleRemote() noexcept {
+  // Can't in OFF or ATT
+  if (state == INS_STATE::OFF || state == INS_STATE::ATT) return;
+
   remoteActive = !remoteActive;
 
   indicators.indicator.REMOTE = remoteActive;

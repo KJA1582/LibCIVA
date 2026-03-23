@@ -78,7 +78,7 @@ void INS::reset(const bool full) noexcept {
     }
 
     insertMode = INSERT_MODE::INV;
-    malfunctionCodeDisplayed = inTestMode = false;
+    malfunctionCodeDisplayed = inTestMode = remoteActive = false;
     dmeMode = DME_MODE::INV;
 
     actionMalfunctionCodes.value = 0;

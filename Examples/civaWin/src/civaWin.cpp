@@ -63,10 +63,10 @@ static void handleSimConnect() {
 }
 
 static void runner() {
-  auto prev = std::chrono::steady_clock::now();
+  std::chrono::steady_clock::time_point prev = std::chrono::steady_clock::now();
 
   while (!__exit) {
-    auto now = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
     std::chrono::nanoseconds delta = now - prev;
     prev = now;
 
@@ -127,7 +127,7 @@ static void runner() {
     std::cout << "Data Entry: Numpad" << std::endl;
     std::cout << "Mode Knob : Arrow left/right" << std::endl;
     std::cout << "Data Knob : Arrow up/down" << std::endl;
-    std::cout << "WPT sel   : Numpad +/-" << std::endl;
+    std::cout << "WPT Sel   : Numpad +/-" << std::endl;
     std::cout << "INSERT    : Numpad enter" << std::endl;
     std::cout << "TEST      : T" << std::endl;
     std::cout << "DME LL    : L" << std::endl;
@@ -139,8 +139,11 @@ static void runner() {
     std::cout << "REMOTE    : R" << std::endl;
     std::cout << "INST ALIGN: I" << std::endl;
     std::cout << "AC POWER  : P" << std::endl;
-    std::cout << "AP LNAV   : G (" << (lateralAutopilot->isEnabled() ? "ENABLED" : "DISABLED") << ")" << std::endl;
-    std::cout << "AP ALT HLD: V (" << (verticalAutopilot->isEnabled() ? "ENABLED" : "DISABLED") << ")" << std::endl;
+    std::cout << "SB Import : U" << std::endl;
+
+    // Pure AP Demo
+    std::cout << "AP LNAV   : G (" << (lateralAutopilot->isEnabled() ? "ENABLED)" : "DISABLED)") << std::endl;
+    std::cout << "AP ALT HLD: V (" << (verticalAutopilot->isEnabled() ? "ENABLED)" : "DISABLED)") << std::endl;
 
     std::cout << "dT was " << delta.count() * 1e-6 << "ms" << std::endl;
   }
@@ -175,6 +178,37 @@ static void setupSimConnect() {
 
   SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA, SIMCONNECT_OBJECT_ID_USER,
                                     SIMCONNECT_PERIOD_VISUAL_FRAME);
+}
+
+static void importSimBrief(std::shared_ptr<libciva::INS> unit1, std::shared_ptr<libciva::INS> unit2,
+                           std::shared_ptr<libciva::INS> unit3) {
+  std::ifstream ifs{"../../simBrief.json"};
+
+  rapidjson::IStreamWrapper isw{ifs};
+
+  rapidjson::Document doc{};
+  doc.ParseStream(isw);
+
+  uint8_t index = 0;
+  libciva::POSITION wpt[9] = {999};
+
+  rapidjson::GenericArray<false, rapidjson::Value> fixes = doc["navlog"]["fix"].GetArray();
+  for (rapidjson::GenericValue<rapidjson::UTF8<>> &i : fixes) {
+    if (index >= 9) continue;
+
+    std::string ident = std::string(i["ident"].GetString());
+
+    if (ident != "TOD" && ident != "TOC") {
+      wpt[index].latitude = atof(i["pos_lat"].GetString());
+      wpt[index].longitude = atof(i["pos_long"].GetString());
+
+      index++;
+    }
+  }
+
+  if (unit1) unit1->remoteInsertWPT(wpt);
+  if (unit2) unit2->remoteInsertWPT(wpt);
+  if (unit3) unit3->remoteInsertWPT(wpt);
 }
 
 int main() {
@@ -217,7 +251,7 @@ int main() {
             if (inp.Event.KeyEvent.wVirtualKeyCode == 'T') {
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleTestButtonState(false);
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleTestButtonState(false);
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleTestButtonState(false);
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleTestButtonState(false);
             }
 
             break;
@@ -227,97 +261,97 @@ int main() {
             case VK_UP:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->incDataSelectorPos();
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->incDataSelectorPos();
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->incDataSelectorPos();
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->incDataSelectorPos();
               break;
             case VK_DOWN:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->decDataSelectorPos();
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->decDataSelectorPos();
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->decDataSelectorPos();
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->decDataSelectorPos();
               break;
             case VK_LEFT:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->decModeSelectorPos();
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->decModeSelectorPos();
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->decModeSelectorPos();
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->decModeSelectorPos();
               break;
             case VK_RIGHT:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->incModeSelectorPos();
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->incModeSelectorPos();
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->incModeSelectorPos();
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->incModeSelectorPos();
               break;
             case VK_NUMPAD0:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleNumeric(0);
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleNumeric(0);
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(0);
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(0);
               break;
             case VK_NUMPAD1:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleNumeric(1);
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleNumeric(1);
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(1);
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(1);
               break;
             case VK_NUMPAD2:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleNumeric(2);
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleNumeric(2);
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(2);
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(2);
               break;
             case VK_NUMPAD3:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleNumeric(3);
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleNumeric(3);
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(3);
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(3);
               break;
             case VK_NUMPAD4:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleNumeric(4);
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleNumeric(4);
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(4);
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(4);
               break;
             case VK_NUMPAD5:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleNumeric(5);
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleNumeric(5);
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(5);
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(5);
               break;
             case VK_NUMPAD6:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleNumeric(6);
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleNumeric(6);
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(6);
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(6);
               break;
             case VK_NUMPAD7:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleNumeric(7);
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleNumeric(7);
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(7);
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(7);
               break;
             case VK_NUMPAD8:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleNumeric(8);
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleNumeric(8);
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(8);
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(8);
               break;
             case VK_NUMPAD9:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleNumeric(9);
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleNumeric(9);
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(9);
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleNumeric(9);
               break;
             case VK_RETURN:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleInsert();
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleInsert();
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleInsert();
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleInsert();
               break;
             case VK_ADD:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->incWaypointSelectorPos();
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->incWaypointSelectorPos();
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->incWaypointSelectorPos();
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->incWaypointSelectorPos();
               break;
             case VK_SUBTRACT:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->decWaypointSelectorPos();
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->decWaypointSelectorPos();
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->decWaypointSelectorPos();
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->decWaypointSelectorPos();
               break;
             case VK_DELETE:
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleClear();
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleClear();
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleClear();
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleClear();
               break;
             case 'T':
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleTestButtonState(true);
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleTestButtonState(true);
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleTestButtonState(true);
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleTestButtonState(true);
               Sleep(200); // DEBOUNCE;
               break;
             case 'L':
@@ -332,33 +366,36 @@ int main() {
             case 'W':
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleWaypointChange();
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleWaypointChange();
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleWaypointChange();
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleWaypointChange();
               break;
             case 'H':
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleHoldButton();
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleHoldButton();
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleHoldButton();
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleHoldButton();
               break;
             case 'A':
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleAutoMan();
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleAutoMan();
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleAutoMan();
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleAutoMan();
               break;
             case 'R':
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleRemote();
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleRemote();
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleRemote();
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleRemote();
               break;
             case 'I':
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleInstantAlign();
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4)) unit2->handleInstantAlign();
-              if (unit2 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleInstantAlign();
+              if (unit3 && (selectedUnit == 3 || selectedUnit == 4)) unit3->handleInstantAlign();
               break;
             case 'P':
               power = !power;
               unit1->handleExternalPower(power);
               if (unit2) unit2->handleExternalPower(power);
-              if (unit2) unit3->handleExternalPower(power);
+              if (unit3) unit3->handleExternalPower(power);
+              break;
+            case 'U':
+              importSimBrief(unit1, unit2, unit3);
               break;
 
               // Pure AP Demo

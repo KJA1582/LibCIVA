@@ -357,7 +357,7 @@ void INS::updateMix() noexcept {
 }
 
 void INS::updatePostMix(const double dTime) noexcept {
-  if (valid != SIGNAL_VALIDITY::INV) {
+  if (valid != SIGNAL_VALIDITY::ATT) {
     // NAV
     if (state == INS_STATE::NAV) {
       alertLamp(dTime);
@@ -431,7 +431,7 @@ void INS::remoteInsertDME(const DME dme[9]) noexcept {
   for (size_t i = 0; i < 9; i++) {
     if (!dme[i].position.isValid()) continue;
 
-    memmove(&DMEs[i], &dme[i], sizeof(DME));
+    memcpy(&DMEs[i], &dme[i], sizeof(DME));
     if (i == activeDME) {
       activeDME = 0;
       dmeArmed = dmeUpdating = false;
@@ -446,8 +446,8 @@ void INS::remoteInsertWPT(const POSITION wpt[9]) noexcept {
   while (true) {
     if (i == currentLegStart || (i == 1 && currentLegStart == 0)) break;
 
-    if (wpt[i].isValid()) {
-      memmove(&waypoints[i], &wpt[i], sizeof(POSITION));
+    if (wpt[i - 1].isValid()) {
+      memcpy(&waypoints[i], &wpt[i - 1], sizeof(POSITION));
     }
 
     i = (i % 9) + 1;

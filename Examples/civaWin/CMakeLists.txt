@@ -21,6 +21,7 @@ set_property(TARGET civaWin PROPERTY CXX_STANDARD 14)
 target_include_directories(civaWin PRIVATE
 	"../../libciva/include"
 	"F:/SteamLibrary/steamapps/common/FSX/SDK/Core Utilities Kit/SimConnect SDK/inc"
+	"C:/MSFS 2024 SDK/WASM/include"
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")

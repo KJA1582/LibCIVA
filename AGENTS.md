@@ -87,6 +87,12 @@ Use MSFS compatibility macros for IntelliSense compatibility:
 ### Includes
 - Use **double quotes** for internal includes: `#include "ins/ins.h"`
 - Use **angle brackets** for external/system includes: `#include <algorithm>`
+- Sort includes in the following order (each group separated by blank line):
+  1. STL or other standard lib (`<algorithm>`, `<cmath>`, `<memory>`, etc.)
+  2. MSFS related (`<SimConnect.h>`, MSFS SDK headers)
+  3. User lib (external libraries like libciva main import)
+  4. User (within libciva or the examples)
+- Sort alphabetically within each group
 
 ### Naming Conventions
 

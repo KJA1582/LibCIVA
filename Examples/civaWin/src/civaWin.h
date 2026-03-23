@@ -20,6 +20,10 @@
 #include <mutex>
 #include <thread>
 
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
+#include <rapidjson/rapidjson.h>
+
 #include <SimConnect.h>
 
 #include <libciva.h>

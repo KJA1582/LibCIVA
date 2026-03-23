@@ -317,12 +317,10 @@ public:
   void remoteUpdateDME(const uint8_t dme, const bool resetDMEUpdate = false) noexcept;
   void remoteUpdateWPT(const uint8_t wpt) noexcept;
 
-  // DMEs are *moved*
   // Updating DME in use will drop out of DME updating
   // All DMEs are updated
   void remoteInsertDME(const DME dme[9]) noexcept;
 
-  // WPTs are *moved*
   // Only unused waypoints are updated, if leg is 3-6, then 7,8,9,1,2 are updated
   // If leg is 0-3, 4,5,6,7,8,9 are updated
   // At most 8 waypoints will be imported (2,3,4,5,6,7,8,9)
@@ -339,14 +337,14 @@ class INSContainer {
 public:
   inline INSContainer(VarManager &varManager, UNIT_COUNT count, UNIT_HAS_DME dme, const std::string &configBaseID,
                       const bool hasADEU, const bool hasExtendedBattery) noexcept {
-    unit1 = std::make_shared<INS>(varManager, 0, configBaseID + "_1", WORK_DIR,
-                                  dme == UNIT_HAS_DME::ONE || dme == UNIT_HAS_DME::BOTH, hasADEU, hasExtendedBattery);
+    unit1 = std::make_shared<INS>(varManager, 0, configBaseID + "_1", WORK_DIR, hasADEU,
+                                  dme == UNIT_HAS_DME::ONE || dme == UNIT_HAS_DME::BOTH, hasExtendedBattery);
 
     if (count > UNIT_COUNT::ONE)
-      unit2 = std::make_shared<INS>(varManager, 1, configBaseID + "_2", WORK_DIR,
-                                    dme == UNIT_HAS_DME::TWO || dme == UNIT_HAS_DME::BOTH, hasADEU, hasExtendedBattery);
+      unit2 = std::make_shared<INS>(varManager, 1, configBaseID + "_2", WORK_DIR, hasADEU,
+                                    dme == UNIT_HAS_DME::TWO || dme == UNIT_HAS_DME::BOTH, hasExtendedBattery);
     if (count == UNIT_COUNT::THREE)
-      unit3 = std::make_shared<INS>(varManager, 2, configBaseID + "_3", WORK_DIR, false, hasADEU, hasExtendedBattery);
+      unit3 = std::make_shared<INS>(varManager, 2, configBaseID + "_3", WORK_DIR, hasADEU, false, hasExtendedBattery);
 
     if (count > UNIT_COUNT::ONE) unit1->connectUnit2(unit2.get());
     if (count == UNIT_COUNT::THREE) unit1->connectUnit3(unit3.get());
