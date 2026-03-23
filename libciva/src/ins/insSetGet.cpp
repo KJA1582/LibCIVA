@@ -115,7 +115,7 @@ void INS::exportVars() const noexcept {
   unit.autoManPos = (double)autoMode;
   unit.crossTrackError = crossTrackError;
   unit.desiredTrack = desiredTrack;
-  unit.track = track;
+  unit.track = _track;
   unit.trackAngleError = trackAngleError;
   unit.distance = unit.distance = remainingDistance;
   unit.valid = (double)valid;

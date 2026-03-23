@@ -28,7 +28,7 @@ WinVarManager::WinVarManager() noexcept {
 }
 
 void WinVarManager::dump() const noexcept {
-  for (int i = 0; i < 1; i++) {
+  for (int i = 0; i < 3; i++) {
     const libciva::DISPLAY v = *reinterpret_cast<const libciva::DISPLAY *>(&unit[i].display);
     const libciva::INDICATORS ind = *reinterpret_cast<const libciva::INDICATORS *>(&unit[i].indicators);
 

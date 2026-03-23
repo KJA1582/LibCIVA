@@ -265,14 +265,6 @@ void INS::updateDisplay(const double dTime) noexcept {
       break;
     }
     case DATA_SELECTOR::XTKTKE: {
-      uint16_t _track = 0;
-
-      if (gs < MIN_GS) {
-        _track = (uint16_t)(std::round(trueHeading));
-      } else {
-        _track = (uint16_t)(std::round(track));
-      }
-
       display.characters.LEFT_DEC_1 = display.characters.LEFT_DEC_2 = display.characters.LEFT_DEG_1 =
           display.characters.LEFT_DEG_2 = display.characters.RIGHT_DEC_1 = display.characters.RIGHT_DEC_2 =
               display.characters.RIGHT_DEG_1 = display.characters.N = display.characters.S = display.characters.E =
@@ -286,16 +278,11 @@ void INS::updateDisplay(const double dTime) noexcept {
       if (state >= INS_STATE::ALIGN && pos.isValid() &&
           (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
         int16_t xtk = 0;
-        uint16_t crs = 0;
         if (insertMode == INSERT_MODE::WPT_CHG_FROM || insertMode == INSERT_MODE::WPT_CHG_TO) {
           xtk = (int16_t)std::round(std::min(
               9999.0, pos.crossTrackDistance(waypoints[display.characters.FROM], waypoints[display.characters.TO]) * 10));
-          crs = (uint16_t)std::round(waypoints[display.characters.FROM].bearingTo(waypoints[display.characters.TO]));
         } else {
-          double legCrs = waypoints[currentLegStart].bearingTo(waypoints[currentLegEnd]);
-
           xtk = (int16_t)std::round(std::min(9999.0, crossTrackError * 10));
-          crs = (uint16_t)std::round(legCrs);
         }
 
         uint8_t xtkDir = DISPLAY_CHAR_RIGHT;

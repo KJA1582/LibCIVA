@@ -91,7 +91,7 @@ POSITION POSITION::intersection(const double bearing1, const POSITION &pos, cons
   // angular distance p1-p2
   double δ12 = 2 * std::asin(std::sqrt(std::sin(Δφ / 2) * std::sin(Δφ / 2) +
                                        std::cos(φ1) * std::cos(φ2) * std::sin(Δλ / 2) * std::sin(Δλ / 2)));
-  if (std::abs(δ12) < EPSILON) *this; // coincident points
+  if (std::abs(δ12) < EPSILON) return *this; // coincident points
 
   // initial/final bearings between points
   double cosθa = (std::sin(φ2) - std::sin(φ1) * std::cos(δ12)) / (std::sin(δ12) * std::cos(φ1));

@@ -123,6 +123,7 @@ static void runner() {
     std::cout << "REMOTE    : R" << std::endl;
     std::cout << "INST ALIGN: I" << std::endl;
     std::cout << "AC POWER  : P" << std::endl;
+    std::cout << "AP POWER  : G" << std::endl;
 
     std::cout << "dT was " << delta.count() * 1e-6 << "ms" << std::endl;
   }
@@ -162,7 +163,7 @@ int main() {
 
   winVarManager = std::make_unique<WinVarManager>();
 
-  ins = std::make_unique<libciva::INSContainer>(*winVarManager, libciva::UNIT_COUNT::ONE, libciva::UNIT_HAS_DME::BOTH, "", true,
+  ins = std::make_unique<libciva::INSContainer>(*winVarManager, libciva::UNIT_COUNT::THREE, libciva::UNIT_HAS_DME::BOTH, "", true,
                                                 false);
 
   // Pure AP Demo

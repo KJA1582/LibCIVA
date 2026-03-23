@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
 
 #include <libciva.h>
 
@@ -15,12 +16,29 @@ public:
   static constexpr double INTERCEPT_ANGLE = 45.0;
   static constexpr double XTE_FACTOR = 30.0;
   static constexpr double REVERSE_COURSE_THRESHOLD = 90.0;
+  static constexpr double INTERCEPT_WEIGHT = 1.2;
 
-  static constexpr double INNER_KP = 1000.0;
-  static constexpr double INNER_KI = 5.0;
-  static constexpr double INNER_KD = 100.0;
+  static constexpr double INNER_KP = 800.0;
+  static constexpr double INNER_KI = 10.0;
+  static constexpr double INNER_KD = 150.0;
 
-  LateralAutopilot() noexcept : enabled(false), desiredBank(0), prevDesiredBank(0), prevError(0), integral(0) {}
+  static constexpr const char *LOG_FILENAME = "lateral_autopilot_log.csv";
+
+  LateralAutopilot() noexcept
+      : enabled(false), desiredBank(0), prevDesiredBank(0), prevError(0), integral(0), timestamp(0), logFile(nullptr) {
+    logFile = std::fopen(LOG_FILENAME, "w");
+    if (logFile) {
+      std::fprintf(logFile, "timestamp,desiredBank,bankAngle,xte,trackAngleError,desiredTrack,track,rollRate,aileronOutput\n");
+    }
+  }
+
+  ~LateralAutopilot() noexcept {
+    if (logFile) {
+      std::fflush(logFile);
+      std::fclose(logFile);
+      logFile = nullptr;
+    }
+  }
 
   void update(const double dTime, const double bankAngle, const double rollRate, const double track, const double xte,
               const double trackAngleError, const double desiredTrack) noexcept {
@@ -39,6 +57,15 @@ public:
       output = 0;
       return;
     }
+
+    // Log data when AP is enabled
+    // Note: output is AILERON_SET (positive = right turn, negative = left turn)
+    if (logFile) {
+      std::fprintf(logFile, "%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%d\n", timestamp, desiredBank, bankAngle, xte,
+                   trackAngleError, desiredTrack, track, rollRate, static_cast<int>(output));
+    }
+
+    timestamp += dTime;
 
     // =========================================================================
     // STEP 1: REVERSE COURSE DETECTION
@@ -95,15 +122,13 @@ public:
       xteBank = std::fmax(-MAX_BANK, std::fmin(MAX_BANK, xteBank));
 
       // =========================================================================
-      // STEP 5: CHOOSE LARGER MAGNITUDE (Option B)
-      //   Use the bank command with larger absolute value
-      //   Sign is preserved from whichever is larger
+      // STEP 5: WEIGHTED ADDITIVE
+      //   Combine intercept and XTE bank commands with weights
+      //   interceptBank contributes 0.7x, xteBank contributes 1.0x
+      //   Result is clamped to MAX_BANK
       // =========================================================================
-      if (std::fabs(interceptBank) >= std::fabs(xteBank)) {
-        desiredBank = interceptBank;
-      } else {
-        desiredBank = xteBank;
-      }
+      desiredBank = INTERCEPT_WEIGHT * interceptBank + xteBank;
+      desiredBank = std::fmax(-MAX_BANK, std::fmin(MAX_BANK, desiredBank));
     }
 
     // =========================================================================
@@ -139,8 +164,14 @@ public:
     output = static_cast<int16_t>(std::round(rawOutput));
   }
 
-  void enable() noexcept { enabled = true; }
-  void disable() noexcept { enabled = false; }
+  void enable() noexcept {
+    enabled = true;
+    timestamp = 0;
+  }
+  void disable() noexcept {
+    enabled = false;
+    timestamp = 0;
+  }
   bool isEnabled() const noexcept { return enabled; }
   double getDesiredBank() const noexcept { return desiredBank; }
   int16_t getOutput() const noexcept { return output; }
@@ -152,6 +183,8 @@ private:
   double prevError;
   double integral;
   int16_t output;
+  double timestamp;
+  FILE *logFile;
 };
 
 } // namespace libciva

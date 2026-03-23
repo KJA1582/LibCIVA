@@ -4,9 +4,7 @@
       "name": "Data Analysis",
       "program": "${workspaceFolder}/data-analysis.js",
       "request": "launch",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "cwd": "${workspaceFolder}",
       "type": "node"
     },
@@ -14,11 +12,16 @@
       "name": "Stack Analysis",
       "program": "${workspaceFolder}/stack-analysis.js",
       "request": "launch",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "cwd": "${workspaceFolder}",
       "type": "node"
+    },
+    {
+      "name": "AP PID Analysis",
+      "program": "${workspaceFolder}/graph_lateral_ap.py",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "type": "debugpy"
     },
     {
       "name": "Launch civaWin",
