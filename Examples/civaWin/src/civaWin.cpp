@@ -123,29 +123,32 @@ static void runner() {
     else
       std::cout << "Selected Unit " << (double)selectedUnit << std::endl << std::endl;
 
-    std::cout << "Unit Sel  : 1,2,3,4 (All)" << std::endl;
-    std::cout << "Data Entry: Numpad" << std::endl;
-    std::cout << "Mode Knob : Arrow left/right" << std::endl;
-    std::cout << "Data Knob : Arrow up/down" << std::endl;
-    std::cout << "WPT Sel   : Numpad +/-" << std::endl;
-    std::cout << "INSERT    : Numpad enter" << std::endl;
-    std::cout << "TEST      : T" << std::endl;
-    std::cout << "DME LL    : L" << std::endl;
-    std::cout << "DME FREQ  : F" << std::endl;
-    std::cout << "CLEAR     : DEL" << std::endl;
-    std::cout << "WPT CHG   : W" << std::endl;
-    std::cout << "HOLD      : H" << std::endl;
-    std::cout << "AUTO/MAN  : A" << std::endl;
-    std::cout << "REMOTE    : R" << std::endl;
-    std::cout << "INST ALIGN: I" << std::endl;
-    std::cout << "AC POWER  : P" << std::endl;
-    std::cout << "SB Import : U" << std::endl;
+    constexpr int COL_WIDTH = 29;
+
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "Unit Sel  : 1,2,3,4 (All)";
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "Data Entry: Numpad";
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "Mode Knob : Arrow left/right" << std::endl;
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "Data Knob : Arrow up/down";
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "WPT Sel   : Numpad +/-";
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "INSERT    : Numpad enter" << std::endl;
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "TEST      : T";
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "DME LL    : L";
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "DME FREQ  : F" << std::endl;
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "CLEAR     : DEL";
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "WPT CHG   : W";
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "HOLD      : H" << std::endl;
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "AUTO/MAN  : A";
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "REMOTE    : R";
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "INST ALIGN: I" << std::endl;
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "AC POWER  : P";
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "SB Import : U" << std::endl;
 
     // Pure AP Demo
+    std::cout << std::endl;
     std::cout << "AP LNAV   : G (" << (lateralAutopilot->isEnabled() ? "ENABLED)" : "DISABLED)") << std::endl;
     std::cout << "AP ALT HLD: V (" << (verticalAutopilot->isEnabled() ? "ENABLED)" : "DISABLED)") << std::endl;
 
-    std::cout << "dT was " << delta.count() * 1e-6 << "ms" << std::endl;
+    std::cout << std::endl << "dT was " << delta.count() * 1e-6 << "ms" << std::endl;
   }
 }
 

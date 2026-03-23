@@ -21,6 +21,7 @@ Simulation of a Delco Electronics Carousel IV-A unit with flight program CIV-A-2
   - Dual DME update using an offside DME, if both units 1 and 2 perform DME updating, the units will exchange update data via 
     unit interconnect.
 - ADEU import logic (no failures)
+  - ADEU, if available, is connected to all units
 
 ## Planned
 

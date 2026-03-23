@@ -357,18 +357,16 @@ void INS::updateMix() noexcept {
 }
 
 void INS::updatePostMix(const double dTime) noexcept {
-  if (valid != SIGNAL_VALIDITY::ATT) {
-    // NAV
-    if (state == INS_STATE::NAV) {
-      alertLamp(dTime);
-      updateMetrics(dTime);
-      updateNav(dTime);
-    }
+  // NAV
+  if (state == INS_STATE::NAV) {
+    alertLamp(dTime);
+    updateMetrics(dTime);
+    updateNav(dTime);
+  }
 
-    // Display
-    if (state > INS_STATE::OFF && state < INS_STATE::ATT) {
-      updateDisplay(dTime);
-    }
+  // Display
+  if (state > INS_STATE::OFF && state < INS_STATE::ATT) {
+    updateDisplay(dTime);
   }
 
   // Exports

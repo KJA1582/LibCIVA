@@ -29,90 +29,169 @@ WinVarManager::WinVarManager() noexcept {
   pitchAngle = 0;
 }
 
+#include <sstream>
+
+static std::string getUnitDisplayLine(const libciva::DISPLAY &v, const libciva::INDICATORS &ind) {
+  std::ostringstream oss;
+  oss << convertCharacter(v.characters.LEFT_1);
+  oss << convertCharacter(v.characters.LEFT_2);
+  oss << (v.characters.LEFT_DEG_1 ? "'" : " ");
+  oss << convertCharacter(v.characters.LEFT_3);
+  oss << (v.characters.LEFT_DEC_1 ? "." : " ");
+  oss << convertCharacter(v.characters.LEFT_4);
+  oss << (v.characters.LEFT_DEC_2 ? "." : " ");
+  oss << convertCharacter(v.characters.LEFT_5);
+  oss << (v.characters.LEFT_DEG_2 ? "'" : " ");
+  oss << (v.characters.N ? "N" : " ");
+  oss << (v.characters.S ? "S" : " ");
+  oss << "|";
+  oss << convertCharacter(v.characters.RIGHT_1);
+  oss << convertCharacter(v.characters.RIGHT_2);
+  oss << convertCharacter(v.characters.RIGHT_3);
+  oss << (v.characters.RIGHT_DEG_1 ? "'" : " ");
+  oss << convertCharacter(v.characters.RIGHT_4);
+  oss << (v.characters.RIGHT_DEC_1 ? "." : " ");
+  oss << convertCharacter(v.characters.RIGHT_5);
+  oss << (v.characters.RIGHT_DEC_2 ? "." : " ");
+  oss << convertCharacter(v.characters.RIGHT_6);
+  oss << (v.characters.RIGHT_DEG_2 ? "'" : " ");
+  oss << (v.characters.E ? "E" : " ");
+  oss << (v.characters.W ? "W" : " ");
+  oss << "|";
+  if (ind.indicator.FROM_BLINK) {
+    oss << "\033[5m" << convertCharacter(v.characters.FROM) << "\033[0m";
+  } else {
+    oss << convertCharacter(v.characters.FROM);
+  }
+  oss << " ";
+  if (ind.indicator.TO_BLINK) {
+    oss << "\033[5m" << convertCharacter(v.characters.TO) << "\033[0m";
+  } else {
+    oss << convertCharacter(v.characters.TO);
+  }
+  oss << "|";
+  return oss.str();
+}
+
+static std::string getUnitIndicatorsLine(const libciva::INDICATORS &ind) {
+  std::ostringstream oss;
+  oss << (ind.indicator.HOLD ? "|\033[97mHOLD\033[0m|" : "|\033[90mHOLD\033[0m|");
+  oss << (ind.indicator.REMOTE ? "\033[93mREMOTE\033[0m|" : "\033[90mREMOTE\033[0m|");
+  oss << (ind.indicator.INSERT ? "\033[97mINSERT\033[0m|" : "\033[90mINSERT\033[0m|");
+  oss << (ind.indicator.ALERT ? "\033[93mALERT\033[0m|" : "\033[90mALERT\033[0m|");
+  oss << (ind.indicator.CDU_BAT ? "\033[93mBAT\033[0m|" : "\033[90mBAT\033[0m|");
+  oss << (ind.indicator.WARN ? "\033[91mWARN\033[0m|" : "\033[90mWARN\033[0m|");
+  oss << (ind.indicator.WAYPOINT_CHANGE ? "\033[97mWPT CHG\033[0m|" : "\033[90mWPT CHG\033[0m|");
+  return oss.str();
+}
+
+static std::string getUnitIndicatorsLine2(const libciva::INDICATORS &ind) {
+  std::ostringstream oss;
+  oss << (ind.indicator.READY_NAV ? "|\033[92mREADY NAV\033[0m|" : "|\033[90mREADY NAV\033[0m|");
+  oss << (ind.indicator.MSU_BAT ? "\033[91mBAT\033[0m|" : "\033[90mBAT\033[0m|");
+  oss << (ind.indicator.DME1 ? "\033[92mDME 1\033[0m|" : "\033[90mDME 1\033[0m|");
+  oss << (ind.indicator.DME2 ? "\033[92mDME 2\033[0m|" : "\033[90mDME 2\033[0m|");
+  return oss.str();
+}
+
+static std::string getModeLine(const libciva::VarManager::UnitExport &ins) {
+  std::ostringstream oss;
+  oss << (ins.modeSelectorPos == 0 ? "|OFF|" : "|\033[90mOFF\033[0m|");
+  oss << (ins.modeSelectorPos == 1 ? "STBY|" : "\033[90mSTBY\033[0m|");
+  oss << (ins.modeSelectorPos == 2 ? "ALIGN|" : "\033[90mALIGN\033[0m|");
+  oss << (ins.modeSelectorPos == 3 ? "NAV|" : "\033[90mNAV\033[0m|");
+  oss << (ins.modeSelectorPos == 4 ? "ATT|" : "\033[90mATT\033[0m|");
+  return oss.str();
+}
+
+static std::string getDataLine(const libciva::VarManager::UnitExport &ins) {
+  std::ostringstream oss;
+  oss << (ins.dataSelectorPos == 0 ? "|TK/GS|" : "|\033[90mTK/GS\033[0m|");
+  oss << (ins.dataSelectorPos == 1 ? "HDG/DA|" : "\033[90mHDG/DA\033[0m|");
+  oss << (ins.dataSelectorPos == 2 ? "XTK/TKE|" : "\033[90mXTK/TKE\033[0m|");
+  oss << (ins.dataSelectorPos == 3 ? "POS|" : "\033[90mPOS\033[0m|");
+  oss << (ins.dataSelectorPos == 4 ? "WAY PT|" : "\033[90mWAY PT\033[0m|");
+  oss << (ins.dataSelectorPos == 5 ? "DIS/TIME|" : "\033[90mDIS/TIME\033[0m|");
+  oss << (ins.dataSelectorPos == 6 ? "WIND|" : "\033[90mWIND\033[0m|");
+  oss << (ins.dataSelectorPos == 7 ? "DSRTK/STS|" : "\033[90mDSRTK/STS\033[0m|");
+  return oss.str();
+}
+
+static std::string getValuesLine(const libciva::VarManager::UnitExport &ins) {
+  std::ostringstream oss;
+  oss << "XTK: " << std::right << std::setfill(' ') << std::setw(12) << ins.crossTrackError;
+  return oss.str();
+}
+
+static std::string getValuesLine2(const libciva::VarManager::UnitExport &ins) {
+  std::ostringstream oss;
+  oss << "DTK: " << std::right << std::setfill(' ') << std::setw(12) << ins.desiredTrack;
+  return oss.str();
+}
+
+static std::string getValuesLine3(const libciva::VarManager::UnitExport &ins) {
+  std::ostringstream oss;
+  oss << "TRK: " << std::right << std::setfill(' ') << std::setw(12) << ins.track;
+  return oss.str();
+}
+
+static std::string getValuesLine4(const libciva::VarManager::UnitExport &ins) {
+  std::ostringstream oss;
+  oss << "TKE: " << std::right << std::setfill(' ') << std::setw(12) << ins.trackAngleError;
+  return oss.str();
+}
+
+static std::string getValuesLine5(const libciva::VarManager::UnitExport &ins) {
+  std::ostringstream oss;
+  oss << "DIS: " << std::right << std::setfill(' ') << std::setw(12) << ins.distance;
+  return oss.str();
+}
+
+static std::string getValidLine(const libciva::VarManager::UnitExport &ins) {
+  std::ostringstream oss;
+  oss << "Valid: " << std::right << std::setfill(' ') << std::setw(9)
+      << (ins.valid == (double)libciva::SIGNAL_VALIDITY::INV   ? "Invalid"
+          : ins.valid == (double)libciva::SIGNAL_VALIDITY::NAV ? "Navigation"
+                                                               : "Attitude only");
+  return oss.str();
+}
+
 void WinVarManager::dump() const noexcept {
+  std::string lines[3][11];
+
   for (int i = 0; i < 3; i++) {
     const libciva::DISPLAY v = *reinterpret_cast<const libciva::DISPLAY *>(&unit[i].display);
     const libciva::INDICATORS ind = *reinterpret_cast<const libciva::INDICATORS *>(&unit[i].indicators);
 
-    std::cout << "Unit " << (i + 1) << ":" << std::endl;
-    std::cout << convertCharacter(v.characters.LEFT_1);
-    std::cout << convertCharacter(v.characters.LEFT_2);
-    std::cout << (v.characters.LEFT_DEG_1 ? "'" : " ");
-    std::cout << convertCharacter(v.characters.LEFT_3);
-    std::cout << (v.characters.LEFT_DEC_1 ? "." : " ");
-    std::cout << convertCharacter(v.characters.LEFT_4);
-    std::cout << (v.characters.LEFT_DEC_2 ? "." : " ");
-    std::cout << convertCharacter(v.characters.LEFT_5);
-    std::cout << (v.characters.LEFT_DEG_2 ? "'" : " ");
-    std::cout << (v.characters.N ? "N" : " ");
-    std::cout << (v.characters.S ? "S" : " ");
-    std::cout << "|";
-    std::cout << convertCharacter(v.characters.RIGHT_1);
-    std::cout << convertCharacter(v.characters.RIGHT_2);
-    std::cout << convertCharacter(v.characters.RIGHT_3);
-    std::cout << (v.characters.RIGHT_DEG_1 ? "'" : " ");
-    std::cout << convertCharacter(v.characters.RIGHT_4);
-    std::cout << (v.characters.RIGHT_DEC_1 ? "." : " ");
-    std::cout << convertCharacter(v.characters.RIGHT_5);
-    std::cout << (v.characters.RIGHT_DEC_2 ? "." : " ");
-    std::cout << convertCharacter(v.characters.RIGHT_6);
-    std::cout << (v.characters.RIGHT_DEG_2 ? "'" : " ");
-    std::cout << (v.characters.E ? "E" : " ");
-    std::cout << (v.characters.W ? "W" : " ");
-    std::cout << "|";
-    if (ind.indicator.FROM_BLINK) {
-      std::cout << "\033[5m" << convertCharacter(v.characters.FROM) << "\033[0m";
-    } else {
-      std::cout << convertCharacter(v.characters.FROM);
+    lines[i][0] = getUnitDisplayLine(v, ind);
+    lines[i][1] = getUnitIndicatorsLine(ind);
+    lines[i][2] = getUnitIndicatorsLine2(ind);
+    lines[i][3] = getModeLine(unit[i]);
+    lines[i][4] = getDataLine(unit[i]);
+    lines[i][5] = getValuesLine(unit[i]);
+    lines[i][6] = getValuesLine2(unit[i]);
+    lines[i][7] = getValuesLine3(unit[i]);
+    lines[i][8] = getValuesLine4(unit[i]);
+    lines[i][9] = getValuesLine5(unit[i]);
+    lines[i][10] = getValidLine(unit[i]);
+  }
+
+  constexpr int COL_WIDTH_COLOR = 93;
+  constexpr int COL_WIDTH_COLOR2 = 120;
+  constexpr int COL_WIDTH = 57;
+  for (int l = 0; l <= 10; l++) {
+    for (int i = 0; i < 3; i++) {
+      std::cout << std::left << std::setfill(' ')
+                << std::setw(l == 0 || l > 4 ? COL_WIDTH
+                             : l == 1        ? COL_WIDTH_COLOR2
+                                             : COL_WIDTH_COLOR)
+                << lines[i][l];
+      if (i < 2) std::cout << " | ";
     }
-    std::cout << " ";
-    if (ind.indicator.TO_BLINK) {
-      std::cout << "\033[5m" << convertCharacter(v.characters.TO) << "\033[0m";
-    } else {
-      std::cout << convertCharacter(v.characters.TO);
-    }
-    std::cout << "|" << std::endl;
-
-    std::cout << (ind.indicator.HOLD ? "HOLD|" : "\033[90mHOLD\033[0m|");
-    std::cout << (ind.indicator.REMOTE ? "\033[93mREMOTE\033[0m|" : "\033[90mREMOTE\033[0m|");
-    std::cout << (ind.indicator.INSERT ? "INSERT|" : "\033[90mINSERT\033[0m|");
-    std::cout << (ind.indicator.ALERT ? "\033[93mALERT\033[0m|" : "\033[90mALERT\033[0m|");
-    std::cout << (ind.indicator.CDU_BAT ? "\033[93mBAT\033[0m|" : "\033[90mBAT\033[0m|");
-    std::cout << (ind.indicator.WARN ? "\033[91mWARN\033[0m|" : "\033[90mWARN\033[0m|");
-    std::cout << (ind.indicator.WAYPOINT_CHANGE ? "WPT CHG" : "\033[90mWPT CHG\033[0m") << std::endl;
-    std::cout << (ind.indicator.READY_NAV ? "\033[92mREADY NAV\033[0m|" : "\033[90mREADY NAV\033[0m|");
-    std::cout << (ind.indicator.MSU_BAT ? "\033[91mBAT\033[0m|" : "\033[90mBAT\033[0m|");
-    std::cout << (ind.indicator.DME1 ? "\033[92mDME 1\033[0m|" : "\033[90mDME 1\033[0m|");
-    std::cout << (ind.indicator.DME2 ? "\033[92mDME 2\033[0m" : "\033[90mDME 2\033[0m") << std::endl;
-
-    std::cout << (unit[i].modeSelectorPos == 0 ? "OFF|" : "\033[90mOFF\033[0m|");
-    std::cout << (unit[i].modeSelectorPos == 1 ? "STBY|" : "\033[90mSTBY\033[0m|");
-    std::cout << (unit[i].modeSelectorPos == 2 ? "ALIGN|" : "\033[90mALIGN\033[0m|");
-    std::cout << (unit[i].modeSelectorPos == 3 ? "NAV|" : "\033[90mNAV\033[0m|");
-    std::cout << (unit[i].modeSelectorPos == 4 ? "ATT" : "\033[90mATT\033[0m") << std::endl;
-
-    std::cout << (unit[i].dataSelectorPos == 0 ? "TK/GS|" : "\033[90mTK/GS\033[0m|");
-    std::cout << (unit[i].dataSelectorPos == 1 ? "HDG/DA|" : "\033[90mHDG/DA\033[0m|");
-    std::cout << (unit[i].dataSelectorPos == 2 ? "XTK/TKE|" : "\033[90mXTK/TKE\033[0m|");
-    std::cout << (unit[i].dataSelectorPos == 3 ? "POS|" : "\033[90mPOS\033[0m|");
-    std::cout << (unit[i].dataSelectorPos == 4 ? "WAY PT|" : "\033[90mWAY PT\033[0m|");
-    std::cout << (unit[i].dataSelectorPos == 5 ? "DIS/TIME|" : "\033[90mDIS/TIME\033[0m|");
-    std::cout << (unit[i].dataSelectorPos == 6 ? "WIND|" : "\033[90mWIND\033[0m|");
-    std::cout << (unit[i].dataSelectorPos == 7 ? "DSRTK/STS" : "\033[90mDSRTK/STS\033[0m") << std::endl;
-
-    std::cout << "XTK: " << std::right << std::setfill(' ') << std::setw(12) << unit[i].crossTrackError << std::endl;
-    std::cout << "DTK: " << std::right << std::setfill(' ') << std::setw(12) << unit[i].desiredTrack << std::endl;
-    std::cout << "TRK: " << std::right << std::setfill(' ') << std::setw(12) << unit[i].track << std::endl;
-    std::cout << "TKE: " << std::right << std::setfill(' ') << std::setw(12) << unit[i].trackAngleError << std::endl;
-    std::cout << "DIS: " << std::right << std::setfill(' ') << std::setw(12) << unit[i].distance << std::endl;
-    std::cout << "Valid: "
-              << (unit[i].valid == (double)libciva::SIGNAL_VALIDITY::INV   ? "Invalid"
-                  : unit[i].valid == (double)libciva::SIGNAL_VALIDITY::NAV ? "Navigation"
-                                                                           : "Attitude only")
-              << std::endl;
     std::cout << std::endl;
   }
 
+  std::cout << std::endl;
   std::cout << "Sim vars:" << std::endl;
   std::cout << "  Airspeed True:    " << sim.airspeedTrue << std::endl;
   std::cout << "  Ambient Temp:     " << sim.ambientTemperature << std::endl;
@@ -128,6 +207,7 @@ void WinVarManager::dump() const noexcept {
   std::cout << "  Plane Altitude:   " << sim.planeAltitude << std::endl;
 
   // Pure AP Demo
+  std::cout << "Pure AP Demo:" << std::endl;
   std::cout << "  Roll Rate:        " << rollRate << std::endl;
   std::cout << "  Bank Angle:       " << bankAngle << std::endl;
   std::cout << "  Pitch Rate:        " << pitchRate << std::endl;
