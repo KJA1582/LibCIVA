@@ -81,6 +81,8 @@ constexpr auto ID_UNIT_2 = "UNIT_2";
 constexpr auto ID_UNIT_3 = "UNIT_3";
 
 class INS {
+  friend class INSContainer;
+
   VarManager &varManager;
   uint8_t unitIndex; // 0 to 2, corresponding to units 1 to 3
   // INS Config
@@ -263,6 +265,12 @@ class INS {
     display = *(reinterpret_cast<DISPLAY *>(&d));
   }
 
+  void remoteUpdateDME(const uint8_t dme, const bool resetDMEUpdate = false) noexcept;
+  void remoteUpdateWPT(const uint8_t wpt) noexcept;
+
+  inline void connectUnit2(INS *unit) noexcept { unit2 = unit; }
+  inline void connectUnit3(INS *unit) noexcept { unit3 = unit; }
+
 public:
 #pragma region Lifecycle
 
@@ -278,13 +286,6 @@ public:
   void updatePreMix(const double dTime) noexcept;
   void updateMix() noexcept;
   void updatePostMix(const double dTime) noexcept;
-
-#pragma endregion
-
-#pragma region Public Getter / Setter
-
-  inline void connectUnit2(INS *unit) noexcept { unit2 = unit; }
-  inline void connectUnit3(INS *unit) noexcept { unit3 = unit; }
 
 #pragma endregion
 
@@ -313,9 +314,6 @@ public:
 #pragma endregion
 
 #pragma region Remote Update / Insert
-
-  void remoteUpdateDME(const uint8_t dme, const bool resetDMEUpdate = false) noexcept;
-  void remoteUpdateWPT(const uint8_t wpt) noexcept;
 
   // Updating DME in use will drop out of DME updating
   // All DMEs are updated

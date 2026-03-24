@@ -173,7 +173,9 @@ class INS {
 ```
 
 ### Class Member Ordering
-- Place `private:` section **before** `public:` section in class definitions
+- Order: `private`, `protected`, `public`
+- First **member variables**, then **member functions**
+- Within each group: **static** members first, then non-static
 - Debug-only members (e.g., logFile pointers) should be wrapped with `#ifndef NDEBUG`
 
 ### Lambda Expressions
