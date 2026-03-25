@@ -25,6 +25,7 @@
     <ClCompile Include="src\types\types.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\ins\insUpdates.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\config\config.h">

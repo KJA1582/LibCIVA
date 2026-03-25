@@ -17,7 +17,7 @@ add_executable(civaWin
 	"src/varManager.cpp"
 	"src/verticalAutopilot.cpp"
 )
-set_property(TARGET civaWin PROPERTY CXX_STANDARD 14)
+set_property(TARGET civaWin PROPERTY CXX_STANDARD 17)
 target_include_directories(civaWin PRIVATE
 	"../../libciva/include"
 	"$ENV{MSFS_SDK}/SimConnect SDK/include"
