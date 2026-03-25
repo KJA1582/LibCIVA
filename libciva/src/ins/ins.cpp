@@ -100,12 +100,12 @@ void INS::reset(const bool full) noexcept {
 }
 
 void INS::handleOutOfBounds() noexcept {
-  if (absDeltaAngle(varManager.sim.planeHeadingDegreesTrue, track) > MAX_DRIFT_ANGLE) {
+  if (!actionMalfunctionCodes.codes.A02_42 && absDeltaAngle(varManager.sim.planeHeadingDegreesTrue, track) > MAX_DRIFT_ANGLE) {
     actionMalfunctionCodes.codes.A02_42 = true;
     advanceActionMalfunctionIndex();
     indicators.indicator.WARN = true;
   }
-  if (groundSpeed > MAX_GS) {
+  if (!actionMalfunctionCodes.codes.A02_31 && groundSpeed > MAX_GS) {
     actionMalfunctionCodes.codes.A02_31 = true;
     advanceActionMalfunctionIndex();
     indicators.indicator.WARN = true;
@@ -113,12 +113,14 @@ void INS::handleOutOfBounds() noexcept {
 
   if (initialINSPosition.isValid() && state == INS_STATE::ALIGN) {
     // Inter system compare trigger 04-43
-    if (unit2 && unit2->initialINSPosition.isValid() && unit2->initialINSPosition.distanceTo(displayPosition) > 0.0001) {
+    if (!actionMalfunctionCodes.codes.A04_43 && unit2 && unit2->initialINSPosition.isValid() &&
+        unit2->initialINSPosition.distanceTo(displayPosition) > 0.0001) {
       actionMalfunctionCodes.codes.A04_43 = true;
       advanceActionMalfunctionIndex();
       indicators.indicator.WARN = true;
       alignSubmode = ALIGN_SUBMODE::MODE_6;
-    } else if (unit3 && unit3->initialINSPosition.isValid() && unit3->initialINSPosition.distanceTo(displayPosition) > 0.0001) {
+    } else if (!actionMalfunctionCodes.codes.A04_43 && unit3 && unit3->initialINSPosition.isValid() &&
+               unit3->initialINSPosition.distanceTo(displayPosition) > 0.0001) {
       actionMalfunctionCodes.codes.A04_43 = true;
       advanceActionMalfunctionIndex();
       indicators.indicator.WARN = true;
@@ -129,7 +131,8 @@ void INS::handleOutOfBounds() noexcept {
     double simLon = varManager.sim.planeLongitude;
     POSITION simPos = {simLat, simLon};
 
-    if (simPos.isValid() && (simPos + simPosDelta).distanceTo(initialINSPosition) > 0.0001) {
+    if (!actionMalfunctionCodes.codes.A04_57 && simPos.isValid() &&
+        (simPos + simPosDelta).distanceTo(initialINSPosition) > 0.0001) {
       actionMalfunctionCodes.codes.A04_57 = true;
       indicators.indicator.WARN = true;
       advanceActionMalfunctionIndex();

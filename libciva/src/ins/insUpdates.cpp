@@ -148,13 +148,6 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
 }
 
 void INS::updateMetrics(const double dTime) noexcept {
-  double _track = 0;
-  if (groundSpeed <= 0) {
-    _track = varManager.sim.planeHeadingDegreesTrue;
-  } else {
-    _track = track;
-  }
-
   const POSITION pos = currentNavPosition(dTime);
 
   double alongDist = pos.alongTrackDistance(waypoints[currentLegStart], waypoints[currentLegEnd]);
@@ -177,7 +170,7 @@ void INS::updateMetrics(const double dTime) noexcept {
 
   /* TKE */
 
-  trackAngleError = deltaAngle(desiredTrack, _track);
+  trackAngleError = deltaAngle(desiredTrack, track);
 
   /* GS */
 

@@ -204,13 +204,8 @@ void INS::updateDisplay(const double dTime) noexcept {
   // Main display
   switch (dataSelector) {
     case DATA_SELECTOR::TKGS: {
-      uint16_t _track = 0;
+      uint16_t _track = (uint16_t)(std::round(track * 10));
 
-      if (gs <= 0) {
-        _track = (uint16_t)(std::round(varManager.sim.planeHeadingDegreesTrue * 10));
-      } else {
-        _track = (uint16_t)(std::round(track * 10));
-      }
       if (gs > MAX_GS_DISPLAY) {
         gs = MAX_GS_DISPLAY;
       } else {

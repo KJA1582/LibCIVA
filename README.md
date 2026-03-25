@@ -485,11 +485,12 @@ Positive values indicate INS is right of course (left turn to get back).
 
 ### LIBCIVA_DESIRED_TRACK_UNIT_x
 
-Calculated desired track in degrees.
+Calculated desired track (true) in degrees.
 
 ### LIBCIVA_TRACK_UNIT_x
 
-Calculated true track in degrees.
+Calculated true track in degrees.  
+Below 75kts, this will be true heading.
 
 ### LIBCIVA_TRACK_ANGLE_ERROR_UNIT_x
 
@@ -499,7 +500,7 @@ Positive value indicates track is left of the desired track (right turn to align
 
 ### LIBCIVA_DISTANCE_UNIT_x
 
-Along track remaining distance to active waypoint.
+Along track remaining distance (nmi) to active waypoint.
 
 ### LIBCIVA_GROUND_SPEED_UNIT_x
 

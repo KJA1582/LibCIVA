@@ -332,7 +332,7 @@ void INS::handleInsert() noexcept {
 
       if (state == INS_STATE::NAV && inHoldMode) {
         // Reject
-        if (displayPosition.distanceTo(initialINSPosition) > MAX_DEV) {
+        if (!actionMalfunctionCodes.codes.A02_49 && displayPosition.distanceTo(initialINSPosition) > MAX_DEV) {
           actionMalfunctionCodes.codes.A02_49 = true;
           advanceActionMalfunctionIndex();
           indicators.indicator.WARN = holdRequiresForce = true;
@@ -352,7 +352,7 @@ void INS::handleInsert() noexcept {
       // In ALIGN
       else if (state == INS_STATE::ALIGN) {
         // MODE 5 or less, trigger 02-63 and deny nav entry by resetting to mode 6
-        if (alignSubmode < ALIGN_SUBMODE::MODE_6) {
+        if (!actionMalfunctionCodes.codes.A02_63 && alignSubmode < ALIGN_SUBMODE::MODE_6) {
           actionMalfunctionCodes.codes.A02_63 = true;
           advanceActionMalfunctionIndex();
           indicators.indicator.WARN = true;
@@ -360,14 +360,14 @@ void INS::handleInsert() noexcept {
           alignSubmode = ALIGN_SUBMODE::MODE_6;
         }
         // MODE 6, trigger 04-41, reset to MODE 6, can continue
-        else if (alignSubmode == ALIGN_SUBMODE::MODE_6) {
+        else if (!actionMalfunctionCodes.codes.A04_41 && alignSubmode == ALIGN_SUBMODE::MODE_6) {
           actionMalfunctionCodes.codes.A04_41 = true;
           advanceActionMalfunctionIndex();
           indicators.indicator.WARN = true;
           alignSubmode = ALIGN_SUBMODE::MODE_6;
         }
         // Others, trigger 04-41 if >76nmi from last
-        else if (config->getLastINSPosition().isValid() &&
+        else if (!actionMalfunctionCodes.codes.A04_41 && config->getLastINSPosition().isValid() &&
                  displayPosition.distanceTo(config->getLastINSPosition()) > MAX_RAMP_DEV) {
           actionMalfunctionCodes.codes.A04_41 = true;
           advanceActionMalfunctionIndex();
@@ -379,7 +379,8 @@ void INS::handleInsert() noexcept {
       // Since OFF and ATT are early abort, this is STBY only
       // Trigger 04-41 if >76nmi from last
       else {
-        if (config->getLastINSPosition().isValid() && displayPosition.distanceTo(config->getLastINSPosition()) > MAX_RAMP_DEV) {
+        if (!actionMalfunctionCodes.codes.A04_41 && config->getLastINSPosition().isValid() &&
+            displayPosition.distanceTo(config->getLastINSPosition()) > MAX_RAMP_DEV) {
           actionMalfunctionCodes.codes.A04_41 = true;
           advanceActionMalfunctionIndex();
           indicators.indicator.WARN = true;

@@ -148,7 +148,7 @@ static std::string getValuesLine5(const libciva::VarManager::UnitExport &ins) {
 
 static std::string getValuesLine6(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "  GS : " << std::setw(10) << ins.gs;
+  oss << "GS : " << std::setw(10) << ins.gs;
   return oss.str();
 }
 
