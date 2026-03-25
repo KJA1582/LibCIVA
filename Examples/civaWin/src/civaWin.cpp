@@ -31,6 +31,7 @@ static void handleSimConnect() {
         SIMCONNECT_RECV_SIMOBJECT_DATA *pObjData = (SIMCONNECT_RECV_SIMOBJECT_DATA *)pData;
         DATA *data = (DATA *)&pObjData->dwData;
         winVarManager->sim.airspeedTrue = data->airspeedTrue;
+        winVarManager->sim.groundVelocity = data->groundVelocity;
         winVarManager->sim.ambientTemperature = data->ambientTemp;
         winVarManager->sim.ambientWindDirection = data->windDirection;
         winVarManager->sim.ambientWindVelocity = data->windSpeed;
@@ -41,10 +42,6 @@ static void handleSimConnect() {
         winVarManager->sim.navDme2 = data->navDME2;
         winVarManager->sim.simulationRate = data->simRate;
         winVarManager->sim.planeAltitude = data->altitude;
-        winVarManager->sim.velocityWorldX = data->velocityWorldX;
-        winVarManager->sim.velocityWorldZ = data->velocityWorldZ;
-        winVarManager->sim.accelWorldX = data->accelWorldX;
-        winVarManager->sim.accelWorldZ = data->accelWorldZ;
 
         // Pure AP Demo
         winVarManager->rollRate = data->rollRateBodyZ;
@@ -164,6 +161,7 @@ static void setupSimConnect() {
   if (FAILED(hr)) return;
 
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AIRSPEED_TRUE, "KNOT");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_GROUND_VELOCITY, "KNOT");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_TEMPERATURE, "CELSIUS");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_WIND_DIRECTION, "DEGREE");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_WIND_VELOCITY, "KNOT");
@@ -174,10 +172,6 @@ static void setupSimConnect() {
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_NAV_DME_2, "NAUTICAL MILE");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_SIMULATION_RATE, "NUMBER");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_PLANE_ALTITUDE, "FEET");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_VELOCITY_WORLD_X, "KNOT");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_VELOCITY_WORLD_Z, "KNOT");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_ACCELERATION_WORLD_X, "METER PER SECOND");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_ACCELERATION_WORLD_Z, "METER PER SECOND");
 
   // Pure AP Demo
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "ROTATION VELOCITY BODY Z", "DEGREE PER SECOND");

@@ -31,6 +31,7 @@ constexpr auto GROUND_SPEED_VAR = "LIBCIVA_GROUND_SPEED_";
 constexpr auto VALID = "LIBCIVA_VALID_";
 
 constexpr auto SIM_VAR_AIRSPEED_TRUE = "AIRSPEED TRUE";
+constexpr auto SIM_VAR_GROUND_VELOCITY = "GROUND VELOCITY";
 constexpr auto SIM_VAR_AMBIENT_TEMPERATURE = "AMBIENT TEMPERATURE";
 constexpr auto SIM_VAR_AMBIENT_WIND_DIRECTION = "AMBIENT WIND DIRECTION";
 constexpr auto SIM_VAR_AMBIENT_WIND_VELOCITY = "AMBIENT WIND VELOCITY";
@@ -41,10 +42,6 @@ constexpr auto SIM_VAR_NAV_DME_1 = "NAV DME:1";
 constexpr auto SIM_VAR_NAV_DME_2 = "NAV DME:2";
 constexpr auto SIM_VAR_SIMULATION_RATE = "SIMULATION RATE";
 constexpr auto SIM_VAR_PLANE_ALTITUDE = "PLANE ALTITUDE";
-constexpr auto SIM_VAR_VELOCITY_WORLD_X = "VELOCITY WORLD X";
-constexpr auto SIM_VAR_VELOCITY_WORLD_Z = "VELOCITY WORLD Z";
-constexpr auto SIM_VAR_ACCELERATION_WORLD_X = "ACCELERATION WORLD X";
-constexpr auto SIM_VAR_ACCELERATION_WORLD_Z = "ACCELERATION WORLD Z";
 
 struct VarManager {
   struct UnitExport {
@@ -64,11 +61,11 @@ struct VarManager {
   };
 
   struct SimVars {
+    double airspeedTrue = 0;
+    double groundVelocity = 0;
     double ambientTemperature = 15;
     double ambientWindDirection = 0;
     double ambientWindVelocity = 0;
-    double airspeedTrue = 0;
-    double groundVelocity = 0;
     double planeHeadingDegreesTrue = 0;
     double planeLatitude = 0;
     double planeLongitude = 0;
@@ -76,10 +73,6 @@ struct VarManager {
     double navDme2 = -1;
     double simulationRate = 1;
     double planeAltitude = 0;
-    double velocityWorldX = 0;
-    double velocityWorldZ = 0;
-    double accelWorldX = 0;
-    double accelWorldZ = 0;
   } sim;
 
   UnitExport unit[3];

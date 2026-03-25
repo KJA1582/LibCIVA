@@ -66,6 +66,7 @@ enum REQUEST_DEFINITIONS : SIMCONNECT_DATA_REQUEST_ID { REQUEST_DEFINITIONS_DATA
 
 struct DATA {
   double airspeedTrue;
+  double groundVelocity;
   double ambientTemp;
   double windDirection;
   double windSpeed;
@@ -78,10 +79,6 @@ struct DATA {
   double event;
   const char atcID[32];
   double altitude;
-  double velocityWorldX;
-  double velocityWorldZ;
-  double accelWorldX;
-  double accelWorldZ;
 };
 
 #endif

@@ -9,10 +9,11 @@ static uint8_t convertCharacter(uint8_t c) {
 }
 
 WinVarManager::WinVarManager() noexcept {
+  sim.airspeedTrue = 500;
+  sim.groundVelocity = 500;
   sim.ambientTemperature = 15;
   sim.ambientWindDirection = 284;
   sim.ambientWindVelocity = 36;
-  sim.airspeedTrue = 500;
   sim.planeHeadingDegreesTrue = 249.2;
   sim.planeLatitude = 50;
   sim.planeLongitude = 8;
@@ -118,43 +119,43 @@ static std::string getDataLine(const libciva::VarManager::UnitExport &ins) {
 
 static std::string getValuesLine(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "XTK: " << std::right << std::setfill(' ') << std::setw(12) << ins.crossTrackError;
+  oss << "XTK  : " << std::right << std::setfill(' ') << std::setw(13) << ins.crossTrackError;
   return oss.str();
 }
 
 static std::string getValuesLine2(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "DTK: " << std::right << std::setfill(' ') << std::setw(12) << ins.desiredTrack;
+  oss << "DTK  : " << std::right << std::setfill(' ') << std::setw(13) << ins.desiredTrack;
   return oss.str();
 }
 
 static std::string getValuesLine3(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "TRK: " << std::right << std::setfill(' ') << std::setw(12) << ins.track;
+  oss << "TRK  : " << std::right << std::setfill(' ') << std::setw(13) << ins.track;
   return oss.str();
 }
 
 static std::string getValuesLine4(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "TKE: " << std::right << std::setfill(' ') << std::setw(12) << ins.trackAngleError;
+  oss << "TKE  : " << std::right << std::setfill(' ') << std::setw(13) << ins.trackAngleError;
   return oss.str();
 }
 
 static std::string getValuesLine5(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "DIS: " << std::right << std::setfill(' ') << std::setw(12) << ins.distance;
+  oss << "DIS  : " << std::right << std::setfill(' ') << std::setw(13) << ins.distance;
   return oss.str();
 }
 
 static std::string getValuesLine6(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "GS : " << std::setw(10) << ins.gs;
+  oss << "GS   : " << std::right << std::setfill(' ') << std::setw(13) << ins.gs;
   return oss.str();
 }
 
 static std::string getValidLine(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "Valid: " << std::right << std::setfill(' ') << std::setw(9)
+  oss << "Valid: " << std::right << std::setfill(' ') << std::setw(13)
       << (ins.valid == (double)libciva::SIGNAL_VALIDITY::INV   ? "Invalid"
           : ins.valid == (double)libciva::SIGNAL_VALIDITY::NAV ? "Navigation"
                                                                : "Attitude only");
@@ -182,43 +183,33 @@ void WinVarManager::dump() const noexcept {
     lines[i][11] = getValuesLine6(unit[i]);
   }
 
-  constexpr int COL_WIDTH_COLOR = 93;
-  constexpr int COL_WIDTH_COLOR2 = 120;
-  constexpr int COL_WIDTH = 57;
   for (int l = 0; l <= 11; l++) {
     for (int i = 0; i < 3; i++) {
-      std::cout << std::left << std::setfill(' ')
-                << std::setw(l == 0 || l > 4 ? COL_WIDTH
-                             : l == 1        ? COL_WIDTH_COLOR2
-                                             : COL_WIDTH_COLOR)
-                << lines[i][l];
+      std::cout << std::left << std::setfill(' ') << std::setw(l == 0 || l > 4 ? 57 : l == 1 ? 120 : 93) << lines[i][l];
       if (i < 2) std::cout << " | ";
     }
     std::cout << std::endl;
   }
 
   std::cout << std::endl;
-  std::cout << "Sim vars:" << std::endl;
-  std::cout << "  Airspeed True:    " << sim.airspeedTrue << std::endl;
-  std::cout << "  Ambient Temp:     " << sim.ambientTemperature << std::endl;
-  std::cout << "  Wind Direction:   " << sim.ambientWindDirection << std::endl;
-  std::cout << "  Wind Velocity:    " << sim.ambientWindVelocity << std::endl;
-  std::cout << "  Heading True:     " << sim.planeHeadingDegreesTrue << std::endl;
-  std::cout << "  Latitude:         " << sim.planeLatitude << std::endl;
-  std::cout << "  Longitude:        " << sim.planeLongitude << std::endl;
-  std::cout << "  NAV DME 1:        " << sim.navDme1 << std::endl;
-  std::cout << "  NAV DME 2:        " << sim.navDme2 << std::endl;
-  std::cout << "  Simulation Rate:  " << sim.simulationRate << std::endl;
-  std::cout << "  Plane Altitude:   " << sim.planeAltitude << std::endl;
-  std::cout << "  Velocity World X: " << sim.velocityWorldX << std::endl;
-  std::cout << "  Velocity World Z: " << sim.velocityWorldZ << std::endl;
-  std::cout << "  Accel World X:    " << sim.accelWorldX << std::endl;
-  std::cout << "  Accel World Z:    " << sim.accelWorldZ << std::endl;
+  std::cout << "Sim vars" << std::endl;
+  std::cout << "  Airspeed True  : " << sim.airspeedTrue << std::endl;
+  std::cout << "  Ground Velocity: " << sim.groundVelocity << std::endl;
+  std::cout << "  Ambient Temp   : " << sim.ambientTemperature << std::endl;
+  std::cout << "  Wind Direction : " << sim.ambientWindDirection << std::endl;
+  std::cout << "  Wind Velocity  : " << sim.ambientWindVelocity << std::endl;
+  std::cout << "  Heading True   : " << sim.planeHeadingDegreesTrue << std::endl;
+  std::cout << "  Latitude       : " << sim.planeLatitude << std::endl;
+  std::cout << "  Longitude      : " << sim.planeLongitude << std::endl;
+  std::cout << "  NAV DME 1      : " << sim.navDme1 << std::endl;
+  std::cout << "  NAV DME 2      : " << sim.navDme2 << std::endl;
+  std::cout << "  Simulation Rate: " << sim.simulationRate << std::endl;
+  std::cout << "  Plane Altitude : " << sim.planeAltitude << std::endl;
 
   // Pure AP Demo
-  std::cout << "Pure AP Demo:" << std::endl;
-  std::cout << "  Roll Rate:        " << rollRate << std::endl;
-  std::cout << "  Bank Angle:       " << bankAngle << std::endl;
-  std::cout << "  Pitch Rate:        " << pitchRate << std::endl;
-  std::cout << "  Pitch Angle:       " << pitchAngle << std::endl;
+  std::cout << "Pure AP Demo" << std::endl;
+  std::cout << "  Roll Rate      : " << rollRate << std::endl;
+  std::cout << "  Bank Angle     : " << bankAngle << std::endl;
+  std::cout << "  Pitch Rate     : " << pitchRate << std::endl;
+  std::cout << "  Pitch Angle    : " << pitchAngle << std::endl;
 }

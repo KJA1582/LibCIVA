@@ -174,15 +174,7 @@ void INS::updateMetrics(const double dTime) noexcept {
 
   /* GS */
 
-  const double vMag = std::sqrt(varManager.sim.velocityWorldX * varManager.sim.velocityWorldX +
-                                varManager.sim.velocityWorldZ * varManager.sim.velocityWorldZ);
-  if (vMag > 0) {
-    const double accelX = roundCoord(varManager.sim.accelWorldX);
-    const double accelZ = roundCoord(varManager.sim.accelWorldZ);
-    const double accelSigned =
-        ((varManager.sim.velocityWorldX * accelX + varManager.sim.velocityWorldZ * accelZ) / vMag) * 1.94384;
-    groundSpeed += accelSigned * dTime;
-  }
+  groundSpeed = varManager.sim.groundVelocity;
 }
 
 void INS::updateNav(const double dTime) noexcept {

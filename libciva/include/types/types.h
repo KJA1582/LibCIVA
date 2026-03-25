@@ -221,13 +221,13 @@ struct POSITION {
   friend std::ostream &operator<<(std::ostream &os, const POSITION &dt);
 };
 
-typedef struct {
+struct DME {
   POSITION position;
   // In MHz multiplied by 100
   uint16_t frequency;
   // In thousands of feet
   uint8_t altitude;
-} DME;
+};
 
 } // namespace libciva
 

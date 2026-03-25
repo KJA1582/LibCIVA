@@ -85,7 +85,6 @@ class INS {
   friend class INSContainer;
 
   VarManager &varManager;
-  uint8_t unitIndex; // 0 to 2, corresponding to units 1 to 3
   // INS Config
   std::unique_ptr<Config> config;
   // List of active malfunctions
@@ -239,6 +238,12 @@ class INS {
   bool hasExpandedBattery = false;
   // External power state
   bool externalPower = false;
+
+#pragma endregion
+
+#pragma region Unit Index (down here due to memory layout)
+
+  uint8_t unitIndex; // 0 to 2, corresponding to units 1 to 3
 
 #pragma endregion
 

@@ -46,6 +46,7 @@ enum EVENT_DEFINITIONS : SIMCONNECT_CLIENT_EVENT_ID {
 
 struct DATA {
   double airspeedTrue;
+  double groundVelocity;
   double ambientTemp;
   double windDirection;
   double windSpeed;
@@ -56,10 +57,6 @@ struct DATA {
   double navDME2;
   double simRate;
   double altitude;
-  double velocityWorldX;
-  double velocityWorldZ;
-  double accelWorldX;
-  double accelWorldZ;
 
   // Pure AP Demo
   double rollRateBodyZ;

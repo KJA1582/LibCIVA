@@ -195,6 +195,7 @@ static void setupSimConnect() {
   if (FAILED(hr)) return;
 
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AIRSPEED_TRUE, "KNOT");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_GROUND_VELOCITY, "KNOT");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_TEMPERATURE, "CELSIUS");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_WIND_DIRECTION, "DEGREE");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_WIND_VELOCITY, "KNOT");
@@ -207,10 +208,6 @@ static void setupSimConnect() {
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, EVENT, "NUMBER");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "ATC ID", NULL, SIMCONNECT_DATATYPE_STRING32);
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "PLANE ALTITUDE", "FEET");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_VELOCITY_WORLD_X, "KNOT");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_VELOCITY_WORLD_Z, "KNOT");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_ACCELERATION_WORLD_X, "METER PER SECOND");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_ACCELERATION_WORLD_Z, "METER PER SECOND");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_EVENT, EVENT, "NUMBER");
 
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_1, DISPLAY_VAR_UNIT_1.c_str(), "NUMBER");
@@ -279,6 +276,7 @@ static void handleSimConnect() {
           SIMCONNECT_RECV_SIMOBJECT_DATA *pObjData = (SIMCONNECT_RECV_SIMOBJECT_DATA *)pData;
           DATA *data = (DATA *)&pObjData->dwData;
           varManager->sim.airspeedTrue = data->airspeedTrue;
+          varManager->sim.groundVelocity = data->groundVelocity;
           varManager->sim.ambientTemperature = data->ambientTemp;
           varManager->sim.ambientWindDirection = data->windDirection;
           varManager->sim.ambientWindVelocity = data->windSpeed;
@@ -289,10 +287,6 @@ static void handleSimConnect() {
           varManager->sim.navDme2 = data->navDME2;
           varManager->sim.simulationRate = data->simRate;
           varManager->sim.planeAltitude = data->altitude;
-          varManager->sim.velocityWorldX = data->velocityWorldX;
-          varManager->sim.velocityWorldZ = data->velocityWorldZ;
-          varManager->sim.accelWorldX = data->accelWorldX;
-          varManager->sim.accelWorldZ = data->accelWorldZ;
 
           if (data->atcID != NULL && !ins) {
             libciva::Logger::GetInstance() << "Booting INS for " << data->atcID;
@@ -323,11 +317,14 @@ static void handleSimConnect() {
 
 static void exportVars() {
   SimConnect_SetDataOnSimObject(simConnect, DATA_DEFINITIONS_UNIT_1, SIMCONNECT_OBJECT_ID_USER_AIRCRAFT,
-                                SIMCONNECT_DATA_SET_FLAG_DEFAULT, 0, sizeof(libciva::VarManager::UnitExport), &varManager->unit[0]);
+                                SIMCONNECT_DATA_SET_FLAG_DEFAULT, 0, sizeof(libciva::VarManager::UnitExport),
+                                &varManager->unit[0]);
   SimConnect_SetDataOnSimObject(simConnect, DATA_DEFINITIONS_UNIT_2, SIMCONNECT_OBJECT_ID_USER_AIRCRAFT,
-                                SIMCONNECT_DATA_SET_FLAG_DEFAULT, 0, sizeof(libciva::VarManager::UnitExport), &varManager->unit[1]);
+                                SIMCONNECT_DATA_SET_FLAG_DEFAULT, 0, sizeof(libciva::VarManager::UnitExport),
+                                &varManager->unit[1]);
   SimConnect_SetDataOnSimObject(simConnect, DATA_DEFINITIONS_UNIT_3, SIMCONNECT_OBJECT_ID_USER_AIRCRAFT,
-                                SIMCONNECT_DATA_SET_FLAG_DEFAULT, 0, sizeof(libciva::VarManager::UnitExport), &varManager->unit[2]);
+                                SIMCONNECT_DATA_SET_FLAG_DEFAULT, 0, sizeof(libciva::VarManager::UnitExport),
+                                &varManager->unit[2]);
 }
 
 #pragma endregion

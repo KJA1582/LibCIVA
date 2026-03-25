@@ -7,7 +7,6 @@ Simulation of a Delco Electronics Carousel IV-A unit with flight program CIV-A-2
 - Unit temperature sim
 - Instant align shortcut
 - Multi Unit install up to three independent units, including triple mix.
-- Ground speed drift
 - Unit drift, units drift along a radial. Drift radial and max 1h drift is selected on unit boot (OFF -> STBY). Radial is
   uniformly distributed, max 1h drift is normal distributed (μ = 0, σ = 1).
 - Failures
@@ -25,6 +24,8 @@ Simulation of a Delco Electronics Carousel IV-A unit with flight program CIV-A-2
   - ADEU, if available, is connected to all units
 
 ## Planned
+
+- Ground speed drift
 
 ## Wishes
 
