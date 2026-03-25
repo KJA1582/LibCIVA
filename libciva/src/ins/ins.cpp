@@ -71,6 +71,7 @@ void INS::reset(const bool full) noexcept {
     indicators = {0};
     displayPosition = currentINSPosition = initialINSPosition = {999, 999};
     track = 0;
+    groundSpeed = 0;
     valid = SIGNAL_VALIDITY::INV;
 
     for (uint8_t i = 0; i < 10; i++) {
@@ -99,15 +100,12 @@ void INS::reset(const bool full) noexcept {
 }
 
 void INS::handleOutOfBounds() noexcept {
-  double gs = varManager.sim.groundVelocity;
-  double trueHeading = varManager.sim.planeHeadingDegreesTrue;
-
-  if (absDeltaAngle(trueHeading, track) > MAX_DRIFT_ANGLE) {
+  if (absDeltaAngle(varManager.sim.planeHeadingDegreesTrue, track) > MAX_DRIFT_ANGLE) {
     actionMalfunctionCodes.codes.A02_42 = true;
     advanceActionMalfunctionIndex();
     indicators.indicator.WARN = true;
   }
-  if (gs > MAX_GS) {
+  if (groundSpeed > MAX_GS) {
     actionMalfunctionCodes.codes.A02_31 = true;
     advanceActionMalfunctionIndex();
     indicators.indicator.WARN = true;

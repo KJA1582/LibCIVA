@@ -82,9 +82,8 @@ void INS::calculateTrack() noexcept {
   double windDir = varManager.sim.ambientWindDirection;
   double windSpeed = varManager.sim.ambientWindVelocity;
   double tas = varManager.sim.airspeedTrue;
-  double gs = varManager.sim.groundVelocity;
 
-  if (gs < MIN_GS) {
+  if (groundSpeed < MIN_GS) {
     track = trueHeading;
     return;
   }
@@ -100,7 +99,7 @@ void INS::calculateTrack() noexcept {
 
 void INS::exportVars() const noexcept {
   double _track = 0;
-  if (varManager.sim.groundVelocity <= 0) {
+  if (groundSpeed <= 0) {
     _track = (uint16_t)(std::round(varManager.sim.planeHeadingDegreesTrue));
   } else {
     _track = (uint16_t)(std::round(track));

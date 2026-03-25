@@ -14,6 +14,10 @@
 
 # Sim specific
 
+- Pause behaviour
+  - Subscribe to event
+    - Inhibit updating
+
 - GS Inaccuracy due to accel
   - Residual GS
   - Track longitudinal acceleration
@@ -23,3 +27,4 @@
 # Documentation
 
 # Other
+  - Test GS

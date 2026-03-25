@@ -34,7 +34,6 @@ static void handleSimConnect() {
         winVarManager->sim.ambientTemperature = data->ambientTemp;
         winVarManager->sim.ambientWindDirection = data->windDirection;
         winVarManager->sim.ambientWindVelocity = data->windSpeed;
-        winVarManager->sim.groundVelocity = data->groundSpeed;
         winVarManager->sim.planeHeadingDegreesTrue = data->headingTrue;
         winVarManager->sim.planeLatitude = data->latitude;
         winVarManager->sim.planeLongitude = data->longitude;
@@ -42,6 +41,10 @@ static void handleSimConnect() {
         winVarManager->sim.navDme2 = data->navDME2;
         winVarManager->sim.simulationRate = data->simRate;
         winVarManager->sim.planeAltitude = data->altitude;
+        winVarManager->sim.velocityWorldX = data->velocityWorldX;
+        winVarManager->sim.velocityWorldZ = data->velocityWorldZ;
+        winVarManager->sim.accelWorldX = data->accelWorldX;
+        winVarManager->sim.accelWorldZ = data->accelWorldZ;
 
         // Pure AP Demo
         winVarManager->rollRate = data->rollRateBodyZ;
@@ -145,8 +148,10 @@ static void runner() {
 
     // Pure AP Demo
     std::cout << std::endl;
-    std::cout << "AP LNAV   : G (" << (lateralAutopilot->isEnabled() ? "ENABLED)" : "DISABLED)") << std::endl;
-    std::cout << "AP ALT HLD: V (" << (verticalAutopilot->isEnabled() ? "ENABLED)" : "DISABLED)") << std::endl;
+    std::cout << "AP LNAV   : G (" << std::left << std::setfill(' ') << std::setw(14)
+              << (lateralAutopilot->isEnabled() ? "ENABLED)" : "DISABLED)");
+    std::cout << "AP ALT HLD: V (" << std::left << std::setfill(' ') << std::setw(14)
+              << (verticalAutopilot->isEnabled() ? "ENABLED)" : "DISABLED)") << std::endl;
 
     std::cout << std::endl << "dT was " << delta.count() * 1e-6 << "ms" << std::endl;
   }
@@ -162,7 +167,6 @@ static void setupSimConnect() {
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_TEMPERATURE, "CELSIUS");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_WIND_DIRECTION, "DEGREE");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_WIND_VELOCITY, "KNOT");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_GROUND_VELOCITY, "KNOT");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_PLANE_HEADING_DEGREES_TRUE, "DEGREE");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_PLANE_LATITUDE, "DEGREE");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_PLANE_LONGITUDE, "DEGREE");
@@ -170,11 +174,15 @@ static void setupSimConnect() {
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_NAV_DME_2, "NAUTICAL MILE");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_SIMULATION_RATE, "NUMBER");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_PLANE_ALTITUDE, "FEET");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_VELOCITY_WORLD_X, "KNOT");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_VELOCITY_WORLD_Z, "KNOT");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_ACCELERATION_WORLD_X, "METER PER SECOND");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_ACCELERATION_WORLD_Z, "METER PER SECOND");
 
   // Pure AP Demo
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "ROTATION VELOCITY BODY Z", "DEGREES PER SECOND");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "ROTATION VELOCITY BODY Z", "DEGREE PER SECOND");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "PLANE BANK DEGREES", "DEGREE");
-  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "ROTATION VELOCITY BODY X", "DEGREES PER SECOND");
+  SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "ROTATION VELOCITY BODY X", "DEGREE PER SECOND");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, "PLANE PITCH DEGREES", "DEGREE");
   SimConnect_MapClientEventToSimEvent(simConnect, EVENT_DEFINITIONS_AILERON_SET, "AILERON_SET");
   SimConnect_MapClientEventToSimEvent(simConnect, EVENT_DEFINITIONS_ELEVATOR_SET, "ELEVATOR_SET");

@@ -7,6 +7,7 @@ Simulation of a Delco Electronics Carousel IV-A unit with flight program CIV-A-2
 - Unit temperature sim
 - Instant align shortcut
 - Multi Unit install up to three independent units, including triple mix.
+- Ground speed drift
 - Unit drift, units drift along a radial. Drift radial and max 1h drift is selected on unit boot (OFF -> STBY). Radial is
   uniformly distributed, max 1h drift is normal distributed (μ = 0, σ = 1).
 - Failures
@@ -199,13 +200,17 @@ struct MyVarManager : public libciva::VarManager {
 // Create INS container with desired configuration
 MyVarManager varManager;
 libciva::INSContainer ins(
-    varManager,                           // Your VarManager
+    varManager,                           // Your VarManager (by reference)
     libciva::UNIT_COUNT::THREE,           // 1, 2, or 3 units
     libciva::UNIT_HAS_DME::BOTH,          // NONE, ONE, TWO, BOTH
     "CIVA",                               // Config ID prefix
     true,                                 // Has ADEU
     false                                 // Extended battery
 );
+
+// Or with a pointer (like civaWin example):
+// std::unique_ptr<MyVarManager> winVarManager = std::make_unique<MyVarManager>();
+// libciva::INSContainer ins(*winVarManager, ...);
 ```
 
 ## Update Loop
@@ -218,7 +223,6 @@ void update(double deltaTime) {
     varManager.sim.planeLongitude = readFromSim("PLANE LONGITUDE");
     varManager.sim.planeHeadingDegreesTrue = readFromSim("PLANE HEADING DEGREES TRUE");
     varManager.sim.planeAltitude = readFromSim("PLANE ALTITUDE");
-    varManager.sim.groundVelocity = readFromSim("GROUND VELOCITY");
     varManager.sim.airspeedTrue = readFromSim("AIRSPEED TRUE");
     varManager.sim.navDme1 = readFromSim("NAV DME:1");
     varManager.sim.navDme2 = readFromSim("NAV DME:2");
@@ -226,6 +230,10 @@ void update(double deltaTime) {
     varManager.sim.ambientWindVelocity = readFromSim("AMBIENT WIND VELOCITY");
     varManager.sim.ambientTemperature = readFromSim("AMBIENT TEMPERATURE");
     varManager.sim.simulationRate = readFromSim("SIMULATION RATE");
+    varManager.sim.velocityWorldX = readFromSim("VELOCITY WORLD X");
+    varManager.sim.velocityWorldZ = readFromSim("VELOCITY WORLD Z");
+    varManager.sim.accelWorldX = readFromSim("ACCELERATION WORLD X");
+    varManager.sim.accelWorldZ = readFromSim("ACCELERATION WORLD Z");
 
     // 2. Update INS
     ins.update(deltaTime);
@@ -236,11 +244,14 @@ void update(double deltaTime) {
     double indicators = unit1.indicators;
     double modeSelectorPos = unit1.modeSelectorPos;
     double dataSelectorPos = unit1.dataSelectorPos;
+    double waypointSelectorPos = unit1.waypointSelectorPos;
+    double autoManPos = unit1.autoManPos;
     double track = unit1.track;
     double desiredTrack = unit1.desiredTrack;
     double crossTrackError = unit1.crossTrackError;
     double trackAngleError = unit1.trackAngleError;
     double distance = unit1.distance;
+    double gs = unit1.gs;
     double valid = unit1.valid;
 }
 ```
@@ -293,6 +304,12 @@ void handleControlInput(Event event) {
                 break;
             case Event::TEST_OFF:
                 unit1->handleTestButtonState(false);
+                break;
+            case Event::DME_LL:
+                unit1->handleDMEModeEntry('L');
+                break;
+            case Event::DME_FREQ:
+                unit1->handleDMEModeEntry('F');
                 break;
             case Event::WPT_CHG:
                 unit1->handleWaypointChange();
@@ -379,9 +396,9 @@ void importWaypoints(std::array<libciva::POSITION, 9> wptData) {
 
 ### INSContainer
 
-| Function      | Parameters                                                              | Returns | Description                                                         |
-| ------------- | ----------------------------------------------------------------------- | ------- | ------------------------------------------------------------------- |
-| `update`      | `dTime: double`                                                         | `void`  | Call updatePreMix → updateMix → updatePostMix on all units          |
+| Function      | Parameters                                                              | Returns | Description                                                        |
+| ------------- | ----------------------------------------------------------------------- | ------- | ------------------------------------------------------------------ |
+| `update`      | `dTime: double`                                                         | `void`  | Call updatePreMix → updateMix → updatePostMix on all units         |
 | `handleEvent` | `callback: function<shared_ptr<INS>, shared_ptr<INS>, shared_ptr<INS>>` | `void`  | Invoke callback with all three unit shared_ptr for event handling. |
 
 ## Data output
@@ -483,6 +500,10 @@ Positive value indicates track is left of the desired track (right turn to align
 ### LIBCIVA_DISTANCE_UNIT_x
 
 Along track remaining distance to active waypoint.
+
+### LIBCIVA_GROUND_SPEED_UNIT_x
+
+Ground speed in knots.
 
 ### LIBCIVA_VALID_UNIT_x
 

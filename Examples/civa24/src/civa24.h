@@ -69,7 +69,6 @@ struct DATA {
   double ambientTemp;
   double windDirection;
   double windSpeed;
-  double groundSpeed;
   double headingTrue;
   double latitude;
   double longitude;
@@ -79,19 +78,10 @@ struct DATA {
   double event;
   const char atcID[32];
   double altitude;
-};
-
-struct EXPORT {
-  double displays;
-  double indicators;
-  double modeSelectorPos;
-  double dataSelectorPos;
-  double waypointSelectorPos;
-  double autoManPos;
-  double crossTrackError;
-  double desiredTrack;
-  double distance;
-  double valid;
+  double velocityWorldX;
+  double velocityWorldZ;
+  double accelWorldX;
+  double accelWorldZ;
 };
 
 #endif

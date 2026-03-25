@@ -199,8 +199,7 @@ void INS::updateDisplay(const double dTime) noexcept {
     }
   }
 
-  double gs = varManager.sim.groundVelocity;
-  double trueHeading = varManager.sim.planeHeadingDegreesTrue;
+  double gs = groundSpeed;
 
   // Main display
   switch (dataSelector) {
@@ -208,7 +207,7 @@ void INS::updateDisplay(const double dTime) noexcept {
       uint16_t _track = 0;
 
       if (gs <= 0) {
-        _track = (uint16_t)(std::round(trueHeading * 10));
+        _track = (uint16_t)(std::round(varManager.sim.planeHeadingDegreesTrue * 10));
       } else {
         _track = (uint16_t)(std::round(track * 10));
       }
@@ -237,7 +236,7 @@ void INS::updateDisplay(const double dTime) noexcept {
       break;
     }
     case DATA_SELECTOR::HDGDA: {
-      uint16_t heading = (uint16_t)(std::round(trueHeading * 10));
+      uint16_t heading = (uint16_t)(std::round(varManager.sim.planeHeadingDegreesTrue * 10));
 
       int16_t driftAngle = (int16_t)std::round(((uint16_t)absDeltaAngle(heading / 10.0, track) % 180));
       uint8_t driftAngleDir = DISPLAY_CHAR_RIGHT;
@@ -515,20 +514,18 @@ void INS::updateDisplay(const double dTime) noexcept {
 }
 
 void INS::alertLamp(const double dTime) noexcept {
-  static double flashTime = 0;
+  static double flashTime = 0; // FIXME: Make member
 
-  double gs = varManager.sim.groundVelocity;
-
-  if (gs > 0) {
+  if (groundSpeed >= 0 /*ALERT_MIN_GS*/) { // FIXME: Readd condition
     const POSITION pos = currentNavPosition(dTime);
 
     double legDist = waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd]);
     double remDist = pos.distanceTo(waypoints[currentLegEnd]);
 
-    double legTime = (legDist / gs) * 3600;
-    double remTime = (remDist / gs) * 3600;
+    double legTime = (legDist / groundSpeed) * 3600;
+    double remTime = (remDist / groundSpeed) * 3600;
 
-    if (!waypoints[currentLegStart].inFront(pos, track)) {
+    if (!waypoints[currentLegEnd].inFront(pos, track)) {
       // We passed
       if ((autoMode && legTime < MIN_LEG_TIME) || !autoMode) {
         // Either in manual mode or leg time is < 25.6 in auto mode

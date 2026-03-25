@@ -49,7 +49,6 @@ struct DATA {
   double ambientTemp;
   double windDirection;
   double windSpeed;
-  double groundSpeed;
   double headingTrue;
   double latitude;
   double longitude;
@@ -57,6 +56,10 @@ struct DATA {
   double navDME2;
   double simRate;
   double altitude;
+  double velocityWorldX;
+  double velocityWorldZ;
+  double accelWorldX;
+  double accelWorldZ;
 
   // Pure AP Demo
   double rollRateBodyZ;

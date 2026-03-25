@@ -13,7 +13,6 @@ WinVarManager::WinVarManager() noexcept {
   sim.ambientWindDirection = 284;
   sim.ambientWindVelocity = 36;
   sim.airspeedTrue = 500;
-  sim.groundVelocity = 500;
   sim.planeHeadingDegreesTrue = 249.2;
   sim.planeLatitude = 50;
   sim.planeLongitude = 8;
@@ -147,6 +146,12 @@ static std::string getValuesLine5(const libciva::VarManager::UnitExport &ins) {
   return oss.str();
 }
 
+static std::string getValuesLine6(const libciva::VarManager::UnitExport &ins) {
+  std::ostringstream oss;
+  oss << "  GS : " << std::setw(10) << ins.gs;
+  return oss.str();
+}
+
 static std::string getValidLine(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
   oss << "Valid: " << std::right << std::setfill(' ') << std::setw(9)
@@ -157,7 +162,7 @@ static std::string getValidLine(const libciva::VarManager::UnitExport &ins) {
 }
 
 void WinVarManager::dump() const noexcept {
-  std::string lines[3][11];
+  std::string lines[3][12];
 
   for (int i = 0; i < 3; i++) {
     const libciva::DISPLAY v = *reinterpret_cast<const libciva::DISPLAY *>(&unit[i].display);
@@ -174,12 +179,13 @@ void WinVarManager::dump() const noexcept {
     lines[i][8] = getValuesLine4(unit[i]);
     lines[i][9] = getValuesLine5(unit[i]);
     lines[i][10] = getValidLine(unit[i]);
+    lines[i][11] = getValuesLine6(unit[i]);
   }
 
   constexpr int COL_WIDTH_COLOR = 93;
   constexpr int COL_WIDTH_COLOR2 = 120;
   constexpr int COL_WIDTH = 57;
-  for (int l = 0; l <= 10; l++) {
+  for (int l = 0; l <= 11; l++) {
     for (int i = 0; i < 3; i++) {
       std::cout << std::left << std::setfill(' ')
                 << std::setw(l == 0 || l > 4 ? COL_WIDTH
@@ -197,7 +203,6 @@ void WinVarManager::dump() const noexcept {
   std::cout << "  Ambient Temp:     " << sim.ambientTemperature << std::endl;
   std::cout << "  Wind Direction:   " << sim.ambientWindDirection << std::endl;
   std::cout << "  Wind Velocity:    " << sim.ambientWindVelocity << std::endl;
-  std::cout << "  Ground Velocity:  " << sim.groundVelocity << std::endl;
   std::cout << "  Heading True:     " << sim.planeHeadingDegreesTrue << std::endl;
   std::cout << "  Latitude:         " << sim.planeLatitude << std::endl;
   std::cout << "  Longitude:        " << sim.planeLongitude << std::endl;
@@ -205,6 +210,10 @@ void WinVarManager::dump() const noexcept {
   std::cout << "  NAV DME 2:        " << sim.navDme2 << std::endl;
   std::cout << "  Simulation Rate:  " << sim.simulationRate << std::endl;
   std::cout << "  Plane Altitude:   " << sim.planeAltitude << std::endl;
+  std::cout << "  Velocity World X: " << sim.velocityWorldX << std::endl;
+  std::cout << "  Velocity World Z: " << sim.velocityWorldZ << std::endl;
+  std::cout << "  Accel World X:    " << sim.accelWorldX << std::endl;
+  std::cout << "  Accel World Z:    " << sim.accelWorldZ << std::endl;
 
   // Pure AP Demo
   std::cout << "Pure AP Demo:" << std::endl;

@@ -1,8 +1,7 @@
 #include "types/types.h"
 
+#define R 3440.0 // nmi
 namespace libciva {
-
-constexpr double R = 3440; // nmi
 
 double POSITION::distanceTo(const POSITION &target) const noexcept {
   double φ1 = latitude * DEG2RAD; // φ, λ in radians

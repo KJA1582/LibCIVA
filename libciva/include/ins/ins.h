@@ -71,6 +71,7 @@ constexpr auto MAX_DME_RANGE = 250;              // Maximum range upon which DME
 constexpr auto DME_CORRECTION = 1.0 / 300.0;     // 1nmi per 5 min
 constexpr auto DME_AI_TIME = 300;                // 5min
 constexpr auto MIX_EASE_TIME = 60;               // Triple mix ease-on-off
+constexpr auto ALERT_MIN_GS = 250;               // Minimum GS required for alert lamp to light for leg changes
 
 constexpr auto DISPLAY_CHAR_RIGHT = 10;
 constexpr auto DISPLAY_CHAR_LEFT = 11;
@@ -154,6 +155,8 @@ class INS {
   double timeInLeg = 0;
   // Time spent in DME update mode
   double timeInDME = 0;
+  // Ground speed
+  double groundSpeed = 0;
   // Current track
   double track = 0;
   // Cross track distance, positive is plane right of track, nmi
@@ -220,6 +223,8 @@ class INS {
   bool holdRequiresForce = false;
   // AUTO/MAN
   bool autoMode = true;
+  // If the waypoint was passed in auto mode
+  bool autoModePassed = true;
   // If ADEU is connected
   bool hasADEU = false;
   // If DME is connected

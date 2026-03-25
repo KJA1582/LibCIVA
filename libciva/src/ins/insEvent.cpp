@@ -543,6 +543,9 @@ void INS::handleInsert() noexcept {
 }
 
 void INS::handleTestButtonState(const bool _state) noexcept {
+  // Can't in OFF or ATT
+  if (state == INS_STATE::OFF || state == INS_STATE::ATT) return;
+
   if (actionMalfunctionCodes.value != 0) {
     // Pressed
     if (_state) {
@@ -596,6 +599,9 @@ void INS::handleTestButtonState(const bool _state) noexcept {
 }
 
 void INS::handleDMEModeEntry(const uint8_t value) noexcept {
+  // Can't in OFF or ATT
+  if (state == INS_STATE::OFF || state == INS_STATE::ATT) return;
+
   if (dataSelector != DATA_SELECTOR::WPT && dataSelector != DATA_SELECTOR::DISTIME) return;
 
   if (value == 'L') {
@@ -606,6 +612,9 @@ void INS::handleDMEModeEntry(const uint8_t value) noexcept {
 }
 
 void INS::handleClear() noexcept {
+  // Can't in OFF or ATT
+  if (state == INS_STATE::OFF || state == INS_STATE::ATT) return;
+
   // Only clear INSERT if PPos exists
   if (currentINSPosition.isValid()) {
     indicators.indicator.INSERT = false;

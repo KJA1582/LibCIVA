@@ -47,7 +47,6 @@ void INS::updateSimPosDelta() noexcept {
 void INS::updateCurrentINSPosition(const double dTime) noexcept {
   double simLat = varManager.sim.planeLatitude;
   double simLon = varManager.sim.planeLongitude;
-  double groundSpeed = varManager.sim.groundVelocity;
 
   POSITION simPos = {simLat, simLon};
 
@@ -150,7 +149,7 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
 
 void INS::updateMetrics(const double dTime) noexcept {
   double _track = 0;
-  if (varManager.sim.groundVelocity <= 0) {
+  if (groundSpeed <= 0) {
     _track = varManager.sim.planeHeadingDegreesTrue;
   } else {
     _track = track;
@@ -179,31 +178,42 @@ void INS::updateMetrics(const double dTime) noexcept {
   /* TKE */
 
   trackAngleError = deltaAngle(desiredTrack, _track);
+
+  /* GS */
+
+  const double vMag = std::sqrt(varManager.sim.velocityWorldX * varManager.sim.velocityWorldX +
+                                varManager.sim.velocityWorldZ * varManager.sim.velocityWorldZ);
+  if (vMag > 0) {
+    const double accelX = roundCoord(varManager.sim.accelWorldX);
+    const double accelZ = roundCoord(varManager.sim.accelWorldZ);
+    const double accelSigned =
+        ((varManager.sim.velocityWorldX * accelX + varManager.sim.velocityWorldZ * accelZ) / vMag) * 1.94384;
+    groundSpeed += accelSigned * dTime;
+  }
 }
 
 void INS::updateNav(const double dTime) noexcept {
   // Skip if not in auto
   if (!autoMode) return;
 
-  double gs = varManager.sim.groundVelocity;
-
   // Invalid/slow speed, skip
-  if (gs <= 1) return;
+  if (groundSpeed <= 1) return;
 
   const POSITION pos = currentNavPosition(dTime);
 
   double crsToEnd = pos.bearingTo(waypoints[currentLegEnd]);
   double nextCrs = waypoints[currentLegEnd].bearingTo(waypoints[(currentLegEnd % 9) + 1]);
   double dist = pos.distanceTo(waypoints[currentLegEnd]);
-  double legTime = (waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd]) / gs) * 3600;
 
-  // Leg time less than min and not yet flown min leg time
-  if (legTime < MIN_LEG_TIME || timeInLeg < MIN_LEG_TIME) {
+  // Not yet flown min leg time
+  if (timeInLeg < MIN_LEG_TIME) {
+    autoModePassed = waypoints[currentLegEnd].inFront(pos, track);
+
     timeInLeg += dTime;
     return;
   }
 
-  double turnRadius = (gs * gs) / (11.26 * std::tan(MAX_BANK_ANGLE * DEG2RAD));
+  double turnRadius = (groundSpeed * groundSpeed) / (11.26 * std::tan(MAX_BANK_ANGLE * DEG2RAD));
   double delta = nextCrs - track;
   while (delta < -180.0) delta += 360.0;
   while (delta >= 180.0) delta -= 360.0;
@@ -212,12 +222,14 @@ void INS::updateNav(const double dTime) noexcept {
   turnDist /= 6076.1154856;
 
   // Lead in/out
-  turnDist += gs * 2 * LEAD_CORRECTION;
+  turnDist += groundSpeed * 2 * LEAD_CORRECTION;
 
   // Turn point hit, advance leg (must be <2deg delta between track and dirto crs)
-  if (dist <= turnDist && std::abs(crsToEnd - track) < 2) {
+  if (autoModePassed || (dist <= turnDist && std::abs(crsToEnd - track) < 2)) {
 
 #ifndef NDEBUG
+    if (autoModePassed) Logger::GetInstance() << "Auto leg switch occurred after waypoint was passed\n";
+
     Logger::GetInstance() << "Leg changed at " << dist << "/" << turnDist << " remaining from WPT " << (int)currentLegStart
                           << " along " << track << " to WPT " << (int)currentLegEnd << ". Next crs " << nextCrs << " to WPT "
                           << (int)((currentLegEnd % 9) + 1) << "\n";
@@ -226,6 +238,7 @@ void INS::updateNav(const double dTime) noexcept {
     currentLegStart = currentLegEnd;
     currentLegEnd = (currentLegEnd % 9) + 1;
     indicators.indicator.ALERT = false;
+    autoModePassed = false;
     timeInLeg = 0;
     return;
   }
@@ -263,6 +276,10 @@ void INS::updatePreMix(const double dTime) noexcept {
     timeInMode = 0;
     valid = SIGNAL_VALIDITY::ATT;
     clearDisplay();
+
+    double msuBat = indicators.indicator.MSU_BAT;
+    indicators.value = 0;
+    indicators.indicator.MSU_BAT = msuBat;
 
     return;
   }
@@ -440,15 +457,12 @@ void INS::remoteInsertDME(const DME (&dme)[9]) noexcept {
 void INS::remoteInsertWPT(const POSITION (&wpt)[9]) noexcept {
   if (!remoteActive || !hasADEU) return;
 
-  size_t i = (currentLegEnd % 9) + 1;
-  while (true) {
-    if (i == currentLegStart || (i == 1 && currentLegStart == 0)) break;
+  for (size_t i = 1; i < 10; i++) {
+    if (i == currentLegEnd || i == currentLegStart) continue;
 
     if (wpt[i - 1].isValid()) {
       memcpy(&waypoints[i], &wpt[i - 1], sizeof(POSITION));
     }
-
-    i = (i % 9) + 1;
   }
 }
 
