@@ -73,7 +73,7 @@ void POSITION::bound() noexcept {
 }
 
 bool POSITION::inFront(const POSITION &pos, const double track) const noexcept {
-  double brg = this->bearingTo(pos);
+  double brg = pos.bearingTo(*this);
   return std::abs(std::fmod(brg - track + 540, 360) - 180) < 90;
 }
 

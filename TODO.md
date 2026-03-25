@@ -14,17 +14,8 @@
 
 # Sim specific
 
-- Pause behaviour
-  - Subscribe to event
-    - Inhibit updating
-
-- GS Inaccuracy due to accel
-  - Residual GS
-  - Track longitudinal acceleration
-
 # MSFS Unit specific
 
 # Documentation
 
 # Other
-  - Test GS

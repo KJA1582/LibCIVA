@@ -4,6 +4,7 @@ std::unique_ptr<libciva::VarManager> varManager;
 std::unique_ptr<libciva::INSContainer> ins;
 
 HANDLE simConnect = 0;
+bool simPaused = false;
 
 #pragma region Preset LVAR names
 
@@ -194,6 +195,8 @@ static void setupSimConnect() {
   hr = SimConnect_Open(&simConnect, "libciva", NULL, 0, NULL, 0);
   if (FAILED(hr)) return;
 
+  SimConnect_SubscribeToSystemEvent(simConnect, EVENT_ID_PAUSE, "Pause_EX1");
+
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AIRSPEED_TRUE, "KNOT");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_GROUND_VELOCITY, "KNOT");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_TEMPERATURE, "CELSIUS");
@@ -253,7 +256,8 @@ static void setupSimConnect() {
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_UNIT_3, VALID_UNIT_3.c_str(), "NUMBER");
 
   SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA,
-                                    SIMCONNECT_OBJECT_ID_USER_AIRCRAFT, SIMCONNECT_PERIOD_VISUAL_FRAME);
+                                    SIMCONNECT_OBJECT_ID_USER_AIRCRAFT, SIMCONNECT_PERIOD_VISUAL_FRAME,
+                                    SIMCONNECT_DATA_REQUEST_FLAG_CHANGED);
 }
 
 static void handleSimConnect() {
@@ -266,6 +270,14 @@ static void handleSimConnect() {
       switch (pData->dwID) {
         case SIMCONNECT_RECV_ID_NULL:
           return;
+
+        case SIMCONNECT_RECV_ID_EVENT: {
+          SIMCONNECT_RECV_EVENT *evt = (SIMCONNECT_RECV_EVENT *)pData;
+          if (evt->uEventID == EVENT_ID_PAUSE) {
+            simPaused = evt->dwData != 0;
+          }
+          break;
+        }
 
         case SIMCONNECT_RECV_ID_OPEN: {
           SIMCONNECT_RECV_OPEN *openData = (SIMCONNECT_RECV_OPEN *)pData;
@@ -346,7 +358,9 @@ extern "C" MSFS_CALLBACK bool LibCIVA_gauge_update(FsContext ctx, float dTime) {
 
   handleSimConnect();
 
-  ins->update(dTime * varManager->sim.simulationRate);
+  if (!simPaused) {
+    ins->update(dTime * varManager->sim.simulationRate);
+  }
 
   exportVars();
 

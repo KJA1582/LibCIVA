@@ -509,9 +509,7 @@ void INS::updateDisplay(const double dTime) noexcept {
 }
 
 void INS::alertLamp(const double dTime) noexcept {
-  static double flashTime = 0; // FIXME: Make member
-
-  if (groundSpeed >= 0 /*ALERT_MIN_GS*/) { // FIXME: Readd condition
+  if (groundSpeed >= ALERT_MIN_GS) {
     const POSITION pos = currentNavPosition(dTime);
 
     double legDist = waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd]);
@@ -524,15 +522,18 @@ void INS::alertLamp(const double dTime) noexcept {
       // We passed
       if ((autoMode && legTime < MIN_LEG_TIME) || !autoMode) {
         // Either in manual mode or leg time is < 25.6 in auto mode
-        if (flashTime < 0.5) {
+        if (flashTime < 1) {
           indicators.indicator.ALERT = true;
           flashTime += dTime;
-        } else if (flashTime < 1) {
+        } else if (flashTime < 2) {
           indicators.indicator.ALERT = false;
           flashTime += dTime;
         } else {
           flashTime = 0;
         }
+      } else {
+        // Auto mode, this should hit when switching from MAN to AUTO
+        indicators.indicator.ALERT = false;
       }
     } else if (remTime <= LEG_TIME_ALERT) {
       // 2min alert

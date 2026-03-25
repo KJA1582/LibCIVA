@@ -6,8 +6,8 @@ namespace libciva {
 
 INS::INS(VarManager &varManager, const uint8_t id, const std::string &configID, const std::string &workDir, const bool hasADEU,
          const bool hasDME, const bool hasExpandedBattery) noexcept
-    : varManager(varManager), unitIndex(id), actionMalfunctionCodes(), hasADEU(hasADEU), hasDME(hasDME),
-      hasExpandedBattery(hasExpandedBattery) {
+    : varManager(varManager), actionMalfunctionCodes(), hasADEU(hasADEU), hasDME(hasDME), hasExpandedBattery(hasExpandedBattery),
+      unitIndex(id) {
   clearDisplay();
 
   ovenTemperature = varManager.sim.ambientTemperature;

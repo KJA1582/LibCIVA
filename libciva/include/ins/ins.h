@@ -184,6 +184,8 @@ class INS {
   double speedDriftPerSecond = 0;
   // Easing timer
   double mixEaseTime = 0;
+  // Alert lamp flash timer
+  double flashTime = 0;
   // Current INS State
   INS_STATE state = INS_STATE::OFF;
   // Current align submode

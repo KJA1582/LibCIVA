@@ -12,6 +12,7 @@ std::mutex lock;
 std::atomic<bool> __exit;
 std::atomic<uint8_t> selectedUnit = 4;
 std::atomic<bool> power = false;
+std::atomic<bool> simPaused = false;
 
 HANDLE simConnect = 0;
 SIMCONNECT_RECV_OPEN openData;
@@ -23,6 +24,13 @@ static void handleSimConnect() {
   HRESULT hr = SimConnect_GetNextDispatch(simConnect, &pData, &cbData);
   if (SUCCEEDED(hr)) {
     switch (pData->dwID) {
+      case SIMCONNECT_RECV_ID_EVENT: {
+        SIMCONNECT_RECV_EVENT *evt = (SIMCONNECT_RECV_EVENT *)pData;
+        if (evt->uEventID == EVENT_ID_PAUSE) {
+          simPaused = evt->dwData != 0;
+        }
+        break;
+      }
       case SIMCONNECT_RECV_ID_OPEN: {
         openData = *(SIMCONNECT_RECV_OPEN *)pData;
         break;
@@ -77,29 +85,32 @@ static void runner() {
 
     {
       std::lock_guard<std::mutex> guard(lock);
-      ins->update(delta.count() * 1e-9 * winVarManager->sim.simulationRate);
 
-      // Pure AP Demo
-      if (lateralAutopilot->isEnabled() && winVarManager->unit[0].valid != (double)libciva::SIGNAL_VALIDITY::NAV)
-        lateralAutopilot->disable();
+      if (!simPaused) {
+        ins->update(delta.count() * 1e-9 * winVarManager->sim.simulationRate);
 
-      lateralAutopilot->update(delta.count() * 1e-9 * winVarManager->sim.simulationRate, winVarManager->bankAngle,
-                               winVarManager->rollRate, winVarManager->unit[0].track, winVarManager->unit[0].crossTrackError,
-                               winVarManager->unit[0].trackAngleError, winVarManager->unit[0].desiredTrack);
+        // Pure AP Demo
+        if (lateralAutopilot->isEnabled() && winVarManager->unit[0].valid != (double)libciva::SIGNAL_VALIDITY::NAV)
+          lateralAutopilot->disable();
 
-      verticalAutopilot->update(delta.count() * 1e-9 * winVarManager->sim.simulationRate, winVarManager->sim.planeAltitude,
-                                winVarManager->pitchAngle, winVarManager->pitchRate);
+        lateralAutopilot->update(delta.count() * 1e-9 * winVarManager->sim.simulationRate, winVarManager->bankAngle,
+                                 winVarManager->rollRate, winVarManager->unit[0].track, winVarManager->unit[0].crossTrackError,
+                                 winVarManager->unit[0].trackAngleError, winVarManager->unit[0].desiredTrack);
 
-      if (simConnect != NULL && lateralAutopilot->isEnabled()) {
-        int16_t aileron = lateralAutopilot->getOutput();
-        SimConnect_TransmitClientEvent(simConnect, SIMCONNECT_OBJECT_ID_USER, EVENT_DEFINITIONS_AILERON_SET, aileron,
-                                       SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
-      }
+        verticalAutopilot->update(delta.count() * 1e-9 * winVarManager->sim.simulationRate, winVarManager->sim.planeAltitude,
+                                  winVarManager->pitchAngle, winVarManager->pitchRate);
 
-      if (simConnect != NULL && verticalAutopilot->isEnabled()) {
-        int16_t elevator = verticalAutopilot->getOutput();
-        SimConnect_TransmitClientEvent(simConnect, SIMCONNECT_OBJECT_ID_USER, EVENT_DEFINITIONS_ELEVATOR_SET, elevator,
-                                       SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
+        if (simConnect != NULL && lateralAutopilot->isEnabled()) {
+          int16_t aileron = lateralAutopilot->getOutput();
+          SimConnect_TransmitClientEvent(simConnect, SIMCONNECT_OBJECT_ID_USER, EVENT_DEFINITIONS_AILERON_SET, aileron,
+                                         SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
+        }
+
+        if (simConnect != NULL && verticalAutopilot->isEnabled()) {
+          int16_t elevator = verticalAutopilot->getOutput();
+          SimConnect_TransmitClientEvent(simConnect, SIMCONNECT_OBJECT_ID_USER, EVENT_DEFINITIONS_ELEVATOR_SET, elevator,
+                                         SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
+        }
       }
     }
 
@@ -160,6 +171,8 @@ static void setupSimConnect() {
   hr = SimConnect_Open(&simConnect, "civaWin", NULL, 0, NULL, 0);
   if (FAILED(hr)) return;
 
+  SimConnect_SubscribeToSystemEvent(simConnect, EVENT_ID_PAUSE, "Pause_EX1");
+
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AIRSPEED_TRUE, "KNOT");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_GROUND_VELOCITY, "KNOT");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AMBIENT_TEMPERATURE, "CELSIUS");
@@ -182,7 +195,7 @@ static void setupSimConnect() {
   SimConnect_MapClientEventToSimEvent(simConnect, EVENT_DEFINITIONS_ELEVATOR_SET, "ELEVATOR_SET");
 
   SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA, SIMCONNECT_OBJECT_ID_USER,
-                                    SIMCONNECT_PERIOD_VISUAL_FRAME);
+                                    SIMCONNECT_PERIOD_VISUAL_FRAME, SIMCONNECT_DATA_REQUEST_FLAG_CHANGED);
 }
 
 static void importSimBrief(std::shared_ptr<libciva::INS> unit1, std::shared_ptr<libciva::INS> unit2,

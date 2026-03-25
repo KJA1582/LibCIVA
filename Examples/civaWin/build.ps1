@@ -18,12 +18,12 @@ mkdir .\out
 Set-Location .\out
 # Clean
 if ($Clean) {
-  Remove-Item -r -fo .\Win32
+  Remove-Item -r -fo .\x64
 }
 # Build
-mkdir .\Win32
-Set-Location .\Win32
-cmake -A Win32 -DCMAKE_BUILD_TYPE="$Build" ..\..
+mkdir .\x64
+Set-Location .\x64
+cmake -DCMAKE_BUILD_TYPE="$Build" ..\..
 msbuild .\libciva.vcxproj /property:Configuration="$Build" /m
 
 # Example
@@ -41,6 +41,8 @@ if ($Clean) {
 # Build
 mkdir .\out
 Set-Location .\out
-cmake -A Win32 -DCMAKE_BUILD_TYPE="$Build" ..
+cmake -DCMAKE_BUILD_TYPE="$Build" ..
 msbuild .\civaWin.vcxproj /property:Configuration="$Build" /m
 Set-Location ..\
+# Copy DLL
+Copy-Item "$Env:MSFS_SDK\SimConnect SDK\lib\SimConnect.dll" .\out\$Build\SimConnect.dll

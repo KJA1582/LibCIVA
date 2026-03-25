@@ -192,7 +192,7 @@ void INS::updateNav(const double dTime) noexcept {
 
   // Not yet flown min leg time
   if (timeInLeg < MIN_LEG_TIME) {
-    autoModePassed = waypoints[currentLegEnd].inFront(pos, track);
+    autoModePassed = !waypoints[currentLegEnd].inFront(pos, track);
 
     timeInLeg += dTime;
     return;

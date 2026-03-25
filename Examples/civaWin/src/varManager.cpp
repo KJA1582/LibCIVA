@@ -179,8 +179,8 @@ void WinVarManager::dump() const noexcept {
     lines[i][7] = getValuesLine3(unit[i]);
     lines[i][8] = getValuesLine4(unit[i]);
     lines[i][9] = getValuesLine5(unit[i]);
-    lines[i][10] = getValidLine(unit[i]);
-    lines[i][11] = getValuesLine6(unit[i]);
+    lines[i][10] = getValuesLine6(unit[i]);
+    lines[i][11] = getValidLine(unit[i]);
   }
 
   for (int l = 0; l <= 11; l++) {
@@ -193,23 +193,24 @@ void WinVarManager::dump() const noexcept {
 
   std::cout << std::endl;
   std::cout << "Sim vars" << std::endl;
-  std::cout << "  Airspeed True  : " << sim.airspeedTrue << std::endl;
-  std::cout << "  Ground Velocity: " << sim.groundVelocity << std::endl;
-  std::cout << "  Ambient Temp   : " << sim.ambientTemperature << std::endl;
-  std::cout << "  Wind Direction : " << sim.ambientWindDirection << std::endl;
-  std::cout << "  Wind Velocity  : " << sim.ambientWindVelocity << std::endl;
-  std::cout << "  Heading True   : " << sim.planeHeadingDegreesTrue << std::endl;
-  std::cout << "  Latitude       : " << sim.planeLatitude << std::endl;
-  std::cout << "  Longitude      : " << sim.planeLongitude << std::endl;
-  std::cout << "  NAV DME 1      : " << sim.navDme1 << std::endl;
-  std::cout << "  NAV DME 2      : " << sim.navDme2 << std::endl;
-  std::cout << "  Simulation Rate: " << sim.simulationRate << std::endl;
-  std::cout << "  Plane Altitude : " << sim.planeAltitude << std::endl;
+  std::cout << "  Airspeed True  : " << std::right << std::setfill(' ') << std::setw(13) << sim.airspeedTrue << std::endl;
+  std::cout << "  Ground Velocity: " << std::right << std::setfill(' ') << std::setw(13) << sim.groundVelocity << std::endl;
+  std::cout << "  Ambient Temp   : " << std::right << std::setfill(' ') << std::setw(13) << sim.ambientTemperature << std::endl;
+  std::cout << "  Wind Direction : " << std::right << std::setfill(' ') << std::setw(13) << sim.ambientWindDirection << std::endl;
+  std::cout << "  Wind Velocity  : " << std::right << std::setfill(' ') << std::setw(13) << sim.ambientWindVelocity << std::endl;
+  std::cout << "  Heading True   : " << std::right << std::setfill(' ') << std::setw(13) << sim.planeHeadingDegreesTrue
+            << std::endl;
+  std::cout << "  Latitude       : " << std::right << std::setfill(' ') << std::setw(13) << sim.planeLatitude << std::endl;
+  std::cout << "  Longitude      : " << std::right << std::setfill(' ') << std::setw(13) << sim.planeLongitude << std::endl;
+  std::cout << "  NAV DME 1      : " << std::right << std::setfill(' ') << std::setw(13) << sim.navDme1 << std::endl;
+  std::cout << "  NAV DME 2      : " << std::right << std::setfill(' ') << std::setw(13) << sim.navDme2 << std::endl;
+  std::cout << "  Simulation Rate: " << std::right << std::setfill(' ') << std::setw(13) << sim.simulationRate << std::endl;
+  std::cout << "  Plane Altitude : " << std::right << std::setfill(' ') << std::setw(13) << sim.planeAltitude << std::endl;
 
   // Pure AP Demo
   std::cout << "Pure AP Demo" << std::endl;
-  std::cout << "  Roll Rate      : " << rollRate << std::endl;
-  std::cout << "  Bank Angle     : " << bankAngle << std::endl;
-  std::cout << "  Pitch Rate     : " << pitchRate << std::endl;
-  std::cout << "  Pitch Angle    : " << pitchAngle << std::endl;
+  std::cout << "  Roll Rate      : " << std::right << std::setfill(' ') << std::setw(13) << rollRate << std::endl;
+  std::cout << "  Bank Angle     : " << std::right << std::setfill(' ') << std::setw(13) << bankAngle << std::endl;
+  std::cout << "  Pitch Rate     : " << std::right << std::setfill(' ') << std::setw(13) << pitchRate << std::endl;
+  std::cout << "  Pitch Angle    : " << std::right << std::setfill(' ') << std::setw(13) << pitchAngle << std::endl;
 }

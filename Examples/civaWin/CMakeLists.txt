@@ -20,22 +20,22 @@ add_executable(civaWin
 set_property(TARGET civaWin PROPERTY CXX_STANDARD 14)
 target_include_directories(civaWin PRIVATE
 	"../../libciva/include"
-	"F:/SteamLibrary/steamapps/common/FSX/SDK/Core Utilities Kit/SimConnect SDK/inc"
-	"C:/MSFS 2024 SDK/WASM/include"
+	"$ENV{MSFS_SDK}/SimConnect SDK/include"
+	"$ENV{MSFS_SDK}/WASM/include"
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
 	target_link_directories(civaWin PRIVATE
-		"../../libciva/out/Win32/Release"
+		"../../libciva/out/x64/Release"
 	)
 else()
 	target_link_directories(civaWin PRIVATE
-		"../../libciva/out/Win32/Debug"
+		"../../libciva/out/x64/Debug"
 	)
 endif()
 target_link_directories(civaWin PRIVATE
-	"F:/SteamLibrary/steamapps/common/FSX/SDK/Core Utilities Kit/SimConnect SDK/lib"
+	"$ENV{MSFS_SDK}/SimConnect SDK/lib"
 )
 
 target_link_libraries(civaWin PRIVATE libciva SimConnect.lib)
-target_compile_definitions(civaWin PRIVATE WORK_DIR="./")
+target_compile_definitions(civaWin PRIVATE WORK_DIR="./" _CRT_SECURE_NO_WARNINGS)
