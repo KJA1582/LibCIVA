@@ -9,14 +9,15 @@ Simulation of a Delco Electronics Carousel IV-A unit with flight program CIV-A-2
 - Multi Unit install up to three independent units, including triple mix.
 - Unit drift, units drift along a radial. Drift radial and max 1h drift is selected on unit boot (OFF -> STBY). Radial is
   uniformly distributed, max 1h drift is normal distributed (μ = 0, σ = 1).
+- Ground speed drift
 - Failures
-  - 02 31
-  - 02 42
-  - 02 49
-  - 02 63
-  - 04 41
-  - 04 43
-  - 04 57
+  - 02 31 - GS > 910kts
+  - 02 42 - DA > 45°
+  - 02 49 - Manual position update in flight > 33nmi
+  - 02 63 - Position entry during align phases 5 or less
+  - 04 41 - Entered position differs from last position more than 76nmi
+  - 04 43 - Entered position differs between units
+  - 04 57 - Taxi during alignment
 - DME Update with one DME connected to units 1 and 2, with unit 3 receiving data from units 1 and 2 via unit interconnect.
   - Dual DME update using an offside DME, if both units 1 and 2 perform DME updating, the units will exchange update data via 
     unit interconnect.
@@ -24,8 +25,6 @@ Simulation of a Delco Electronics Carousel IV-A unit with flight program CIV-A-2
   - ADEU, if available, is connected to all units
 
 ## Planned
-
-- Ground speed drift
 
 ## Wishes
 
@@ -505,7 +504,7 @@ Along track remaining distance (nmi) to active waypoint.
 
 ### LIBCIVA_GROUND_SPEED_UNIT_x
 
-Ground speed in knots.
+Calculated ground speed in knots.
 
 ### LIBCIVA_VALID_UNIT_x
 

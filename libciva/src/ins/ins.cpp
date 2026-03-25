@@ -16,6 +16,7 @@ INS::INS(VarManager &varManager, const uint8_t id, const std::string &configID, 
   randomGen = std::make_unique<std::mt19937>((std::random_device())());
   distributionRadial = std::make_unique<std::normal_distribution<>>(0, 0.01 / 3);
   distributionDistance = std::make_unique<std::normal_distribution<>>(0);
+  distributionSpeed = std::make_unique<std::normal_distribution<>>(0, 0.1);
 
   if (hasExpandedBattery) batteryRuntime = EXPANDED_BATTERY_DURATION;
 

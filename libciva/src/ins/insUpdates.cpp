@@ -174,7 +174,7 @@ void INS::updateMetrics(const double dTime) noexcept {
 
   /* GS */
 
-  groundSpeed = varManager.sim.groundVelocity;
+  groundSpeed = varManager.sim.groundVelocity + speedDriftPerSecond * std::max(0.0, groundSpeed / DRIFT_GS) * dTime;
 }
 
 void INS::updateNav(const double dTime) noexcept {
@@ -295,6 +295,7 @@ void INS::updatePreMix(const double dTime) noexcept {
         // Init error radial and distance
         baseRadialDriftPerSecond = distributionRadial->operator()(*randomGen);
         distanceDriftPerSecond = std::abs(distributionDistance->operator()(*randomGen)) / 3600.0;
+        speedDriftPerSecond = (0.05 + std::abs(distributionSpeed->operator()(*randomGen))) / 3600.0;
 
         timeInMode = 0;
       }

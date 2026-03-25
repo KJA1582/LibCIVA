@@ -93,6 +93,7 @@ class INS {
   std::unique_ptr<std::mt19937> randomGen;
   std::unique_ptr<std::normal_distribution<>> distributionRadial;   // °/h 3sigma of 0.01
   std::unique_ptr<std::normal_distribution<>> distributionDistance; // nmi/h
+  std::unique_ptr<std::normal_distribution<>> distributionSpeed;    // kts/h, additive to a base of 0.1 kts/h
 
 #pragma region Positions
 
@@ -179,6 +180,8 @@ class INS {
   double baseRadialDriftPerSecond = 0;
   // Distance drift in nmi/s
   double distanceDriftPerSecond = 0;
+  // Speed drift in kts/s, minimum 0.05
+  double speedDriftPerSecond = 0;
   // Easing timer
   double mixEaseTime = 0;
   // Current INS State
@@ -241,7 +244,7 @@ class INS {
 
 #pragma endregion
 
-#pragma region Unit Index (down here due to memory layout)
+#pragma region Unit Index(down here due to memory layout)
 
   uint8_t unitIndex; // 0 to 2, corresponding to units 1 to 3
 
@@ -323,7 +326,7 @@ public:
 
 #pragma endregion
 
-#pragma region Remote Update / Insert
+#pragma region Remote Insert
 
   // Updating DME in use will drop out of DME updating
   // All DMEs are updated
