@@ -192,7 +192,7 @@ static void handleEvent(int event) {
 static void setupSimConnect() {
   HRESULT hr;
 
-  hr = SimConnect_Open(&simConnect, "libciva", NULL, 0, NULL, 0);
+  hr = SimConnect_Open(&simConnect, "libciva", NULL, 0, 0, 0);
   if (FAILED(hr)) return;
 
   SimConnect_SubscribeToSystemEvent(simConnect, EVENT_ID_PAUSE, "Pause_EX1");
@@ -300,7 +300,7 @@ static void handleSimConnect() {
           varManager->sim.simulationRate = data->simRate;
           varManager->sim.planeAltitude = data->altitude;
 
-          if (data->atcID != NULL && !ins) {
+          if (data->atcID[0] != '\0' && !ins) {
             libciva::Logger::GetInstance() << "Booting INS for " << data->atcID;
             ins = std::make_unique<libciva::INSContainer>(*varManager, libciva::UNIT_COUNT::THREE, libciva::UNIT_HAS_DME::BOTH,
                                                           data->atcID, true, true);

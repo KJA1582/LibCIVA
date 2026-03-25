@@ -16,6 +16,7 @@ option(SHARED "Shared" OFF)
 set(header
   "include/config/config.h"
 	"include/ins/ins.h"
+	"include/insContainer/insContainer.h"
 	"include/logger/logger.h"
 	"include/types/types.h"
 	"include/varManager/varManager.h"
@@ -24,6 +25,7 @@ set(sources
 	"src/config/config.cpp"
 	"src/ins/modes/align.cpp"
 	"src/ins/ins.cpp"
+	"src/insContainer/insContainer.cpp"
 	"src/ins/insDisplay.cpp"
 	"src/ins/insEvent.cpp"
 	"src/ins/insSetGet.cpp"

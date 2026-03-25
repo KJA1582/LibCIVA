@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <functional>
 #include <memory>
 #include <random>
 #include <string>
@@ -340,40 +339,6 @@ public:
   void remoteInsertWPT(const POSITION (&wpt)[9]) noexcept;
 
 #pragma endregion
-};
-
-class INSContainer {
-  std::shared_ptr<INS> unit1;
-  std::shared_ptr<INS> unit2;
-  std::shared_ptr<INS> unit3;
-
-public:
-  inline INSContainer(VarManager &varManager, UNIT_COUNT count, UNIT_HAS_DME dme, const std::string &configBaseID,
-                      const bool hasADEU, const bool hasExtendedBattery) noexcept {
-    unit1 = std::make_shared<INS>(varManager, 0, configBaseID + "_1", WORK_DIR, hasADEU,
-                                  dme == UNIT_HAS_DME::ONE || dme == UNIT_HAS_DME::BOTH, hasExtendedBattery);
-
-    if (count > UNIT_COUNT::ONE)
-      unit2 = std::make_shared<INS>(varManager, 1, configBaseID + "_2", WORK_DIR, hasADEU,
-                                    dme == UNIT_HAS_DME::TWO || dme == UNIT_HAS_DME::BOTH, hasExtendedBattery);
-    if (count == UNIT_COUNT::THREE)
-      unit3 = std::make_shared<INS>(varManager, 2, configBaseID + "_3", WORK_DIR, hasADEU, false, hasExtendedBattery);
-
-    if (count > UNIT_COUNT::ONE) unit1->connectUnit2(unit2.get());
-    if (count == UNIT_COUNT::THREE) unit1->connectUnit3(unit3.get());
-
-    if (count > UNIT_COUNT::ONE) unit2->connectUnit2(unit1.get());
-    if (count == UNIT_COUNT::THREE) unit2->connectUnit3(unit3.get());
-
-    if (count == UNIT_COUNT::THREE) unit3->connectUnit2(unit1.get());
-    if (count == UNIT_COUNT::THREE) unit3->connectUnit3(unit2.get());
-  }
-
-  void update(const double dTime) const noexcept;
-
-  inline void handleEvent(std::function<void(std::shared_ptr<INS>, std::shared_ptr<INS>, std::shared_ptr<INS>)> callback) {
-    callback(unit1, unit2, unit3);
-  }
 };
 
 } // namespace libciva

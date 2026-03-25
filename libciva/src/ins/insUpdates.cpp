@@ -379,20 +379,6 @@ void INS::updatePostMix(const double dTime) noexcept {
   timeInMode += dTime;
 }
 
-void INSContainer::update(const double dTime) const noexcept {
-  unit1->updatePreMix(dTime);
-  if (unit2) unit2->updatePreMix(dTime);
-  if (unit3) unit3->updatePreMix(dTime);
-
-  unit1->updateMix();
-  if (unit2) unit2->updateMix();
-  if (unit3) unit3->updateMix();
-
-  unit1->updatePostMix(dTime);
-  if (unit2) unit2->updatePostMix(dTime);
-  if (unit3) unit3->updatePostMix(dTime);
-}
-
 #pragma endregion
 
 #pragma region Remote

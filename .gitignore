@@ -369,4 +369,4 @@ FodyWeavers.xsd
 MSFS/
 
 INS Model/
-position.json
+pos_log.geojson
