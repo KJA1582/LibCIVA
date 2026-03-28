@@ -260,9 +260,9 @@ int main() {
         continue;
     }
 
-    std::lock_guard<std::mutex> guard(lock);
-
     ins->handleEvent([inp](auto unit1, auto unit2, auto unit3) {
+      std::lock_guard<std::mutex> guard(lock);
+
       switch (inp.EventType) {
         case KEY_EVENT: {
           if (!inp.Event.KeyEvent.bKeyDown) {

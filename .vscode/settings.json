@@ -45,5 +45,5 @@
   ],
   "C_Cpp.errorSquiggles": "enabled",
   "cmake.ignoreCMakeListsMissing": true,
-  "python-envs.defaultEnvManager": "ms-python.python:system"
+  "python-envs.defaultEnvManager": "ms-python.python:system",
 }

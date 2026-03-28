@@ -13,7 +13,9 @@
 #define __restrict__
 #endif
 
+#ifndef NDEBUG
 #include <fstream>
+#endif
 #include <functional>
 #include <memory>
 

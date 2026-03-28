@@ -14,9 +14,10 @@ INS::INS(VarManager &varManager, const uint8_t id, const std::string &configID, 
 
   config = std::make_unique<Config>(workDir, configID);
   randomGen = std::make_unique<std::mt19937>((std::random_device())());
-  distributionRadial = std::make_unique<std::normal_distribution<>>(0, 0.01 / 3);
-  distributionDistance = std::make_unique<std::normal_distribution<>>(0);
-  distributionSpeed = std::make_unique<std::normal_distribution<>>(0, 0.1);
+  distributionRadialDrift = std::make_unique<std::normal_distribution<>>(0, 0.01 / 3);
+  distributionDistanceDrift = std::make_unique<std::normal_distribution<>>(0);
+  distributionSpeedDrift = std::make_unique<std::normal_distribution<>>(0, 0.1);
+  distributionRadialStart = std::make_unique<std::uniform_real_distribution<>>(0.0, 360.0);
 
   if (hasExpandedBattery) batteryRuntime = EXPANDED_BATTERY_DURATION;
 
@@ -150,36 +151,23 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
   }
 
   // Not armed, skip
-  if (!dmeArmed) return;
+  if (!dmeArmed || activeDME == 0) return;
 
   // Count time
   if (dmeArmed || dmeUpdating) {
     timeInDME += dTime;
   }
 
-  // Not min time, skip
+  // Not min time, wait
   if (timeInDME < MIN_DME_TIME) return;
 
-  // Get DME value
-  double dmeDist = unitIndex == 0 ? varManager.sim.navDme1 : varManager.sim.navDme2;
-  bool valid = dmeDist >= 0;
+  // Get DME values
+  double dmeDist1 = varManager.sim.navDme1;
+  double dmeDist2 = varManager.sim.navDme2;
 
   // Drop out of DME if not valid
-  if (!valid || dmeDist < 0) {
-    dmeArmed = dmeUpdating = false;
-    activeDME = 0;
-    if (unitIndex == 0) indicators.indicator.DME1 = false;
-    if (unitIndex == 1) indicators.indicator.DME2 = false;
-  }
-
-  // Check distance, drop out if not reasonable
-  DME dme = DMEs[activeDME - 1];
-
-  double alt = varManager.sim.planeAltitude;
-
-  double gcDist = dme.position.distanceTo((currentINSPosition));
-  double slantCorrectedDMEDist = std::sqrt(std::pow(dmeDist, 2) - std::pow((alt - dme.altitude) * 0.000164579, 2));
-  if (std::abs(gcDist - slantCorrectedDMEDist) > 0.5) {
+  bool valid = dmeDist1 > 0 || dmeDist2 > 0;
+  if (!valid) {
     dmeArmed = dmeUpdating = false;
     activeDME = 0;
     if (unitIndex == 0) indicators.indicator.DME1 = false;
@@ -187,6 +175,26 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
     return;
   }
 
+  // Check distance, drop out if not reasonable
+  DME dme = DMEs[activeDME - 1];
+
+  double alt = varManager.sim.planeAltitude;
+  double gcDist = dme.position.distanceTo((currentINSPosition));
+  double slantCorrectedDMEDist1 = std::sqrt(std::pow(dmeDist1, 2) - std::pow((alt - dme.altitude) * 0.000164579, 2));
+  double slantCorrectedDMEDist2 = std::sqrt(std::pow(dmeDist2, 2) - std::pow((alt - dme.altitude) * 0.000164579, 2));
+  // In lieu of specified reasonability checks, assume that if an error twice that of the AI exists, something is wrong
+  double targetAccuracy = 2 * (accuracyIndex + 1 + timeInMode / TIME_PER_AI);
+
+  // Check if either units DME data is valid
+  if (std::abs(gcDist - slantCorrectedDMEDist1) > targetAccuracy || std::abs(gcDist - slantCorrectedDMEDist2) > targetAccuracy) {
+    dmeArmed = dmeUpdating = false;
+    activeDME = 0;
+    if (unitIndex == 0) indicators.indicator.DME1 = false;
+    if (unitIndex == 1) indicators.indicator.DME2 = false;
+    return;
+  }
+
+  // Enter update mode
   if (!dmeUpdating) {
     dmeUpdating = true;
     if (unitIndex == 0) indicators.indicator.DME1 = true;

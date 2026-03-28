@@ -400,7 +400,7 @@ void INS::handleInsert() noexcept {
       if (dmeMode == DME_MODE::DME_LL && waypointSelector >= 1) {
         DMEs[waypointSelector - 1].position.latitude = lat;
 
-        if (activeDME == waypointSelector - 1) {
+        if (activeDME == waypointSelector) {
           activeDME = 0;
         }
       } else if (dmeMode == DME_MODE::INV) {
@@ -418,7 +418,7 @@ void INS::handleInsert() noexcept {
       if (dmeMode == DME_MODE::DME_LL && waypointSelector >= 1) {
         DMEs[waypointSelector - 1].position.longitude = lon;
 
-        if (activeDME == waypointSelector - 1) {
+        if (activeDME == waypointSelector) {
           activeDME = 0;
         }
 
@@ -443,7 +443,7 @@ void INS::handleInsert() noexcept {
 
       DMEs[waypointSelector - 1].altitude = alt;
 
-      if (activeDME == waypointSelector - 1) {
+      if (activeDME == waypointSelector) {
         activeDME = 0;
       }
 

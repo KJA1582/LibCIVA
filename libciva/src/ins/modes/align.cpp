@@ -17,7 +17,7 @@ void INS::align(const double dTime) noexcept {
       valid = SIGNAL_VALIDITY::NAV;
       indicators.indicator.READY_NAV = false;
       accuracyIndex = 0;
-      initialRadialError = currentRadialError = 0;
+      initialRadialError = currentRadialError = (*distributionRadialStart)(*randomGen);
       // If you enter exactly at AI5, you get double the drift (3sigma of 0.02 °/h)
       radialDriftPerSecond = baseRadialDriftPerSecond * (1 + (radialScalarAlignTime / MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME));
 

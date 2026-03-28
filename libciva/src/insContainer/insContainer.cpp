@@ -40,6 +40,7 @@ void INSContainer::update(const double dTime) const noexcept {
   if (unit2) unit2->updatePostMix(dTime);
   if (unit3) unit3->updatePostMix(dTime);
 
+#ifndef NDEBUG
   posLogTime += dTime;
   if (posLogTime >= 1.0) {
     posLogTime -= 1.0;
@@ -59,10 +60,17 @@ void INSContainer::update(const double dTime) const noexcept {
     posLog << std::setprecision(8) << unit1->currentTripleMixPosition.latitude << "," << std::setprecision(9)
            << unit1->currentTripleMixPosition.longitude << ";";
     posLog << std::setprecision(8) << unit1->varManager.sim.planeLatitude << "," << std::setprecision(9)
-           << unit1->varManager.sim.planeLongitude << "\n";
+           << unit1->varManager.sim.planeLongitude << ";";
+    if (unit1->dmeUpdating || unit2->dmeUpdating)
+      posLog << "1"
+             << "\n";
+    else
+      posLog << "0"
+             << "\n";
 
     posLog.flush();
   }
+#endif
 }
 
 } // namespace libciva

@@ -2,36 +2,6 @@
 
 namespace libciva {
 
-#pragma region Static Helpers
-
-static std::pair<double, double> dmeCorrection(const DME &dme, const POSITION &pos, const VarManager &varManager,
-                                               const double dmeDist, const double dTime) {
-
-  double dist = -1;
-
-  double distFromStation = dme.position.distanceTo(pos);
-  double bearing = dme.position.bearingTo(pos);
-
-  double alt = varManager.sim.planeAltitude;
-
-  double slantCorrectedDMEDist = std::sqrt(std::pow(dmeDist, 2) - std::pow((alt - dme.altitude) * 0.000164579, 2));
-
-  double distDelta = slantCorrectedDMEDist - distFromStation;
-
-  // GC dist is more than received dist
-  if (distDelta < -0.001) {
-    dist = distFromStation - DME_CORRECTION * dTime;
-  }
-  // GC dist is less than received dist
-  else if (distDelta > 0.001) {
-    dist = distFromStation + DME_CORRECTION * dTime;
-  }
-
-  return std::pair<double, double>(dist, bearing);
-}
-
-#pragma endregion
-
 #pragma region Private
 
 void INS::updateSimPosDelta() noexcept {
@@ -45,15 +15,12 @@ void INS::updateSimPosDelta() noexcept {
 }
 
 void INS::updateCurrentINSPosition(const double dTime) noexcept {
-  double simLat = varManager.sim.planeLatitude;
-  double simLon = varManager.sim.planeLongitude;
-
-  POSITION simPos = {simLat, simLon};
+  POSITION simPos = {varManager.sim.planeLatitude, varManager.sim.planeLongitude};
 
   if (!simPos.isValid()) return;
 
-  // Max error at 500 GS
-  double speedScalar = std::max(0.1, groundSpeed / DRIFT_GS);
+  // Max error at 500 GS, base of 0.5kts
+  double speedScalar = std::max(0.001, groundSpeed / DRIFT_GS);
   // Radial gain
   double errorRadial = radialDriftPerSecond * speedScalar;
   initialRadialError += errorRadial * dTime;
@@ -64,75 +31,49 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
   initialINSPosition = (simPos + simPosDelta).destination(initialDistanceError, initialRadialError);
   initialINSPosition.bound();
 
-  if (activePerformanceIndex == 4 && (dmeUpdating || (unit2 && unit2->dmeUpdating) || (unit3 && unit3->dmeUpdating))) {
-    std::pair<double, double> unit1Data = {-1, -1};
-    std::pair<double, double> unit2Data = {-1, -1};
-    DME *unit1DME;
-    DME *unit2DME;
+  // If we are in aided and any unit is DME Updating
+  if (activePerformanceIndex == 4) {
+    // Defaults for unit1 and 2
+    bool single = unitIndex != 2 && dmeUpdating;
+    bool dual = single && unit2 && unit2->dmeUpdating;
 
-    // Get DME corrected distance error and bearing error
-    if (unitIndex == 0) {
-      if (dmeUpdating) {
-        unit1DME = &DMEs[activeDME - 1];
-        unit1Data = dmeCorrection(*unit1DME, currentINSPosition, varManager, varManager.sim.navDme1, dTime);
-      }
-      if (unit2 && unit2->dmeUpdating) {
-        unit2DME = &unit2->DMEs[unit2->activeDME - 1];
-        unit2Data = dmeCorrection(*unit2DME, unit2->currentINSPosition, varManager, varManager.sim.navDme2, dTime);
-      }
-    } else if (unitIndex == 1) {
-      if (dmeUpdating) {
-        unit2DME = &DMEs[activeDME - 1];
-        unit2Data = dmeCorrection(*unit2DME, currentINSPosition, varManager, varManager.sim.navDme2, dTime);
-      }
-      if (unit2 && unit2->dmeUpdating) {
-        unit1DME = &unit2->DMEs[unit2->activeDME - 1];
-        unit1Data = dmeCorrection(*unit1DME, unit2->currentINSPosition, varManager, varManager.sim.navDme1, dTime);
-      }
-    } else if (unitIndex == 2) {
-      if (unit2 && unit2->dmeUpdating) {
-        unit1DME = &unit2->DMEs[unit2->activeDME - 1];
-        unit1Data = dmeCorrection(*unit1DME, unit2->currentINSPosition, varManager, varManager.sim.navDme1, dTime);
-      }
-      if (unit3 && unit3->dmeUpdating) {
-        unit2DME = &unit3->DMEs[unit3->activeDME - 1];
-        unit2Data = dmeCorrection(*unit2DME, unit3->currentINSPosition, varManager, varManager.sim.navDme2, dTime);
-      }
+    // Unit 3
+    if (unitIndex == 2) {
+      single = (unit2 && unit2->dmeUpdating) || (unit3 && unit3->dmeUpdating);
+      dual = unit2 && unit2->dmeUpdating && unit3 && unit3->dmeUpdating;
     }
 
-    // Calculate DME corrected position
-    POSITION newPosUnit1 = {999, 999};
-    POSITION newPosUnit2 = {999, 999};
-    POSITION newPos = {999, 999};
-    if (unit1Data.first > 0) {
-      newPosUnit1 = unit1DME->position.destination(unit1Data.first, unit1Data.second);
+    // Dual DME
+    if (dual) {
+      double newError = std::max(DUAL_DME_MIN_ERROR, currentDistanceError - DME_CORRECTION * dTime);
+      if (newError < currentDistanceError) currentDistanceError = newError;
     }
-    if (unit2Data.first > 0) {
-      newPosUnit2 = unit2DME->position.destination(unit2Data.first, unit2Data.second);
+    // Single
+    else if (single) {
+      double newError = std::max(SINGLE_DME_MIN_ERROR, currentDistanceError - DME_CORRECTION * dTime);
+      if (newError < currentDistanceError) currentDistanceError = newError;
+    }
+    // Aided, but not updating
+    else {
+      // Radial gain
+      currentRadialError += errorRadial * dTime;
+      // Positional gain
+      double errorDist = distanceDriftPerSecond * speedScalar;
+      currentDistanceError += errorDist * dTime;
+      // Current pos update
+      currentINSPosition = (simPos + simPosDelta).destination(currentDistanceError, currentRadialError);
+      currentINSPosition.bound();
+
+      return; // Abort here
     }
 
-    // Validate new INS position
-    if (newPosUnit1.isValid() && newPosUnit2.isValid()) {
-      newPos = (newPosUnit1 + newPosUnit2) / 2.0;
-    } else if (newPosUnit1.isValid()) {
-      newPos = newPosUnit1;
-    } else if (newPosUnit2.isValid()) {
-      newPos = newPosUnit2;
-    }
-
-    // Set errors based on new INS position
-    if (newPos.isValid()) {
-      currentDistanceError = (simPos + simPosDelta).distanceTo(newPos);
-      currentRadialError = (simPos + simPosDelta).bearingTo(newPos);
-      currentINSPosition = newPos;
-      // Since unit 3 cannot update if others are "done", use unit2 or 2 position
-    } else if (unitIndex == 2) {
-      currentINSPosition = unit2 ? unit2->currentINSPosition : unit3 ? unit3->currentINSPosition : currentINSPosition;
-    }
+    // Update pos
+    currentINSPosition = (simPos + simPosDelta).destination(currentDistanceError, currentRadialError);
+    currentINSPosition.bound();
 
     // AI
     if (timeInMode >= DME_AI_TIME) {
-      accuracyIndex = std::max(unit1Data.second >= 0 && unit2Data.second >= 0 ? 0 : 1, accuracyIndex - 1);
+      accuracyIndex = std::max(dual ? 1 : 0, accuracyIndex - 1);
       timeInMode = 0;
     }
   } else {
@@ -265,6 +206,7 @@ void INS::updatePreMix(const double dTime) noexcept {
     double msuBat = indicators.indicator.MSU_BAT;
     indicators.value = 0;
     indicators.indicator.MSU_BAT = msuBat;
+    activePerformanceIndex = 5;
 
     return;
   }
@@ -293,9 +235,9 @@ void INS::updatePreMix(const double dTime) noexcept {
         indicators.indicator.INSERT = true;
         dmeMode = DME_MODE::INV;
         // Init error radial and distance
-        baseRadialDriftPerSecond = distributionRadial->operator()(*randomGen);
-        distanceDriftPerSecond = std::abs(distributionDistance->operator()(*randomGen)) / 3600.0;
-        speedDriftPerSecond = (0.05 + std::abs(distributionSpeed->operator()(*randomGen))) / 3600.0;
+        baseRadialDriftPerSecond = (*distributionRadialDrift)(*randomGen);
+        distanceDriftPerSecond = std::abs((*distributionDistanceDrift)(*randomGen)) / 3600.0;
+        speedDriftPerSecond = (0.05 + std::abs((*distributionSpeedDrift)(*randomGen))) / 3600.0;
 
         timeInMode = 0;
       }
@@ -318,12 +260,14 @@ void INS::updatePreMix(const double dTime) noexcept {
         // Downmode
         state = INS_STATE::STBY;
         valid = SIGNAL_VALIDITY::INV;
+        activePerformanceIndex = 5;
         reset(false);
       } else if (modeSelector == MODE_SELECTOR::ALIGN) {
         // Downmode
         state = INS_STATE::ALIGN;
         valid = SIGNAL_VALIDITY::INV;
         alignSubmode = ALIGN_SUBMODE::MODE_9;
+        activePerformanceIndex = 5;
         radialScalarAlignTime = MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME;
         initialDistanceError = currentDistanceError = 0;
         indicators.indicator.ALERT = false;

@@ -12,7 +12,7 @@ Config::Config(const std::string &basePath, const std::string &id) noexcept : ba
     if (!lastINSPosition.isValid()) {
       lastINSPosition = {999, 999};
     }
-    for (auto &dme : lastDMEs) {
+    for (DME &dme : lastDMEs) {
       if (!dme.position.isValid()) {
         dme = {{0, 0}, 0, 0};
       }

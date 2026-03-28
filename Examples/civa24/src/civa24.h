@@ -24,35 +24,35 @@
 // Unit 2 is +100
 // Unit 3 is +200
 
-constexpr auto EVENT_KEY_0 = 1;
-constexpr auto EVENT_KEY_1 = 2;
-constexpr auto EVENT_KEY_2 = 3;
-constexpr auto EVENT_KEY_3 = 4;
-constexpr auto EVENT_KEY_4 = 5;
-constexpr auto EVENT_KEY_5 = 6;
-constexpr auto EVENT_KEY_6 = 7;
-constexpr auto EVENT_KEY_7 = 8;
-constexpr auto EVENT_KEY_8 = 9;
-constexpr auto EVENT_KEY_9 = 10;
-constexpr auto EVENT_INC_MODE = 11;
-constexpr auto EVENT_DEC_MODE = 12;
-constexpr auto EVENT_INC_DATA = 13;
-constexpr auto EVENT_DEC_DATA = 14;
-constexpr auto EVENT_INC_WPT = 15;
-constexpr auto EVENT_DEC_WPT = 16;
-constexpr auto EVENT_INSERT = 17;
-constexpr auto EVENT_TEST_DOWN = 18;
-constexpr auto EVENT_TEST_UP = 19;
-constexpr auto EVENT_DME_LL = 21;
-constexpr auto EVENT_DME_FREQ = 22;
-constexpr auto EVENT_CLEAR = 23;
-constexpr auto EVENT_WPT_CHG = 24;
-constexpr auto EVENT_HOLD = 25;
-constexpr auto EVENT_AUTO_MAN = 26;
-constexpr auto EVENT_REMOTE = 27;
-constexpr auto EVENT_EXTERNAL_POWER_ON = 28;
-constexpr auto EVENT_EXTERNAL_POWER_OFF = 29;
-constexpr auto EVENT_INSTANT_ALIGN = 30;
+constexpr const char *EVENT_KEY_0 = 1;
+constexpr const char *EVENT_KEY_1 = 2;
+constexpr const char *EVENT_KEY_2 = 3;
+constexpr const char *EVENT_KEY_3 = 4;
+constexpr const char *EVENT_KEY_4 = 5;
+constexpr const char *EVENT_KEY_5 = 6;
+constexpr const char *EVENT_KEY_6 = 7;
+constexpr const char *EVENT_KEY_7 = 8;
+constexpr const char *EVENT_KEY_8 = 9;
+constexpr const char *EVENT_KEY_9 = 10;
+constexpr const char *EVENT_INC_MODE = 11;
+constexpr const char *EVENT_DEC_MODE = 12;
+constexpr const char *EVENT_INC_DATA = 13;
+constexpr const char *EVENT_DEC_DATA = 14;
+constexpr const char *EVENT_INC_WPT = 15;
+constexpr const char *EVENT_DEC_WPT = 16;
+constexpr const char *EVENT_INSERT = 17;
+constexpr const char *EVENT_TEST_DOWN = 18;
+constexpr const char *EVENT_TEST_UP = 19;
+constexpr const char *EVENT_DME_LL = 21;
+constexpr const char *EVENT_DME_FREQ = 22;
+constexpr const char *EVENT_CLEAR = 23;
+constexpr const char *EVENT_WPT_CHG = 24;
+constexpr const char *EVENT_HOLD = 25;
+constexpr const char *EVENT_AUTO_MAN = 26;
+constexpr const char *EVENT_REMOTE = 27;
+constexpr const char *EVENT_EXTERNAL_POWER_ON = 28;
+constexpr const char *EVENT_EXTERNAL_POWER_OFF = 29;
+constexpr const char *EVENT_INSTANT_ALIGN = 30;
 
 enum DATA_DEFINITIONS : SIMCONNECT_DATA_DEFINITION_ID {
   DATA_DEFINITIONS_DATA,

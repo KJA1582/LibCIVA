@@ -8,7 +8,7 @@ bool simPaused = false;
 
 #pragma region Preset LVAR names
 
-constexpr auto EVENT = "L:LIBCIVA_EVENT";
+constexpr const char *EVENT = "L:LIBCIVA_EVENT";
 
 std::string DISPLAY_VAR_UNIT_1 = std::string("L") + libciva::DISPLAY_VAR + libciva::ID_UNIT_1;
 std::string INDICATORS_VAR_UNIT_1 = std::string("L") + libciva::INDICATORS_VAR + libciva::ID_UNIT_1;

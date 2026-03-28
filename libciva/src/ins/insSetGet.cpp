@@ -98,7 +98,7 @@ void INS::calculateTrack() noexcept {
 }
 
 void INS::exportVars() const noexcept {
-  auto &unit = varManager.unit[unitIndex];
+  VarManager::UnitExport &unit = varManager.unit[unitIndex];
   // For UI/UX
   unit.display = display.value;
   unit.indicators = indicators.value;

@@ -9,6 +9,9 @@ if (POLICY CMP0141)
 	set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
+set(CMAKE_CXX_STANDARD  17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
 project ("civaWin")
 
 add_executable(civaWin
@@ -17,7 +20,7 @@ add_executable(civaWin
 	"src/varManager.cpp"
 	"src/verticalAutopilot.cpp"
 )
-set_property(TARGET civaWin PROPERTY CXX_STANDARD 17)
+
 target_include_directories(civaWin PRIVATE
 	"../../libciva/include"
 	"$ENV{MSFS_SDK}/SimConnect SDK/include"

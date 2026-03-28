@@ -175,8 +175,7 @@ typedef union {
 #pragma region Helpers
 
 static inline double absDeltaAngle(const double x, const double y) noexcept {
-  constexpr auto c = 180.0;
-  return c - fabs(fmod(fabs(x - y), 2 * c) - c);
+  return 180.0 - fabs(fmod(fabs(x - y), 2 * 180.0) - 180.0);
 }
 
 static inline double deltaAngle(const double x, const double y) noexcept {
@@ -186,8 +185,6 @@ static inline double deltaAngle(const double x, const double y) noexcept {
     delta += 360.0;
   return delta;
 }
-
-static inline double roundCoord(const double x) noexcept { return std::round(x * 1e6) / 1e6; }
 
 #pragma endregion
 
