@@ -4,14 +4,15 @@ namespace libciva {
 
 INSContainer::INSContainer(VarManager &varManager, UNIT_COUNT count, UNIT_HAS_DME dme, const std::string &configBaseID,
                            const bool hasADEU, const bool hasExtendedBattery) noexcept {
-  unit1 = std::make_shared<INS>(varManager, 0, configBaseID + "_1", WORK_DIR, hasADEU,
+  unit1 = std::make_shared<INS>(varManager, UNIT_INDEX::UNIT_1, configBaseID + "_1", WORK_DIR, hasADEU,
                                 dme == UNIT_HAS_DME::ONE || dme == UNIT_HAS_DME::BOTH, hasExtendedBattery);
 
   if (count > UNIT_COUNT::ONE)
-    unit2 = std::make_shared<INS>(varManager, 1, configBaseID + "_2", WORK_DIR, hasADEU,
+    unit2 = std::make_shared<INS>(varManager, UNIT_INDEX::UNIT_2, configBaseID + "_2", WORK_DIR, hasADEU,
                                   dme == UNIT_HAS_DME::TWO || dme == UNIT_HAS_DME::BOTH, hasExtendedBattery);
   if (count == UNIT_COUNT::THREE)
-    unit3 = std::make_shared<INS>(varManager, 2, configBaseID + "_3", WORK_DIR, hasADEU, false, hasExtendedBattery);
+    unit3 =
+        std::make_shared<INS>(varManager, UNIT_INDEX::UNIT_3, configBaseID + "_3", WORK_DIR, hasADEU, false, hasExtendedBattery);
 
   if (count > UNIT_COUNT::ONE) unit1->connectUnit2(unit2.get());
   if (count == UNIT_COUNT::THREE) unit1->connectUnit3(unit3.get());

@@ -36,6 +36,14 @@ enum class UNIT_HAS_DME : uint8_t {
   BOTH,
 };
 
+enum class UNIT_INDEX : uint8_t { UNIT_1, UNIT_2, UNIT_3 };
+
+enum class PERFORMANCE_INDEX : uint8_t {
+  ERADICATE = 1,
+  AIDED = 4,
+  UNAIDED = 5,
+};
+
 enum class DATA_SELECTOR : uint8_t { TKGS, HDGDA, XTKTKE, POS, WPT, DISTIME, WIND, DSRTKSTS };
 
 enum class MODE_SELECTOR : uint8_t {
@@ -172,22 +180,6 @@ typedef union {
   } characters;
 } DISPLAY;
 
-#pragma region Helpers
-
-static inline double absDeltaAngle(const double x, const double y) noexcept {
-  return 180.0 - fabs(fmod(fabs(x - y), 2 * 180.0) - 180.0);
-}
-
-static inline double deltaAngle(const double x, const double y) noexcept {
-  double delta = x - y;
-  if (delta > 180.0) delta -= 360.0;
-  else if (delta <= -180.0)
-    delta += 360.0;
-  return delta;
-}
-
-#pragma endregion
-
 struct POSITION {
   // In degrees
   double latitude;
@@ -225,6 +217,22 @@ struct DME {
   // In thousands of feet
   uint8_t altitude;
 };
+
+#pragma region Helpers
+
+static inline double absDeltaAngle(const double x, const double y) noexcept {
+  return 180.0 - fabs(fmod(fabs(x - y), 2 * 180.0) - 180.0);
+}
+
+static inline double deltaAngle(const double x, const double y) noexcept {
+  double delta = x - y;
+  if (delta > 180.0) delta -= 360.0;
+  else if (delta <= -180.0)
+    delta += 360.0;
+  return delta;
+}
+
+#pragma endregion
 
 } // namespace libciva
 

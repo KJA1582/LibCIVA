@@ -201,8 +201,8 @@ class INS {
   MODE_SELECTOR modeSelector = {MODE_SELECTOR::OFF};
   // Current active insert mode
   INSERT_MODE insertMode = {INSERT_MODE::INV};
-  // Current performance index (4, 5)
-  uint8_t activePerformanceIndex = 5;
+  // Current performance index
+  PERFORMANCE_INDEX activePerformanceIndex = PERFORMANCE_INDEX::UNAIDED;
   // Current accuracy index, 0 to 9, 0 best, 9 worst, 2 if DME update altitude invalid
   uint8_t accuracyIndex = 9;
   // CHARS read for insert mode
@@ -251,7 +251,7 @@ class INS {
 
 #pragma region Unit Index(down here due to memory layout)
 
-  uint8_t unitIndex; // 0 to 2, corresponding to units 1 to 3
+  UNIT_INDEX unitIndex;
 
 #pragma endregion
 
@@ -292,7 +292,7 @@ class INS {
 public:
 #pragma region Lifecycle
 
-  INS(VarManager &varManager, const uint8_t id, const std::string &configID, const std::string &workDir, const bool hasADEU,
+  INS(VarManager &varManager, const UNIT_INDEX id, const std::string &configID, const std::string &workDir, const bool hasADEU,
       const bool hasDME, const bool hasExpandedBattery)
   noexcept;
   ~INS() noexcept;

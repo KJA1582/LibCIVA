@@ -1,7 +1,5 @@
 # Navigation
 
-Randomise rotation drift start point and direction
-
 # Other
 
 - ADEU
@@ -21,6 +19,3 @@ Randomise rotation drift start point and direction
 # Documentation
 
 # Other
-
-- PerfIndex to ENUM CLASS
-- UnitIndex to ENUM CLASS

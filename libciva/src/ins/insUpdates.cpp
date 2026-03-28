@@ -32,13 +32,13 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
   initialINSPosition.bound();
 
   // If we are in aided and any unit is DME Updating
-  if (activePerformanceIndex == 4) {
+  if (activePerformanceIndex == PERFORMANCE_INDEX::AIDED) {
     // Defaults for unit1 and 2
-    bool single = unitIndex != 2 && dmeUpdating;
+    bool single = unitIndex != UNIT_INDEX::UNIT_3 && dmeUpdating;
     bool dual = single && unit2 && unit2->dmeUpdating;
 
     // Unit 3
-    if (unitIndex == 2) {
+    if (unitIndex == UNIT_INDEX::UNIT_3) {
       single = (unit2 && unit2->dmeUpdating) || (unit3 && unit3->dmeUpdating);
       dual = unit2 && unit2->dmeUpdating && unit3 && unit3->dmeUpdating;
     }
@@ -206,7 +206,7 @@ void INS::updatePreMix(const double dTime) noexcept {
     double msuBat = indicators.indicator.MSU_BAT;
     indicators.value = 0;
     indicators.indicator.MSU_BAT = msuBat;
-    activePerformanceIndex = 5;
+    activePerformanceIndex = PERFORMANCE_INDEX::UNAIDED;
 
     return;
   }
@@ -260,14 +260,14 @@ void INS::updatePreMix(const double dTime) noexcept {
         // Downmode
         state = INS_STATE::STBY;
         valid = SIGNAL_VALIDITY::INV;
-        activePerformanceIndex = 5;
+        activePerformanceIndex = PERFORMANCE_INDEX::UNAIDED;
         reset(false);
       } else if (modeSelector == MODE_SELECTOR::ALIGN) {
         // Downmode
         state = INS_STATE::ALIGN;
         valid = SIGNAL_VALIDITY::INV;
         alignSubmode = ALIGN_SUBMODE::MODE_9;
-        activePerformanceIndex = 5;
+        activePerformanceIndex = PERFORMANCE_INDEX::UNAIDED;
         radialScalarAlignTime = MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME;
         initialDistanceError = currentDistanceError = 0;
         indicators.indicator.ALERT = false;
@@ -293,8 +293,8 @@ void INS::updatePreMix(const double dTime) noexcept {
 }
 
 void INS::updateMix() noexcept {
-  if (unit2 && unit3 && activePerformanceIndex == 4 && state == INS_STATE::NAV && unit2->state == INS_STATE::NAV &&
-      unit3->state == INS_STATE::NAV) {
+  if (unit2 && unit3 && activePerformanceIndex == PERFORMANCE_INDEX::AIDED && state == INS_STATE::NAV &&
+      unit2->state == INS_STATE::NAV && unit3->state == INS_STATE::NAV) {
     POSITION mix = (currentINSPosition + unit2->currentINSPosition + unit3->currentINSPosition) / 3.0;
 
     currentTripleMixPosition = mix;

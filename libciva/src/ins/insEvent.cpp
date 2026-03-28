@@ -475,28 +475,28 @@ void INS::handleInsert() noexcept {
       if (dataSelector != DATA_SELECTOR::DSRTKSTS) return;
 
       // Eradication
-      if (display.characters.RIGHT_6 == 1) {
+      if (display.characters.RIGHT_6 == (uint8_t)PERFORMANCE_INDEX::ERADICATE) {
         currentINSPosition = initialINSPosition;
         currentTripleMixPosition = {999, 999};
         accuracyIndex = 0;
-        activePerformanceIndex = 5;
+        activePerformanceIndex = PERFORMANCE_INDEX::UNAIDED;
         dmeArmed = dmeUpdating = false;
         activeDME = 0;
-        if (unitIndex == 0) indicators.indicator.DME1 = false;
-        if (unitIndex == 1) indicators.indicator.DME2 = false;
+        if (unitIndex == UNIT_INDEX::UNIT_1) indicators.indicator.DME1 = false;
+        if (unitIndex == UNIT_INDEX::UNIT_2) indicators.indicator.DME2 = false;
         updateSimPosDelta();
       }
       // Aided
-      else if (display.characters.RIGHT_6 == 4) {
-        activePerformanceIndex = 4;
+      else if (display.characters.RIGHT_6 == (uint8_t)PERFORMANCE_INDEX::AIDED) {
+        activePerformanceIndex = PERFORMANCE_INDEX::AIDED;
       }
       // Unaided
       else {
-        activePerformanceIndex = 5;
+        activePerformanceIndex = PERFORMANCE_INDEX::UNAIDED;
         dmeArmed = dmeUpdating = false;
         activeDME = 0;
-        if (unitIndex == 0) indicators.indicator.DME1 = false;
-        if (unitIndex == 1) indicators.indicator.DME2 = false;
+        if (unitIndex == UNIT_INDEX::UNIT_1) indicators.indicator.DME1 = false;
+        if (unitIndex == UNIT_INDEX::UNIT_2) indicators.indicator.DME2 = false;
         if (currentTripleMixPosition.isValid()) {
           double simLat = varManager.sim.planeLatitude;
           double simLon = varManager.sim.planeLongitude;
@@ -514,13 +514,13 @@ void INS::handleInsert() noexcept {
     case INSERT_MODE::WPT_CHG_FROM:
     case INSERT_MODE::WPT_CHG_TO: {
       if (dmeMode != DME_MODE::INV) {
-        if (hasDME && activePerformanceIndex == 4) {
+        if (hasDME && activePerformanceIndex == PERFORMANCE_INDEX::AIDED) {
           activeDME = display.characters.TO;
           timeInDME = 0;
           dmeArmed = activeDME > 0;
           dmeUpdating = false;
-          if (unitIndex == 0) indicators.indicator.DME1 = false;
-          if (unitIndex == 1) indicators.indicator.DME2 = false;
+          if (unitIndex == UNIT_INDEX::UNIT_1) indicators.indicator.DME1 = false;
+          if (unitIndex == UNIT_INDEX::UNIT_2) indicators.indicator.DME2 = false;
         }
       } else {
         currentLegStart = display.characters.FROM;

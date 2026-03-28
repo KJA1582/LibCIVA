@@ -4,7 +4,7 @@ namespace libciva {
 
 #pragma region Lifecycle
 
-INS::INS(VarManager &varManager, const uint8_t id, const std::string &configID, const std::string &workDir, const bool hasADEU,
+INS::INS(VarManager &varManager, const UNIT_INDEX id, const std::string &configID, const std::string &workDir, const bool hasADEU,
          const bool hasDME, const bool hasExpandedBattery) noexcept
     : varManager(varManager), actionMalfunctionCodes(), hasADEU(hasADEU), hasDME(hasDME), hasExpandedBattery(hasExpandedBattery),
       unitIndex(id) {
@@ -98,7 +98,7 @@ void INS::reset(const bool full) noexcept {
   currentTripleMixPosition = {999, 999};
   dmeArmed = dmeUpdating = false;
   activeDME = 0;
-  activePerformanceIndex = 5;
+  activePerformanceIndex = PERFORMANCE_INDEX::UNAIDED;
 }
 
 void INS::handleOutOfBounds() noexcept {
@@ -145,7 +145,7 @@ void INS::handleOutOfBounds() noexcept {
 
 void INS::dmeUpdateChecks(const double dTime) noexcept {
   // Unit 3 has no DME connection so is updating whenever 1 or 2 are updating
-  if (unitIndex == 2) {
+  if (unitIndex == UNIT_INDEX::UNIT_3) {
     dmeUpdating = ((unit2 && unit2->dmeUpdating) || (unit3 && unit3->dmeUpdating));
     return;
   }
@@ -170,8 +170,8 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
   if (!valid) {
     dmeArmed = dmeUpdating = false;
     activeDME = 0;
-    if (unitIndex == 0) indicators.indicator.DME1 = false;
-    if (unitIndex == 1) indicators.indicator.DME2 = false;
+    if (unitIndex == UNIT_INDEX::UNIT_1) indicators.indicator.DME1 = false;
+    if (unitIndex == UNIT_INDEX::UNIT_2) indicators.indicator.DME2 = false;
     return;
   }
 
@@ -189,16 +189,16 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
   if (std::abs(gcDist - slantCorrectedDMEDist1) > targetAccuracy || std::abs(gcDist - slantCorrectedDMEDist2) > targetAccuracy) {
     dmeArmed = dmeUpdating = false;
     activeDME = 0;
-    if (unitIndex == 0) indicators.indicator.DME1 = false;
-    if (unitIndex == 1) indicators.indicator.DME2 = false;
+    if (unitIndex == UNIT_INDEX::UNIT_1) indicators.indicator.DME1 = false;
+    if (unitIndex == UNIT_INDEX::UNIT_2) indicators.indicator.DME2 = false;
     return;
   }
 
   // Enter update mode
   if (!dmeUpdating) {
     dmeUpdating = true;
-    if (unitIndex == 0) indicators.indicator.DME1 = true;
-    if (unitIndex == 1) indicators.indicator.DME2 = true;
+    if (unitIndex == UNIT_INDEX::UNIT_1) indicators.indicator.DME1 = true;
+    if (unitIndex == UNIT_INDEX::UNIT_2) indicators.indicator.DME2 = true;
     timeInMode = 0;
   }
 }

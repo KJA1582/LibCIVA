@@ -461,7 +461,7 @@ void INS::updateDisplay(const double dTime) noexcept {
       formatActionMalfunctionCode(malfunctionCodeDisplayed);
 
       if (insertMode != INSERT_MODE::PERFORMANCE_INDEX) {
-        display.characters.RIGHT_6 = activePerformanceIndex;
+        display.characters.RIGHT_6 = (uint8_t)activePerformanceIndex;
       }
 
       break;
