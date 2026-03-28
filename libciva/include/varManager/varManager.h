@@ -50,7 +50,7 @@ struct VarManager {
     double modeSelectorPos = 0;
     double dataSelectorPos = 0;
     double waypointSelectorPos = 0;
-    double autoManPos = 0;
+    double autoMode = 0;
     double crossTrackError = 0;
     double desiredTrack = 0;
     double track = 0;

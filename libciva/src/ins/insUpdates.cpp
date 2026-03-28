@@ -40,7 +40,10 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
     // Unit 3
     if (unitIndex == UNIT_INDEX::UNIT_3) {
       single = (unit2 && unit2->dmeUpdating) || (unit3 && unit3->dmeUpdating);
-      dual = unit2 && unit2->dmeUpdating && unit3 && unit3->dmeUpdating;
+      dual = unit2 && unit2->dmeUpdating && unit3 && unit3->dmeUpdating &&
+             unit2->DMEs[activeDME - 1].position != unit3->DMEs[activeDME - 1].position;
+    } else {
+      dual = unit2 && DMEs[activeDME - 1].position != unit2->DMEs[activeDME - 1].position;
     }
 
     // Dual DME
@@ -130,12 +133,13 @@ void INS::updateNav(const double dTime) noexcept {
   double crsToEnd = pos.bearingTo(waypoints[currentLegEnd]);
   double nextCrs = waypoints[currentLegEnd].bearingTo(waypoints[(currentLegEnd % 9) + 1]);
   double dist = pos.distanceTo(waypoints[currentLegEnd]);
+  double passed = !waypoints[currentLegEnd].inFront(pos, track);
 
   // Not yet flown min leg time
   if (timeInLeg < MIN_LEG_TIME) {
-    autoModePassed = !waypoints[currentLegEnd].inFront(pos, track);
-
+    autoModePassed = passed;
     timeInLeg += dTime;
+
     return;
   }
 
@@ -150,11 +154,12 @@ void INS::updateNav(const double dTime) noexcept {
   // Lead in/out
   turnDist += groundSpeed * 2 * LEAD_CORRECTION;
 
-  // Turn point hit, advance leg (must be <2deg delta between track and dirto crs)
-  if (autoModePassed || (dist <= turnDist && std::abs(crsToEnd - track) < 2)) {
+  // Delayed from min legt ime, turn point hit, or passed: advance leg
+  if (autoModePassed || dist <= turnDist || passed) {
 
 #ifndef NDEBUG
-    if (autoModePassed) Logger::GetInstance() << "Auto leg switch occurred after waypoint was passed\n";
+    if (autoModePassed) Logger::GetInstance() << "Min leg time delay\n";
+    if (passed) Logger::GetInstance() << "Waypoint was passed\n";
 
     Logger::GetInstance() << "Leg changed at " << dist << "/" << turnDist << " remaining from WPT " << (int)currentLegStart
                           << " along " << track << " to WPT " << (int)currentLegEnd << ". Next crs " << nextCrs << " to WPT "

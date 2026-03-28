@@ -130,11 +130,13 @@ static void runner() {
                 << std::endl;
     }
 
-    if (selectedUnit == 4) std::cout << "All Units selected" << std::endl << std::endl;
-    else
-      std::cout << "Selected Unit " << (double)selectedUnit << std::endl << std::endl;
-
     constexpr int COL_WIDTH = 29;
+
+    if (selectedUnit == 4)
+      std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "All units selected" << std::endl << std::endl;
+    else
+      std::cout << "Selected Unit: " << std::left << std::setfill(' ') << std::setw(14) << (double)selectedUnit << std::endl
+                << std::endl;
 
     std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "Unit Sel  : 1,2,3,4 (All)";
     std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "Data Entry: Numpad";

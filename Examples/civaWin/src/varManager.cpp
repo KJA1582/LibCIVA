@@ -119,51 +119,63 @@ static std::string getDataLine(const libciva::VarManager::UnitExport &ins) {
 
 static std::string getValuesLine(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "XTK  : " << std::right << std::setfill(' ') << std::setw(13) << ins.crossTrackError;
+  oss << "XTK     : " << std::right << std::setfill(' ') << std::setw(13) << ins.crossTrackError;
   return oss.str();
 }
 
 static std::string getValuesLine2(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "DTK  : " << std::right << std::setfill(' ') << std::setw(13) << ins.desiredTrack;
+  oss << "DTK     : " << std::right << std::setfill(' ') << std::setw(13) << ins.desiredTrack;
   return oss.str();
 }
 
 static std::string getValuesLine3(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "TRK  : " << std::right << std::setfill(' ') << std::setw(13) << ins.track;
+  oss << "TRK     : " << std::right << std::setfill(' ') << std::setw(13) << ins.track;
   return oss.str();
 }
 
 static std::string getValuesLine4(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "TKE  : " << std::right << std::setfill(' ') << std::setw(13) << ins.trackAngleError;
+  oss << "TKE     : " << std::right << std::setfill(' ') << std::setw(13) << ins.trackAngleError;
   return oss.str();
 }
 
 static std::string getValuesLine5(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "DIS  : " << std::right << std::setfill(' ') << std::setw(13) << ins.distance;
+  oss << "DIS     : " << std::right << std::setfill(' ') << std::setw(13) << ins.distance;
   return oss.str();
 }
 
 static std::string getValuesLine6(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "GS   : " << std::right << std::setfill(' ') << std::setw(13) << ins.gs;
+  oss << "GS      : " << std::right << std::setfill(' ') << std::setw(13) << ins.gs;
   return oss.str();
 }
 
 static std::string getValidLine(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "Valid: " << std::right << std::setfill(' ') << std::setw(13)
+  oss << "Valid   : " << std::right << std::setfill(' ') << std::setw(13)
       << (ins.valid == (double)libciva::SIGNAL_VALIDITY::INV   ? "Invalid"
           : ins.valid == (double)libciva::SIGNAL_VALIDITY::NAV ? "Navigation"
                                                                : "Attitude only");
   return oss.str();
 }
 
+static std::string getAutoManLine(const libciva::VarManager::UnitExport &ins) {
+  std::ostringstream oss;
+  oss << "Auto/Man: " << std::right << std::setfill(' ') << std::setw(13) << (ins.autoMode ? "Auto" : "Manual");
+  return oss.str();
+}
+
+static std::string getWptSelLine(const libciva::VarManager::UnitExport &ins) {
+  std::ostringstream oss;
+  oss << "Wpt Sel : " << std::right << std::setfill(' ') << std::setw(13) << ins.waypointSelectorPos;
+  return oss.str();
+}
+
 void WinVarManager::dump() const noexcept {
-  std::string lines[3][12];
+  std::string lines[3][14];
 
   for (int i = 0; i < 3; i++) {
     const libciva::DISPLAY v = *reinterpret_cast<const libciva::DISPLAY *>(&unit[i].display);
@@ -180,12 +192,21 @@ void WinVarManager::dump() const noexcept {
     lines[i][8] = getValuesLine4(unit[i]);
     lines[i][9] = getValuesLine5(unit[i]);
     lines[i][10] = getValuesLine6(unit[i]);
-    lines[i][11] = getValidLine(unit[i]);
+    lines[i][11] = getAutoManLine(unit[i]);
+    lines[i][12] = getWptSelLine(unit[i]);
+    lines[i][13] = getValidLine(unit[i]);
   }
 
-  for (int l = 0; l <= 11; l++) {
+  for (int l = 0; l <= 12; l++) {
     for (int i = 0; i < 3; i++) {
-      std::cout << std::left << std::setfill(' ') << std::setw(l == 0 || l > 4 ? 57 : l == 1 ? 120 : 93) << lines[i][l];
+      const libciva::INDICATORS ind = *reinterpret_cast<const libciva::INDICATORS *>(&unit[i].indicators);
+
+      int padding = 93;
+      if (l == 1) padding = 120;
+      if (l == 0 || l > 4) padding = 57;
+      if (l == 0 && ind.indicator.TO_BLINK) padding = 65;
+
+      std::cout << std::left << std::setfill(' ') << std::setw(padding) << lines[i][l];
       if (i < 2) std::cout << " | ";
     }
     std::cout << std::endl;

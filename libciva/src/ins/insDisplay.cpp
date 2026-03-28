@@ -186,7 +186,7 @@ void INS::updateDisplay(const double dTime) noexcept {
     d = 0xFF88888888F88888;
     display = *(reinterpret_cast<DISPLAY *>(&d));
     uint64_t i;
-    i = 0x00000000000001FF;
+    i = 0x00000000000019FF;
     indicators = *(reinterpret_cast<INDICATORS *>(&i));
 
     return;
@@ -515,13 +515,12 @@ void INS::alertLamp(const double dTime) noexcept {
     double legDist = waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd]);
     double remDist = pos.distanceTo(waypoints[currentLegEnd]);
 
-    double legTime = (legDist / groundSpeed) * 3600;
     double remTime = (remDist / groundSpeed) * 3600;
 
     if (!waypoints[currentLegEnd].inFront(pos, track)) {
       // We passed
-      if ((autoMode && legTime < MIN_LEG_TIME) || !autoMode) {
-        // Either in manual mode or leg time is < 25.6 in auto mode
+      if (autoModePassed || !autoMode) {
+        // Either in manual mode or flight time is < 25.6 in auto mode
         if (flashTime < 1) {
           indicators.indicator.ALERT = true;
           flashTime += dTime;

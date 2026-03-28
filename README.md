@@ -245,7 +245,7 @@ void update(double deltaTime) {
     double modeSelectorPos = unit1.modeSelectorPos;
     double dataSelectorPos = unit1.dataSelectorPos;
     double waypointSelectorPos = unit1.waypointSelectorPos;
-    double autoManPos = unit1.autoManPos;
+    double autoMode = unit1.autoMode;
     double track = unit1.track;
     double desiredTrack = unit1.desiredTrack;
     double crossTrackError = unit1.crossTrackError;

@@ -10,13 +10,17 @@
 #define MODULE_WASM_MODNAME(mod)
 #define __attribute__(x)
 #define __restrict__
+
+// HACK
+#include <__config>
+#undef _LIBCPP_HAS_NO_THREADS
 #endif
 
 #include <windows.h>
 
+#include <atomic>
 #include <iostream>
 #include <memory>
-#undef _LIBCPP_HAS_NO_THREADS
 #include <mutex>
 #include <thread>
 

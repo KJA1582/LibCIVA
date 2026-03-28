@@ -198,6 +198,11 @@ struct POSITION {
   bool inFront(const POSITION &pos, const double track) const noexcept;
   POSITION intersection(const double bearing1, const POSITION &pos2, const double bearing2) noexcept;
 
+  inline bool operator==(const POSITION &rhs) const noexcept {
+    return latitude - rhs.latitude < 0.1 && longitude - rhs.longitude < 0.1;
+  }
+  inline bool operator!=(const POSITION &rhs) const noexcept { return !(*this == rhs); }
+
   // Not bound checked
   inline POSITION operator+(const POSITION &rhs) const noexcept { return {latitude + rhs.latitude, longitude + rhs.longitude}; }
   // Not bound checked
