@@ -58,9 +58,9 @@ static void formatPos(DISPLAY &display, POSITION pos) noexcept {
 
 static void formatQuad(DISPLAY &display, const double value, const bool left, const bool hasDirection, const uint8_t dir,
                        const bool decimal = false) {
-  uint8_t valueH = (uint16_t)value / 1000;
-  uint8_t valueT = (uint16_t)(value - valueH * 1000) / 100;
-  uint8_t valueO = (uint16_t)(value - valueH * 1000 - valueT * 100) / 10;
+  uint8_t valueH = (uint8_t)((uint16_t)value / 1000);
+  uint8_t valueT = (uint8_t)((uint16_t)(value - valueH * 1000) / 100);
+  uint8_t valueO = (uint8_t)((uint16_t)(value - valueH * 1000 - valueT * 100) / 10);
   uint8_t valueD = (uint8_t)(value - valueH * 1000 - valueT * 100 - valueO * 10);
 
   if (left) {
@@ -93,9 +93,9 @@ static void formatQuad(DISPLAY &display, const double value, const bool left, co
 }
 
 static void formatTri(DISPLAY &display, const double value, const bool left, const bool hasDirection, const uint8_t dir) {
-  uint8_t valueH = (uint16_t)value / 100;
-  uint8_t valueT = (uint16_t)(value - valueH * 100) / 10;
-  uint8_t valueO = (uint16_t)value - valueH * 100 - valueT * 10;
+  uint8_t valueH = (uint8_t)((uint16_t)value / 100);
+  uint8_t valueT = (uint8_t)((uint16_t)(value - valueH * 100) / 10);
+  uint8_t valueO = (uint8_t)((uint16_t)value - valueH * 100 - valueT * 10);
 
   if (left) {
     if (hasDirection) {
@@ -336,11 +336,11 @@ void INS::updateDisplay(const double dTime) noexcept {
         display.characters.LEFT_4 = altT > 0 ? altT : DISPLAY_CHAR_BLANK;
         display.characters.LEFT_5 = altO;
 
-        uint8_t freqTTH = dme.frequency / 10000;
-        uint8_t freqTH = dme.frequency / 1000 - freqTTH * 10;
-        uint8_t freqH = dme.frequency / 100 - freqTTH * 100 - freqTH * 10;
-        uint8_t freqT = dme.frequency / 10 - freqTTH * 1000 - freqTH * 100 - freqH * 10;
-        uint8_t freqO = dme.frequency - freqTTH * 10000 - freqTH * 1000 - freqH * 100 - freqT * 10;
+        uint8_t freqTTH = (uint8_t)(dme.frequency / 10000);
+        uint8_t freqTH = (uint8_t)(dme.frequency / 1000 - freqTTH * 10);
+        uint8_t freqH = (uint8_t)(dme.frequency / 100 - freqTTH * 100 - freqTH * 10);
+        uint8_t freqT = (uint8_t)(dme.frequency / 10 - freqTTH * 1000 - freqTH * 100 - freqH * 10);
+        uint8_t freqO = (uint8_t)(dme.frequency - freqTTH * 10000 - freqTH * 1000 - freqH * 100 - freqT * 10);
         display.characters.RIGHT_2 = freqTTH;
         display.characters.RIGHT_3 = freqTH;
         display.characters.RIGHT_4 = freqH;
@@ -512,7 +512,6 @@ void INS::alertLamp(const double dTime) noexcept {
   if (groundSpeed >= ALERT_MIN_GS) {
     const POSITION pos = currentNavPosition(dTime);
 
-    double legDist = waypoints[currentLegStart].distanceTo(waypoints[currentLegEnd]);
     double remDist = pos.distanceTo(waypoints[currentLegEnd]);
 
     double remTime = (remDist / groundSpeed) * 3600;

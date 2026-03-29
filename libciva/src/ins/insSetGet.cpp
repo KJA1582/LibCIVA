@@ -3,7 +3,7 @@
 namespace libciva {
 
 void INS::advanceActionMalfunctionIndex() noexcept {
-  uint8_t index = std::max(1, (displayActionMalfunctionCodeIndex + 1) % 8);
+  uint8_t index = (uint8_t)std::max(1, (displayActionMalfunctionCodeIndex + 1) % 8);
   while (true) {
     switch (index) {
       case 1: {
@@ -56,7 +56,7 @@ void INS::advanceActionMalfunctionIndex() noexcept {
         break;
       }
     }
-    index = std::max(1, (index + 1) % 8);
+    index = (uint8_t)std::max(1, (index + 1) % 8);
 
     if (index == displayActionMalfunctionCodeIndex) {
       if (actionMalfunctionCodes.value == 0) displayActionMalfunctionCodeIndex = 0;

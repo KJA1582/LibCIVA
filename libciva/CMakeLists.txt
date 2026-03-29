@@ -44,5 +44,8 @@ else()
 	add_library(libciva ${sources} ${headers})
 endif()
 
-target_compile_definitions(libciva PRIVATE WORK_DIR="./")
 target_include_directories(libciva PRIVATE "include")
+
+target_compile_definitions(libciva PRIVATE WORK_DIR="./")
+
+target_compile_options(libciva PRIVATE /W4)

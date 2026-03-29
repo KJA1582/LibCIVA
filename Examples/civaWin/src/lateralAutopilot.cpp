@@ -65,18 +65,18 @@ void LateralAutopilot::update(const double dTime, const double bankAngle, const 
     // TKE > 0: TRK left of DTK -> need right turn -> negative bank (PLANE_BANK_DEGREES)
     // TKE < 0: TRK right of DTK -> need left turn -> positive bank (PLANE_BANK_DEGREES)
     // Note: TKE positive means TRK is left of DTK, so we need right turn (negative bank)
-    desiredBank = (trackAngleError >= 0) ? -MAX_BANK : MAX_BANK;
+    desiredBank = (trackAngleError >= 0) ? -TKE_MAX_BANK : TKE_MAX_BANK;
   } else {
     // =========================================================================
     // STEP 2: CALCULATE INTERCEPT HEADING
     //   Intercept angle is proportional to XTE:
     //     XTE = 0nm -> intercept angle = 0 degrees (follow DTK directly)
-    //     XTE = 1nm -> intercept angle = 45 degrees
-    //     XTE = 2nm -> intercept angle = 90 degrees (clamped to MAX)
+    //     XTE = 2nm -> intercept angle = 45 degrees
+    //     XTE = 4nm -> intercept angle = 90 degrees (clamped to MAX)
     //   XTE > 0 (right of track): turn LEFT toward DTK -> DTK - interceptAngle
     //   XTE < 0 (left of track):  turn RIGHT toward DTK -> DTK + interceptAngle
     // =========================================================================
-    double interceptAngle = std::min(INTERCEPT_ANGLE, std::fabs(xte) * INTERCEPT_ANGLE);
+    double interceptAngle = std::min(INTERCEPT_ANGLE, 0.5 * std::fabs(xte) * INTERCEPT_ANGLE);
     double interceptHeading;
     if (xte >= 0) {
       // Right of track - turn left toward DTK
@@ -92,29 +92,29 @@ void LateralAutopilot::update(const double dTime, const double bankAngle, const 
     //   interceptBank = -trackError
     //     - trackError > 0 (need right turn) -> negative bank (correct for right turn)
     //     - trackError < 0 (need left turn)  -> positive bank (correct for left turn)
-    //   Clamp to MAX_BANK
+    //   Clamp to TKE_MAX_BANK
     // =========================================================================
     double trackError = libciva::deltaAngle(interceptHeading, track);
     double interceptBank = -trackError;
-    interceptBank = std::max(-MAX_BANK, std::min(MAX_BANK, interceptBank));
+    interceptBank = std::max(-TKE_MAX_BANK, std::min(TKE_MAX_BANK, interceptBank));
 
     // =========================================================================
     // STEP 4: CALCULATE XTE BANK
     //   xteBank = xte * XTE_FACTOR
     //     - XTE > 0 (right of track) -> positive xteBank -> positive bank -> left turn
     //     - XTE < 0 (left of track)  -> negative xteBank -> negative bank -> right turn
-    //   Clamp to MAX_BANK
+    //   Clamp to XTK_MAX_BANK
     // =========================================================================
-    double xteBank = xte * XTE_FACTOR;
-    xteBank = std::max(-MAX_BANK, std::min(MAX_BANK, xteBank));
+    double xteBank = xte * XTK_MAX_BANK;
+    xteBank = std::max(-XTK_MAX_BANK, std::min(XTK_MAX_BANK, xteBank));
 
     // =========================================================================
     // STEP 5: WEIGHTED ADDITIVE
     //   Combine intercept and XTE bank commands with weights
-    //   interceptBank contributes 0.7x, xteBank contributes 1.0x
+    //   interceptBank contributes 1.2x, xteBank contributes 1.0x
     //   Result is clamped to MAX_BANK
     // =========================================================================
-    desiredBank = INTERCEPT_WEIGHT * interceptBank + xteBank;
+    desiredBank = INTERCEPT_WEIGHT * interceptBank + XTK_WEIGHT * xteBank;
     desiredBank = std::max(-MAX_BANK, std::min(MAX_BANK, desiredBank));
   }
 

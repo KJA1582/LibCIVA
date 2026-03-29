@@ -41,4 +41,7 @@ target_link_directories(civaWin PRIVATE
 )
 
 target_link_libraries(civaWin PRIVATE libciva SimConnect.lib)
+
 target_compile_definitions(civaWin PRIVATE WORK_DIR="./" _CRT_SECURE_NO_WARNINGS _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
+
+target_compile_options(civaWin PRIVATE /W4)

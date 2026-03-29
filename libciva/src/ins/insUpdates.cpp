@@ -76,7 +76,7 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
 
     // AI
     if (timeInMode >= DME_AI_TIME) {
-      accuracyIndex = std::max(dual ? 1 : 0, accuracyIndex - 1);
+      accuracyIndex = (uint8_t)std::max(dual ? 1 : 0, accuracyIndex - 1);
       timeInMode = 0;
     }
   } else {
@@ -130,7 +130,6 @@ void INS::updateNav(const double dTime) noexcept {
 
   const POSITION pos = currentNavPosition(dTime);
 
-  double crsToEnd = pos.bearingTo(waypoints[currentLegEnd]);
   double nextCrs = waypoints[currentLegEnd].bearingTo(waypoints[(currentLegEnd % 9) + 1]);
   double dist = pos.distanceTo(waypoints[currentLegEnd]);
   double passed = !waypoints[currentLegEnd].inFront(pos, track);

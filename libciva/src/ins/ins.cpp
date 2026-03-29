@@ -166,8 +166,8 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
   double dmeDist2 = varManager.sim.navDme2;
 
   // Drop out of DME if not valid
-  bool valid = dmeDist1 > 0 || dmeDist2 > 0;
-  if (!valid) {
+  bool dmeValid = dmeDist1 > 0 || dmeDist2 > 0;
+  if (!dmeValid) {
     dmeArmed = dmeUpdating = false;
     activeDME = 0;
     if (unitIndex == UNIT_INDEX::UNIT_1) indicators.indicator.DME1 = false;

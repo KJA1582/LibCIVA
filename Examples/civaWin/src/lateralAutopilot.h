@@ -22,7 +22,19 @@
 #include <libciva.h>
 
 class LateralAutopilot {
-private:
+  static constexpr double MAX_BANK = 30.0;
+  static constexpr double MAX_BANK_RATE = 10.0;
+  static constexpr double TKE_MAX_BANK = 30.0;
+  static constexpr double INTERCEPT_ANGLE = 45.0;
+  static constexpr double XTK_MAX_BANK = 5.0;
+  static constexpr double REVERSE_COURSE_THRESHOLD = 90.0;
+  static constexpr double INTERCEPT_WEIGHT = 1.2;
+  static constexpr double XTK_WEIGHT = 1.0;
+
+  static constexpr double INNER_KP = 800.0;
+  static constexpr double INNER_KI = 10.0;
+  static constexpr double INNER_KD = 150.0;
+
   bool enabled;
   double desiredBank;
   double prevDesiredBank;
@@ -35,17 +47,6 @@ private:
 #endif
 
 public:
-  static constexpr double MAX_BANK = 30.0;
-  static constexpr double MAX_BANK_RATE = 10.0;
-  static constexpr double INTERCEPT_ANGLE = 45.0;
-  static constexpr double XTE_FACTOR = 30.0;
-  static constexpr double REVERSE_COURSE_THRESHOLD = 90.0;
-  static constexpr double INTERCEPT_WEIGHT = 1.2;
-
-  static constexpr double INNER_KP = 800.0;
-  static constexpr double INNER_KI = 10.0;
-  static constexpr double INNER_KD = 150.0;
-
   LateralAutopilot() noexcept;
   ~LateralAutopilot() noexcept;
 

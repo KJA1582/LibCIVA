@@ -22,7 +22,14 @@
 #include <libciva.h>
 
 class VerticalAutopilot {
-private:
+  static constexpr double MAX_PITCH = 10.0;
+  static constexpr double MAX_PITCH_RATE = 5.0;
+  static constexpr double ALT_HOLD_KP = 0.5;
+
+  static constexpr double INNER_KP = 200.0;
+  static constexpr double INNER_KI = 5.0;
+  static constexpr double INNER_KD = 300.0;
+
   bool enabled;
   double desiredPitch;
   double prevDesiredPitch;
@@ -36,14 +43,6 @@ private:
 #endif
 
 public:
-  static constexpr double MAX_PITCH = 10.0;
-  static constexpr double MAX_PITCH_RATE = 5.0;
-  static constexpr double ALT_HOLD_KP = 0.5;
-
-  static constexpr double INNER_KP = 400.0;
-  static constexpr double INNER_KI = 5.0;
-  static constexpr double INNER_KD = 300.0;
-
   VerticalAutopilot() noexcept;
   ~VerticalAutopilot() noexcept;
 

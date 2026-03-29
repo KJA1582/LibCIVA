@@ -341,7 +341,7 @@ static void exportVars() {
 
 #pragma endregion
 
-extern "C" MSFS_CALLBACK bool LibCIVA_gauge_init(FsContext ctx, sGaugeInstallData *p_install_data) {
+extern "C" MSFS_CALLBACK bool LibCIVA_gauge_init(FsContext, sGaugeInstallData *) {
   libciva::Logger::GetInstance() << "Starting libCIVA\n";
 
   setupSimConnect();
@@ -351,7 +351,7 @@ extern "C" MSFS_CALLBACK bool LibCIVA_gauge_init(FsContext ctx, sGaugeInstallDat
   return true;
 }
 
-extern "C" MSFS_CALLBACK bool LibCIVA_gauge_update(FsContext ctx, float dTime) {
+extern "C" MSFS_CALLBACK bool LibCIVA_gauge_update(FsContext, float dTime) {
   // This is called each frame
   // dTime is the time between the previous frame and this one
   // return false if there is any error
@@ -367,7 +367,7 @@ extern "C" MSFS_CALLBACK bool LibCIVA_gauge_update(FsContext ctx, float dTime) {
   return true;
 }
 
-extern "C" MSFS_CALLBACK bool LibCIVA_gauge_kill(FsContext ctx) {
+extern "C" MSFS_CALLBACK bool LibCIVA_gauge_kill(FsContext) {
   ins->~INSContainer();
 
   SimConnect_RequestDataOnSimObject(simConnect, REQUEST_DEFINITIONS_DATA, DATA_DEFINITIONS_DATA,

@@ -28,7 +28,10 @@
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/rapidjson.h>
 
+#pragma warning(push)
+#pragma warning(disable : 4245)
 #include <SimConnect.h>
+#pragma warning(pop)
 
 #include <libciva.h>
 
