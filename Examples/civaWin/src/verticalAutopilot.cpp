@@ -70,7 +70,7 @@ void VerticalAutopilot::update(const double dTime, const double altitude, const 
   // =========================================================================
   double altitudeError = targetAltitude - altitude;
   desiredPitch = altitudeError * ALT_HOLD_KP;
-  desiredPitch = std::fmax(-MAX_PITCH, std::fmin(MAX_PITCH, desiredPitch));
+  desiredPitch = std::max(-MAX_PITCH, std::min(MAX_PITCH, desiredPitch));
 
   // =========================================================================
   // STEP 3: RATE LIMITING
@@ -93,13 +93,13 @@ void VerticalAutopilot::update(const double dTime, const double altitude, const 
   const double error = desiredPitch - negPitchAngle;
 
   integral += error * dTime;
-  integral = std::fmax(-5000.0, std::fmin(5000.0, integral));
+  integral = std::max(-5000.0, std::min(5000.0, integral));
 
   const double derivative = (error - prevError) / dTime;
   prevError = error;
 
   double rawOutput = INNER_KP * error + INNER_KI * integral + INNER_KD * derivative;
-  rawOutput = std::fmax(-16383.0, std::fmin(16384.0, rawOutput));
+  rawOutput = std::max(-16383.0, std::min(16384.0, rawOutput));
 
   output = static_cast<int16_t>(std::round(-rawOutput));
 }

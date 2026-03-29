@@ -186,7 +186,7 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
   double targetAccuracy = 2 * (accuracyIndex + 1 + timeInMode / TIME_PER_AI);
 
   // Check if either units DME data is valid
-  if (std::abs(gcDist - slantCorrectedDMEDist1) < targetAccuracy && std::abs(gcDist - slantCorrectedDMEDist2) < targetAccuracy) {
+  if (std::fabs(gcDist - slantCorrectedDMEDist1) < targetAccuracy && std::fabs(gcDist - slantCorrectedDMEDist2) < targetAccuracy) {
     dmeArmed = dmeUpdating = false;
     activeDME = 0;
     if (unitIndex == UNIT_INDEX::UNIT_1) indicators.indicator.DME1 = false;

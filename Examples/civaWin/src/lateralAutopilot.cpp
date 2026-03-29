@@ -76,7 +76,7 @@ void LateralAutopilot::update(const double dTime, const double bankAngle, const 
     //   XTE > 0 (right of track): turn LEFT toward DTK -> DTK - interceptAngle
     //   XTE < 0 (left of track):  turn RIGHT toward DTK -> DTK + interceptAngle
     // =========================================================================
-    double interceptAngle = std::fmin(INTERCEPT_ANGLE, std::fabs(xte) * INTERCEPT_ANGLE);
+    double interceptAngle = std::min(INTERCEPT_ANGLE, std::fabs(xte) * INTERCEPT_ANGLE);
     double interceptHeading;
     if (xte >= 0) {
       // Right of track - turn left toward DTK
@@ -96,7 +96,7 @@ void LateralAutopilot::update(const double dTime, const double bankAngle, const 
     // =========================================================================
     double trackError = libciva::deltaAngle(interceptHeading, track);
     double interceptBank = -trackError;
-    interceptBank = std::fmax(-MAX_BANK, std::fmin(MAX_BANK, interceptBank));
+    interceptBank = std::max(-MAX_BANK, std::min(MAX_BANK, interceptBank));
 
     // =========================================================================
     // STEP 4: CALCULATE XTE BANK
@@ -106,7 +106,7 @@ void LateralAutopilot::update(const double dTime, const double bankAngle, const 
     //   Clamp to MAX_BANK
     // =========================================================================
     double xteBank = xte * XTE_FACTOR;
-    xteBank = std::fmax(-MAX_BANK, std::fmin(MAX_BANK, xteBank));
+    xteBank = std::max(-MAX_BANK, std::min(MAX_BANK, xteBank));
 
     // =========================================================================
     // STEP 5: WEIGHTED ADDITIVE
@@ -115,7 +115,7 @@ void LateralAutopilot::update(const double dTime, const double bankAngle, const 
     //   Result is clamped to MAX_BANK
     // =========================================================================
     desiredBank = INTERCEPT_WEIGHT * interceptBank + xteBank;
-    desiredBank = std::fmax(-MAX_BANK, std::fmin(MAX_BANK, desiredBank));
+    desiredBank = std::max(-MAX_BANK, std::min(MAX_BANK, desiredBank));
   }
 
   // =========================================================================
@@ -140,13 +140,13 @@ void LateralAutopilot::update(const double dTime, const double bankAngle, const 
   const double error = desiredBank - bankAngle;
 
   integral += error * dTime;
-  integral = std::fmax(-5000.0, std::fmin(5000.0, integral));
+  integral = std::max(-5000.0, std::min(5000.0, integral));
 
   const double derivative = (error - prevError) / dTime;
   prevError = error;
 
   double rawOutput = INNER_KP * error + INNER_KI * integral + INNER_KD * derivative;
-  rawOutput = std::fmax(-16383.0, std::fmin(16384.0, rawOutput));
+  rawOutput = std::max(-16383.0, std::min(16384.0, rawOutput));
 
   output = static_cast<int16_t>(std::round(rawOutput));
 }

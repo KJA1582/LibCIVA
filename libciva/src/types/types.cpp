@@ -74,7 +74,7 @@ void POSITION::bound() noexcept {
 
 bool POSITION::inFront(const POSITION &pos, const double track) const noexcept {
   double brg = pos.bearingTo(*this);
-  return std::abs(std::fmod(brg - track + 540, 360) - 180) < 90;
+  return std::fabs(std::fmod(brg - track + 540, 360) - 180) < 90;
 }
 
 POSITION POSITION::intersection(const double bearing1, const POSITION &pos, const double bearing2) noexcept {
@@ -90,7 +90,7 @@ POSITION POSITION::intersection(const double bearing1, const POSITION &pos, cons
   // angular distance p1-p2
   double δ12 = 2 * std::asin(std::sqrt(std::sin(Δφ / 2) * std::sin(Δφ / 2) +
                                        std::cos(φ1) * std::cos(φ2) * std::sin(Δλ / 2) * std::sin(Δλ / 2)));
-  if (std::abs(δ12) < EPSILON) return *this; // coincident points
+  if (std::fabs(δ12) < EPSILON) return *this; // coincident points
 
   // initial/final bearings between points
   double cosθa = (std::sin(φ2) - std::sin(φ1) * std::cos(δ12)) / (std::sin(δ12) * std::cos(φ1));

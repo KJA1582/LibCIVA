@@ -148,7 +148,7 @@ void INS::updateNav(const double dTime) noexcept {
   while (delta < -180.0) delta += 360.0;
   while (delta >= 180.0) delta -= 360.0;
 
-  double turnDist = turnRadius * std::tan((std::abs(delta) * DEG2RAD) / 2.0);
+  double turnDist = turnRadius * std::tan((std::fabs(delta) * DEG2RAD) / 2.0);
   turnDist /= 6076.1154856;
 
   // Lead in/out
@@ -241,8 +241,8 @@ void INS::updatePreMix(const double dTime) noexcept {
         dmeMode = DME_MODE::INV;
         // Init error radial and distance
         baseRadialDriftPerSecond = (*distributionRadialDrift)(*randomGen);
-        distanceDriftPerSecond = std::abs((*distributionDistanceDrift)(*randomGen)) / 3600.0;
-        speedDriftPerSecond = (0.05 + std::abs((*distributionSpeedDrift)(*randomGen))) / 3600.0;
+        distanceDriftPerSecond = std::fabs((*distributionDistanceDrift)(*randomGen)) / 3600.0;
+        speedDriftPerSecond = (0.05 + std::fabs((*distributionSpeedDrift)(*randomGen))) / 3600.0;
 
         timeInMode = 0;
       }
