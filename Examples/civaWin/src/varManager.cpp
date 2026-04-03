@@ -178,7 +178,8 @@ void WinVarManager::dump() const noexcept {
   std::string lines[3][14];
 
   for (int i = 0; i < 3; i++) {
-    const libciva::DISPLAY v = *reinterpret_cast<const libciva::DISPLAY *>(&unit[i].display);
+    uint64_t combinedDisplay = ((uint64_t)unit[i].displayLeft | (((uint64_t)unit[i].displayRight) << 32));
+    const libciva::DISPLAY v = *reinterpret_cast<const libciva::DISPLAY *>(&combinedDisplay);
     const libciva::INDICATORS ind = *reinterpret_cast<const libciva::INDICATORS *>(&unit[i].indicators);
 
     lines[i][0] = getUnitDisplayLine(v, ind);

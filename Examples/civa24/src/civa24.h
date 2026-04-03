@@ -90,7 +90,7 @@ struct DATA {
   double navDME1;
   double navDME2;
   double simRate;
-  double event;
+  uint32_t event;
   const char atcID[32];
   double altitude;
 };

@@ -100,7 +100,8 @@ void INS::calculateTrack() noexcept {
 void INS::exportVars() const noexcept {
   VarManager::UnitExport &unit = varManager.unit[(uint8_t)unitIndex];
   // For UI
-  unit.display = display.value;
+  unit.displayLeft = display.value & 0x00000000FFFFFFFF;
+  unit.displayRight = (display.value & 0xFFFFFFFF00000000) >> 32;
   unit.indicators = indicators.value;
   // For UX
   unit.modeSelectorPos = (uint8_t)modeSelector;

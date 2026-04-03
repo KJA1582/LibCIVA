@@ -425,13 +425,42 @@ struct UnitExport {
 };
 ```
 
-### LIBCIVA_DISPLAY_UNIT_x
+### LIBCIVA_DISPLAY_LEFT_UNIT_x
 
-Bit field, 64bits
+Bit field, 32bits
 
-| 63  | 62  | 61  | 60  | 59          | 58          | 57          | 56          | 55 - 52 | 51 - 48 | 47 - 44 | 43 - 40 | 39 - 36 | 35 - 32 | 31 - 28 | 27 - 24 | 23         | 22         | 21         | 20         | 19 - 16 | 15 - 12 | 11 - 08 | 07 - 04 | 03 - 00 |
-| --- | --- | --- | --- | ----------- | ----------- | ----------- | ----------- | ------- | ------- | ------- | ------- | ------- | ------- | ------- | ------- | ---------- | ---------- | ---------- | ---------- | ------- | ------- | ------- | ------- | ------- |
-| W   | E   | S   | N   | Right 2nd . | Right 1st . | Right 2nd ° | Right 1st ° | TO      | FROM    | Right 6 | Right 5 | Right 4 | Right 3 | Right 2 | Right 1 | Left 2nd . | Left 1st . | Left 2nd ° | Left 1st ° | Left 5  | Left 4  | Left 3  | Left 2  | Left 1  |
+| 31 - 28 | 27 - 24 | 23         | 22         | 21         | 20         | 19 - 16 | 15 - 12 | 11 - 08 | 07 - 04 | 03 - 00 |
+| ------- | ------- | ---------- | ---------- | ---------- | ---------- | ------- | ------- | ------- | ------- | ------- |
+| Right 2 | Right 1 | Left 2nd . | Left 1st . | Left 2nd ° | Left 1st ° | Left 5  | Left 4  | Left 3  | Left 2  | Left 1  |
+
+Single bit fields are boolean and should illuminate/show respective symbol.  
+4bit fields are characters. Convert using following:
+
+```
+if 0 <= x <= 9: 48 + c // ASCII symbol, shifted by 48
+if x == 10: 'R' // ASCII R
+if x == 11: 'L' // ASCII L
+if x == 12: ' ' // blank space
+```
+
+#### Notes on the type
+
+For packing reasons, two characters of the right display are picked into here.
+
+The primary user of this library is the MSFS and MSFS 2024 simulator platform.
+These simulators can export data into local variables (LVar).
+LVars are of FLOAT64 type.
+As such, this variable is defined as a `union` type, with the first member being a `uint32_t`, to allow compatibility with JS.  
+This member is not to be used by C++ consumers, those shall use the second member of type `struct`, which exposes the bit field
+properly.
+
+### LIBCIVA_DISPLAY_RIGHT_UNIT_x
+
+Bit field, 32bits
+
+| 31  | 30  | 29  | 28  | 27          | 26          | 25          | 24          | 23 - 20 | 19 - 16 | 15 - 12 | 11 - 08 | 07 - 04 | 03 - 00 |
+| --- | --- | --- | --- | ----------- | ----------- | ----------- | ----------- | ------- | ------- | ------- | ------- | ------- | ------- |
+| W   | E   | S   | N   | Right 2nd . | Right 1st . | Right 2nd ° | Right 1st ° | TO      | FROM    | Right 6 | Right 5 | Right 4 | Right 3 |
 
 Single bit fields are boolean and should illuminate/show respective symbol.  
 4bit fields are characters. Convert using following:
@@ -448,7 +477,7 @@ if x == 12: ' ' // blank space
 The primary user of this library is the MSFS and MSFS 2024 simulator platform.
 These simulators can export data into local variables (LVar).
 LVars are of FLOAT64 type.
-As such, this variable is defined as a `union` type, with the first member being a `double`.  
+As such, this variable is defined as a `union` type, with the first member being a `uint32_t`, to allow compatibility with JS.  
 This member is not to be used by C++ consumers, those shall use the second member of type `struct`, which exposes the bit field
 properly.
 
@@ -465,7 +494,7 @@ Bit field, 32bits
 The primary user of this library is the MSFS and MSFS 2024 simulator platform.
 These simulators can export data into local variables (LVar).
 LVars are of FLOAT64 type.
-As such, this variable is defined as a `union` type, with the first member being a `double`.  
+As such, this variable is defined as a `union` type, with the first member being a `uint32_t`, to allow compatibility with JS.  
 This member is not to be used by C++ consumers, those shall use the second member of type `struct`, which exposes the bit field
 properly.
 
@@ -541,8 +570,6 @@ Calculated ground speed in knots.
 
 ```js
 function CodeToChar(c) {
-  if (c < 0) c *= -1;
-
   if (c == 10) return "R";
   if (c == 11) return "L";
   if (c == 12) return " ";
@@ -551,34 +578,35 @@ function CodeToChar(c) {
 }
 
 function GetDisplay() {
-  const _var = SimVar.GetSimVarValue("L:LIBCIVA_DISPLAY_UNIT_1", "NUMBER");
+  const left = SimVar.GetSimVarValue("L:LIBCIVA_DISPLAY_LEFT_UNIT_1", "NUMBER");
+  const right = SimVar.GetSimVarValue("L:LIBCIVA_DISPLAY_RIGHT_UNIT_1", "NUMBER");
 
-  const l1    = CodeToChar(_var & 0x0000000F);
-  const l2    = CodeToChar((_var & 0x000000F0) >> 4);
-  const l3    = CodeToChar((_var & 0x00000F00) >> 8);
-  const l4    = CodeToChar((_var & 0x0000F000) >> 12);
-  const l5    = CodeToChar((_var & 0x000F0000) >> 16);
-  const lDeg1 = (_var & 0x00100000) >> 20 ? "°" : " ";
-  const lDeg2 = (_var & 0x00200000) >> 20 ? "°" : " ";
-  const lDec1 = (_var & 0x00400000) >> 20 ? "." : " ";
-  const lDec2 = (_var & 0x00800000) >> 20 ? "." : " ";
-  const r1    = CodeToChar((_var & 0x0F000000) >> 24);
-  const r2    = CodeToChar((_var & 0xF0000000) >> 28);
+  const l1    = CodeToChar( left        & 0xF);
+  const l2    = CodeToChar((left >>  4) & 0xF);
+  const l3    = CodeToChar((left >>  8) & 0xF);
+  const l4    = CodeToChar((left >> 12) & 0xF);
+  const l5    = CodeToChar((left >> 16) & 0xF);
+  const lDeg1 =            (left >> 20) & 0x1 ? "°" : " ";
+  const lDeg2 =            (left >> 20) & 0x2 ? "°" : " ";
+  const lDec1 =            (left >> 20) & 0x4 ? "." : " ";
+  const lDec2 =            (left >> 20) & 0x8 ? "." : " ";
+  const r1    = CodeToChar((left >> 24) & 0xF);
+  const r2    = CodeToChar((left >> 28) & 0xF);
 
-  const r3    = CodeToChar(_var & 0x0000000F);
-  const r4    = CodeToChar((_var & 0x000000F0) >> 4);
-  const r5    = CodeToChar((_var & 0x00000F00) >> 8);
-  const r6    = CodeToChar((_var & 0x0000F000) >> 12);
-  const to    = CodeToChar((_var & 0x000F0000) >> 16);
-  const from  = CodeToChar((_var & 0x00F00000) >> 20);
-  const rDeg1 = (_var & 0x01000000) >> 24 ? "°" : " ";
-  const rDeg2 = (_var & 0x02000000) >> 24 ? "°" : " ";
-  const rDec1 = (_var & 0x04000000) >> 24 ? "." : " ";
-  const rDec2 = (_var & 0x08000000) >> 24 ? "." : " ";
-  const n     = (_var & 0x10000000) >> 28 ? "N" : " ";
-  const e     = (_var & 0x20000000) >> 28 ? "E" : " ";
-  const s     = (_var & 0x40000000) >> 28 ? "S" : " ";
-  const w     = (_var & 0x80000000) >> 28 ? "W" : " ";
+  const r3    = CodeToChar( right        & 0xF);
+  const r4    = CodeToChar((right >>  4) & 0xF);
+  const r5    = CodeToChar((right >>  8) & 0xF);
+  const r6    = CodeToChar((right >> 12) & 0xF);
+  const to    = CodeToChar((right >> 16) & 0xF);
+  const from  = CodeToChar((right >> 20) & 0xF);
+  const rDeg1 =            (right >> 24) & 0x1 ? "°" : " ";
+  const rDeg2 =            (right >> 24) & 0x2 ? "°" : " ";
+  const rDec1 =            (right >> 24) & 0x4 ? "." : " ";
+  const rDec2 =            (right >> 24) & 0x8 ? "." : " ";
+  const n     =            (right >> 28) & 0x1 ? "N" : " ";
+  const s     =            (right >> 28) & 0x2 ? "S" : " ";
+  const e     =            (right >> 28) & 0x4 ? "E" : " ";
+  const w     =            (right >> 28) & 0x8 ? "W" : " ";
 
  return `${l1}${l2}${lDeg1}${l3}${lDec1}${l4}${lDec2}${l5}${lDeg2}${n}${s}|${to}${from}|${r1}${r2}${r3}${rDeg1}${r4}${rDec1}${r5}${rDec2}${r6}${rDeg2}${e}${w}`;
 }

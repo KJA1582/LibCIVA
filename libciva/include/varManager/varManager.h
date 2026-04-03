@@ -16,7 +16,8 @@
 
 namespace libciva {
 
-constexpr const char *DISPLAY_VAR = "LIBCIVA_DISPLAY_";
+constexpr const char *DISPLAY_LEFT_VAR = "LIBCIVA_DISPLAY_LEFT_";
+constexpr const char *DISPLAY_RIGHT_VAR = "LIBCIVA_DISPLAY_RIGHT_";
 constexpr const char *INDICATORS_VAR = "LIBCIVA_INDICATORS_";
 constexpr const char *DATA_SELECTOR_POS_VAR = "LIBCIVA_DATA_SELECTOR_POS_";
 constexpr const char *MODE_SELECTOR_POS_VAR = "LIBCIVA_MODE_SELECTOR_POS_";
@@ -46,7 +47,8 @@ constexpr const char *SIM_VAR_PLANE_ALTITUDE = "PLANE ALTITUDE";
 struct VarManager {
 #pragma pack(push, 1)
   struct UnitExport {
-    uint64_t display = 0;            // LIBCIVA_DISPLAY_UNIT_x
+    uint32_t displayLeft = 0;        // LIBCIVA_DISPLAY_LEFT_UNIT_x
+    uint32_t displayRight = 0;       // LIBCIVA_DISPLAY_RIGHT_UNIT_x
     uint32_t indicators = 0;         // LIBCIVA_INDICATORS_x
     uint8_t modeSelectorPos = 0;     // LIBCIVA_DATA_SELECTOR_POS_x
     uint8_t dataSelectorPos = 0;     // LIBCIVA_MODE_SELECTOR_POS_x
