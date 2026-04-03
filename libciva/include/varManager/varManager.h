@@ -44,22 +44,25 @@ constexpr const char *SIM_VAR_SIMULATION_RATE = "SIMULATION RATE";
 constexpr const char *SIM_VAR_PLANE_ALTITUDE = "PLANE ALTITUDE";
 
 struct VarManager {
+#pragma pack(push, 1)
   struct UnitExport {
-    double display = 0;
-    double indicators = 0;
-    double modeSelectorPos = 0;
-    double dataSelectorPos = 0;
-    double waypointSelectorPos = 0;
-    double autoMode = 0;
+    uint64_t display = 0;
+    uint32_t indicators = 0;
+    uint8_t modeSelectorPos = 0;
+    uint8_t dataSelectorPos = 0;
+    uint8_t waypointSelectorPos = 0;
+    uint8_t autoMode = 0;
     double crossTrackError = 0;
     double desiredTrack = 0;
     double track = 0;
     double trackAngleError = 0;
     double distance = 0;
     double gs = 0;
-    double valid = 0;
+    uint8_t valid = 0;
   };
+#pragma pack(pop)
 
+#pragma pack(push, 1)
   struct SimVars {
     double airspeedTrue = 0;
     double groundVelocity = 0;
@@ -74,6 +77,7 @@ struct VarManager {
     double simulationRate = 1;
     double planeAltitude = 0;
   } sim;
+#pragma pack(pop)
 
   UnitExport unit[3];
 };

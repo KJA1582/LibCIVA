@@ -23,8 +23,8 @@ add_executable(civaWin
 
 target_include_directories(civaWin PRIVATE
 	"../../libciva/include"
-	"$ENV{MSFS_SDK}/SimConnect SDK/include"
-	"$ENV{MSFS_SDK}/WASM/include"
+	"$ENV{MSFS2024_SDK}/SimConnect SDK/include"
+	"$ENV{MSFS2024_SDK}/WASM/include"
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -42,6 +42,6 @@ target_link_directories(civaWin PRIVATE
 
 target_link_libraries(civaWin PRIVATE libciva SimConnect.lib)
 
-target_compile_definitions(civaWin PRIVATE WORK_DIR="./" _CRT_SECURE_NO_WARNINGS _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
+target_compile_definitions(civaWin PRIVATE __INTELLISENSE__  WORK_DIR="./" _CRT_SECURE_NO_WARNINGS _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
 target_compile_options(civaWin PRIVATE /W4)

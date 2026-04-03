@@ -114,7 +114,7 @@ enum class SIGNAL_VALIDITY : int8_t {
 // Use value to unset/check if INV
 // Use ENUM of same name to work with
 typedef union {
-  double value; // INV = 0,
+  uint64_t value; // INV = 0,
   struct {
     bool A02_31 : 1; // 1 ground speed > 910, non-clearable
     bool A02_42 : 1; // 2 drift angle > 45, non-clearable
@@ -128,7 +128,7 @@ typedef union {
 
 // Use Bitset to set/reset indicators
 typedef union {
-  double value;
+  uint32_t value;
   struct {
     bool MSU_BAT : 1;
     bool READY_NAV : 1;
@@ -150,7 +150,7 @@ typedef union {
 // Characters are encoded 0->9 for 0->9, 10 for R, 11 for L, 12 for " "
 // TO/FROM values
 typedef union {
-  double value;
+  uint64_t value;
   struct {
     uint8_t LEFT_1 : 4;
     uint8_t LEFT_2 : 4;

@@ -410,9 +410,9 @@ Data from the units is output into variables via the variable manager.
 
 Bit field, 64bits
 
-| 63  | 62  | 61  | 60  | 59          | 58          | 57          | 56          | 55 - 52 | 51 - 48 | 47 - 44 | 43 - 40 | 39 - 36 | 35 - 32 | 31 - 28 | 27 - 24 | 23  | 22         | 21         | 20         | 19 - 16    | 15 - 12 | 11 - 08 | 07 - 04 | 03 - 00 |
-| --- | --- | --- | --- | ----------- | ----------- | ----------- | ----------- | ------- | ------- | ------- | ------- | ------- | ------- | ------- | ------- | --- | ---------- | ---------- | ---------- | ---------- | ------- | ------- | ------- | ------- |
-| W   | E   | S   | N   | Right 2nd . | Right 1st . | Right 2nd ° | Right 1st ° | TO      | FROM    | Right 6 | Right 5 | Right 4 | Right 3 | Right 2 | Right 1 |     | Left 2nd . | Left 1st . | Left 2nd ° | Left 1st ° | Left 5  | Left 4  | Left 3  | Left 2  | Left 1 |
+| 63  | 62  | 61  | 60  | 59          | 58          | 57          | 56          | 55 - 52 | 51 - 48 | 47 - 44 | 43 - 40 | 39 - 36 | 35 - 32 | 31 - 28 | 27 - 24 | 23         | 22         | 21         | 20         | 19 - 16 | 15 - 12 | 11 - 08 | 07 - 04 | 03 - 00 |
+| --- | --- | --- | --- | ----------- | ----------- | ----------- | ----------- | ------- | ------- | ------- | ------- | ------- | ------- | ------- | ------- | ---------- | ---------- | ---------- | ---------- | ------- | ------- | ------- | ------- | ------- |
+| W   | E   | S   | N   | Right 2nd . | Right 1st . | Right 2nd ° | Right 1st ° | TO      | FROM    | Right 6 | Right 5 | Right 4 | Right 3 | Right 2 | Right 1 | Left 2nd . | Left 1st . | Left 2nd ° | Left 1st ° | Left 5  | Left 4  | Left 3  | Left 2  | Left 1  |
 
 Single bit fields are boolean and should illuminate/show respective symbol.  
 4bit fields are characters. Convert using following:
@@ -435,9 +435,9 @@ properly.
 
 ### LIBCIVA_INDICATORS_UNIT_x
 
-Bit field, 64bits
+Bit field, 32bits
 
-| 63 - 13 | 12                          | 11                          | 10             | 09               | 08            | 07         | 06            | 05          | 04           | 03           | 02         | 01              | 00            |
+| 31 - 13 | 12                          | 11                          | 10             | 09               | 08            | 07         | 06            | 05          | 04           | 03           | 02         | 01              | 00            |
 | ------- | --------------------------- | --------------------------- | -------------- | ---------------- | ------------- | ---------- | ------------- | ----------- | ------------ | ------------ | ---------- | --------------- | ------------- |
 | Unset   | DME2 update indicator light | DME1 update indicator light | TO field blink | FROM field blink | WPT CHG light | WARN light | CDU BAT light | ALERT light | INSERT light | REMOTE light | HOLD light | READY NAV light | MSU BAT light |
 
@@ -450,7 +450,7 @@ As such, this variable is defined as a `union` type, with the first member being
 This member is not to be used by C++ consumers, those shall use the second member of type `struct`, which exposes the bit field
 properly.
 
-### LIBCIVA__MODE_SELECTOR_POS_UNIT_x
+### LIBCIVA_MODE_SELECTOR_POS_UNIT_x
 
 | Value | Mode  |
 | ----- | ----- |
@@ -462,9 +462,13 @@ properly.
 
 ### LIBCIVA_WAYPOINT_SELECTOR_POS_UNIT_x
 
-Values 0 through 9, corresponding with the thumb wheel on the unit
+Values 0 through 9, corresponding with the thumb wheel on the unit.
 
 ### LIBCIVA_AUTO_MAN_POS_UNIT_x
+
+True if in AUTO.
+
+### LIBCIVA_DATA_MAN_POS_UNIT_x
 
 | Value | Mode      |
 | ----- | --------- |
@@ -513,3 +517,56 @@ Calculated ground speed in knots.
 | 0     | Invalid       |
 | 1     | Attitude only |
 | 2     | Navigation    |
+
+### JS Example
+
+```js
+function DoubleToIEEE(f) {
+  var buf = new ArrayBuffer(8);
+  (new Float64Array(buf))[0] = f;
+  return [ (new Uint32Array(buf))[0] ,(new Uint32Array(buf))[1] ];
+}
+
+function CodeToChar(c) {
+  if (c < 0) c *= -1;
+
+  if (c == 10) return "R";
+  if (c == 11) return "L";
+  if (c == 12) return " ";
+
+  return String.fromCharCode(c + 48);
+}
+
+function GetDisplay() {
+  const _var = SimVar.GetSimVarValue("L:LIBCIVA_DISPLAY_UNIT_1", "NUMBER");
+
+  const l1    = CodeToChar(_var & 0x0000000F);
+  const l2    = CodeToChar((_var & 0x000000F0) >> 4);
+  const l3    = CodeToChar((_var & 0x00000F00) >> 8);
+  const l4    = CodeToChar((_var & 0x0000F000) >> 12);
+  const l5    = CodeToChar((_var & 0x000F0000) >> 16);
+  const lDeg1 = (_var & 0x00100000) >> 20 ? "°" : " ";
+  const lDeg2 = (_var & 0x00200000) >> 20 ? "°" : " ";
+  const lDec1 = (_var & 0x00400000) >> 20 ? "." : " ";
+  const lDec2 = (_var & 0x00800000) >> 20 ? "." : " ";
+  const r1    = CodeToChar((_var & 0x0F000000) >> 24);
+  const r2    = CodeToChar((_var & 0xF0000000) >> 28);
+
+  const r3    = CodeToChar(_var & 0x0000000F);
+  const r4    = CodeToChar((_var & 0x000000F0) >> 4);
+  const r5    = CodeToChar((_var & 0x00000F00) >> 8);
+  const r6    = CodeToChar((_var & 0x0000F000) >> 12);
+  const to    = CodeToChar((_var & 0x000F0000) >> 16);
+  const from  = CodeToChar((_var & 0x00F00000) >> 20);
+  const rDeg1 = (_var & 0x01000000) >> 24 ? "°" : " ";
+  const rDeg2 = (_var & 0x02000000) >> 24 ? "°" : " ";
+  const rDec1 = (_var & 0x04000000) >> 24 ? "." : " ";
+  const rDec2 = (_var & 0x08000000) >> 24 ? "." : " ";
+  const n     = (_var & 0x10000000) >> 28 ? "N" : " ";
+  const e     = (_var & 0x20000000) >> 28 ? "E" : " ";
+  const s     = (_var & 0x40000000) >> 28 ? "S" : " ";
+  const w     = (_var & 0x80000000) >> 28 ? "W" : " ";
+
+ return `${l1}${l2}${lDeg1}${l3}${lDec1}${l4}${lDec2}${l5}${lDeg2}${n}${s}|${to}${from}|${r1}${r2}${r3}${rDeg1}${r4}${rDec1}${r5}${rDec2}${r6}${rDeg2}${e}${w}`;
+}
+```

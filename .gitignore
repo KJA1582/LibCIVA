@@ -370,3 +370,8 @@ MSFS/
 
 INS Model/
 pos_log.geojson
+
+_PackageInt
+Packages
+PackagesMetadata
+*.wasm

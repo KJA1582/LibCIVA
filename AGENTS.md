@@ -259,17 +259,17 @@ When adding features to both examples, implement the appropriate interface for e
 
 ## File Locations
 
-| Component                   | Path                                      |
-| --------------------------- | ----------------------------------------- |
-| Main INS class              | `libciva/include/ins/ins.h`               |
-| INS implementation          | `libciva/src/ins/ins.cpp`                 |
-| Type definitions            | `libciva/include/types/types.h`           |
-| VarManager                  | `libciva/include/varManager/varManager.h` |
-| Logger                      | `libciva/include/logger/logger.h`         |
-| Config                      | `libciva/include/config/config.h`         |
-| civa24 example              | `Examples/civa24/src/civa24.cpp`          |
-| civaWin example             | `Examples/civaWin/src/civaWin.cpp`        |
-| Lateral autopilot (civaWin) | `Examples/civaWin/src/lateralAutopilot.h`  |
-| Lateral autopilot impl      | `Examples/civaWin/src/lateralAutopilot.cpp` |
-| Vertical autopilot (civaWin) | `Examples/civaWin/src/verticalAutopilot.h` |
-| Vertical autopilot impl     | `Examples/civaWin/src/verticalAutopilot.cpp` |
+| Component                    | Path                                         |
+| ---------------------------- | -------------------------------------------- |
+| Main INS class               | `libciva/include/ins/ins.h`                  |
+| INS implementation           | `libciva/src/ins/ins.cpp`                    |
+| Type definitions             | `libciva/include/types/types.h`              |
+| VarManager                   | `libciva/include/varManager/varManager.h`    |
+| Logger                       | `libciva/include/logger/logger.h`            |
+| Config                       | `libciva/include/config/config.h`            |
+| civa24 example               | `Examples/civa24/src/civa24.cpp`             |
+| civaWin example              | `Examples/civaWin/src/civaWin.cpp`           |
+| Lateral autopilot (civaWin)  | `Examples/civaWin/src/lateralAutopilot.h`    |
+| Lateral autopilot impl       | `Examples/civaWin/src/lateralAutopilot.cpp`  |
+| Vertical autopilot (civaWin) | `Examples/civaWin/src/verticalAutopilot.h`   |
+| Vertical autopilot impl      | `Examples/civaWin/src/verticalAutopilot.cpp` |

@@ -102,18 +102,18 @@ void INS::exportVars() const noexcept {
   // For UI/UX
   unit.display = display.value;
   unit.indicators = indicators.value;
-  unit.modeSelectorPos = (double)modeSelector;
-  unit.dataSelectorPos = (double)dataSelector;
-  unit.waypointSelectorPos = (double)waypointSelector;
-  unit.autoMode = (double)autoMode;
+  unit.modeSelectorPos = (uint8_t)modeSelector;
+  unit.dataSelectorPos = (uint8_t)dataSelector;
+  unit.waypointSelectorPos = waypointSelector;
+  unit.autoMode = autoMode;
   // For systems consumption
   unit.crossTrackError = crossTrackError;
   unit.desiredTrack = desiredTrack;
   unit.track = track;
   unit.trackAngleError = trackAngleError;
-  unit.distance = unit.distance = remainingDistance;
+  unit.distance = remainingDistance;
   unit.gs = groundSpeed;
-  unit.valid = (double)valid;
+  unit.valid = (uint8_t)valid;
 }
 
 } // namespace libciva

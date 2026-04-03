@@ -19,5 +19,4 @@
 #include "types/types.h"
 #include "varManager/varManager.h"
 
-
 #endif

@@ -1,0 +1,16 @@
+{
+  "name": "libciva",
+  "version": "0.0.1",
+  "description": "LibCIVA, Simulation of a Delco Instruments Carousel IV-A INS",
+  "scripts": {
+    "debugger": "cd \"$env:MSFS_SDK/Tools/CoherentGT Debugger\" && ./Debugger.exe",
+    "locale": "cd \"$env:MSFS_SDK/Tools/MSFS_Localization\" && ./MSFSLocalizationManager.exe"
+  },
+  "keywords": [],
+  "author": "Kilian Kurt Hofmann",
+  "license": "MIT",
+  "packageManager": "pnpm@10.25.0",
+  "engines": {
+    "node": ">=22"
+  }
+}

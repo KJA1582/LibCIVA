@@ -28,7 +28,6 @@ set(sources
 	"src/config/config.cpp"
 	"src/ins/modes/align.cpp"
 	"src/ins/ins.cpp"
-	"src/insContainer/insContainer.cpp"
 	"src/ins/insDisplay.cpp"
 	"src/ins/insEvent.cpp"
 	"src/ins/insSetGet.cpp"
@@ -40,6 +39,8 @@ set(sources
 if(SHARED)
 	message("Building shared")
 	add_library(libciva SHARED ${sources} ${headers})
+
+	target_compile_definitions(libciva PRIVATE SHARED)
 else()
 	add_library(libciva ${sources} ${headers})
 endif()
@@ -48,4 +49,10 @@ target_include_directories(libciva PRIVATE "include")
 
 target_compile_definitions(libciva PRIVATE WORK_DIR="./")
 
-target_compile_options(libciva PRIVATE /W4)
+if(MSVC)
+	target_compile_definitions(libciva PRIVATE __INTELLISENSE__)
+
+	target_compile_options(libciva PRIVATE /W4)
+else()
+	target_compile_options(libciva PRIVATE -Wall -Wextra -pedantic)
+endif()
