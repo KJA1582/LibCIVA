@@ -403,8 +403,27 @@ void importWaypoints(std::array<libciva::POSITION, 9> wptData) {
 
 ## Data output
 
-Data from the units is output into variables via the variable manager.  
-`x` is one of `1`, `2`, or `3`, indicating the respective unit
+Unit data is output into the following `struct` within the VarManager.  
+The VarManager header defines the LVar names and SimVar names for use with SimConnect as a convenience.  
+`x` denotes unit number (one of `1`, `2`, or `3`) which must be appended when used within SimConnect.
+
+```c++
+struct UnitExport {
+  uint64_t display = 0;            // LIBCIVA_DISPLAY_UNIT_x
+  uint32_t indicators = 0;         // LIBCIVA_INDICATORS_x
+  uint8_t modeSelectorPos = 0;     // LIBCIVA_DATA_SELECTOR_POS_x
+  uint8_t dataSelectorPos = 0;     // LIBCIVA_MODE_SELECTOR_POS_x
+  uint8_t waypointSelectorPos = 0; // LIBCIVA_WAYPOINT_SELECTOR_POS_x
+  uint8_t autoMode = 0;            // LIBCIVA_AUTO_MAN_POS_x
+  double crossTrackError = 0;      // LIBCIVA_CROSS_TRACK_ERROR_x
+  double desiredTrack = 0;         // LIBCIVA_DESIRED_TRACK_x
+  double track = 0;                // LIBCIVA_TRACK_x
+  double trackAngleError = 0;      // LIBCIVA_TRACK_ANGLE_ERROR_x
+  double distance = 0;             // LIBCIVA_DISTANCE_x
+  double gs = 0;                   // LIBCIVA_GROUND_SPEED_x
+  uint8_t valid = 0;               // LIBCIVA_VALID_x
+};
+```
 
 ### LIBCIVA_DISPLAY_UNIT_x
 
@@ -518,15 +537,9 @@ Calculated ground speed in knots.
 | 1     | Attitude only |
 | 2     | Navigation    |
 
-### JS Example
+### JS Example for MSFS
 
 ```js
-function DoubleToIEEE(f) {
-  var buf = new ArrayBuffer(8);
-  (new Float64Array(buf))[0] = f;
-  return [ (new Uint32Array(buf))[0] ,(new Uint32Array(buf))[1] ];
-}
-
 function CodeToChar(c) {
   if (c < 0) c *= -1;
 

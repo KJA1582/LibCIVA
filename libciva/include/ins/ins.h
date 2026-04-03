@@ -189,6 +189,8 @@ class INS {
   double mixEaseTime = 0;
   // Alert lamp flash timer
   double flashTime = 0;
+  // Display update timer
+  double displayTimer = 0;
   // Current INS State
   INS_STATE state = INS_STATE::OFF;
   // Current align submode

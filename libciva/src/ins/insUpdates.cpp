@@ -317,7 +317,12 @@ void INS::updatePostMix(const double dTime) noexcept {
 
   // Display
   if (state > INS_STATE::OFF && state < INS_STATE::ATT) {
-    updateDisplay(dTime);
+    if (displayTimer >= 0.5) {
+      updateDisplay(dTime);
+      displayTimer = 0;
+    } else {
+      displayTimer += dTime;
+    }
   }
 
   // Exports

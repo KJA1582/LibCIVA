@@ -99,9 +99,10 @@ void INS::calculateTrack() noexcept {
 
 void INS::exportVars() const noexcept {
   VarManager::UnitExport &unit = varManager.unit[(uint8_t)unitIndex];
-  // For UI/UX
+  // For UI
   unit.display = display.value;
   unit.indicators = indicators.value;
+  // For UX
   unit.modeSelectorPos = (uint8_t)modeSelector;
   unit.dataSelectorPos = (uint8_t)dataSelector;
   unit.waypointSelectorPos = waypointSelector;

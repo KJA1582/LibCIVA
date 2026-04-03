@@ -46,19 +46,19 @@ constexpr const char *SIM_VAR_PLANE_ALTITUDE = "PLANE ALTITUDE";
 struct VarManager {
 #pragma pack(push, 1)
   struct UnitExport {
-    uint64_t display = 0;
-    uint32_t indicators = 0;
-    uint8_t modeSelectorPos = 0;
-    uint8_t dataSelectorPos = 0;
-    uint8_t waypointSelectorPos = 0;
-    uint8_t autoMode = 0;
-    double crossTrackError = 0;
-    double desiredTrack = 0;
-    double track = 0;
-    double trackAngleError = 0;
-    double distance = 0;
-    double gs = 0;
-    uint8_t valid = 0;
+    uint64_t display = 0;            // LIBCIVA_DISPLAY_UNIT_x
+    uint32_t indicators = 0;         // LIBCIVA_INDICATORS_x
+    uint8_t modeSelectorPos = 0;     // LIBCIVA_DATA_SELECTOR_POS_x
+    uint8_t dataSelectorPos = 0;     // LIBCIVA_MODE_SELECTOR_POS_x
+    uint8_t waypointSelectorPos = 0; // LIBCIVA_WAYPOINT_SELECTOR_POS_x
+    uint8_t autoMode = 0;            // LIBCIVA_AUTO_MAN_POS_x
+    double crossTrackError = 0;      // LIBCIVA_CROSS_TRACK_ERROR_x
+    double desiredTrack = 0;         // LIBCIVA_DESIRED_TRACK_x
+    double track = 0;                // LIBCIVA_TRACK_x
+    double trackAngleError = 0;      // LIBCIVA_TRACK_ANGLE_ERROR_x
+    double distance = 0;             // LIBCIVA_DISTANCE_x
+    double gs = 0;                   // LIBCIVA_GROUND_SPEED_x
+    uint8_t valid = 0;               // LIBCIVA_VALID_x
   };
 #pragma pack(pop)
 
