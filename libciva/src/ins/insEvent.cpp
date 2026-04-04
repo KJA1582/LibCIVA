@@ -253,7 +253,7 @@ void INS::handleNumeric(const uint8_t value) noexcept {
           startAlt(display, indicators, charactersRead);
         } else {
           insertMode = INSERT_MODE::WPT_LAT;
-          startLatS(display, indicators, charactersRead);
+          startLatN(display, indicators, charactersRead);
         }
       } else if (value == 8 && insertMode == INSERT_MODE::INV) {
         if (dmeMode == DME_MODE::DME_FREQ) {
@@ -261,7 +261,7 @@ void INS::handleNumeric(const uint8_t value) noexcept {
           startAlt(display, indicators, charactersRead);
         } else {
           insertMode = INSERT_MODE::WPT_LAT;
-          startLatN(display, indicators, charactersRead);
+          startLatS(display, indicators, charactersRead);
         }
       } else if (insertMode == INSERT_MODE::WPT_LAT && charactersRead < 5) {
         readLat(display, charactersRead, value);
