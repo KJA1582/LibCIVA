@@ -1,35 +1,34 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
-const BASE_DIRS = [
-  "libciva",
-  "Examples/xkhofmann-fss-aircraft-boeing-727-civa/PackageSources/wasm-module"
-];
+const BASE_DIRS = ['libciva', 'Examples/xkhofmann-fss-aircraft-boeing-727-civa/PackageSources/wasm-module'];
 
 let THRESHOLD = parseInt(process.argv.at(-1) ?? 1024);
 THRESHOLD = isNaN(THRESHOLD) ? 1024 : THRESHOLD;
 console.log(`Threshold at ${THRESHOLD} bytes`);
-let LEVEL = process.argv.includes("--level") ? process.argv[process.argv.findIndex((p) => p === "--level") +1] : undefined;
-if (LEVEL !== "info") LEVEL = undefined;
-console.log(`Log level ${LEVEL ?? "default"}`);
+let LEVEL = process.argv.includes('--level')
+  ? process.argv[process.argv.findIndex((p) => p === '--level') + 1]
+  : undefined;
+if (LEVEL !== 'info') LEVEL = undefined;
+console.log(`Log level ${LEVEL ?? 'default'}`);
 
-BASE_DIRS.forEach(BASE_DIR => {
-  console.log(`Analysis for ${BASE_DIR}`)
+BASE_DIRS.forEach((BASE_DIR) => {
+  console.log(`Analysis for ${BASE_DIR}`);
 
-  const output = fs.openSync(path.join(BASE_DIR, "stack-analysis.log"), "w");
+  const output = fs.openSync(path.join(BASE_DIR, 'stack-analysis.log'), 'w');
 
   let functions = [];
 
   let files = fs.readdirSync(BASE_DIR);
-  files = files.filter((file) => file.endsWith(".su"));
+  files = files.filter((file) => file.endsWith('.su'));
   files.forEach((file) => {
     const content = fs.readFileSync(path.join(BASE_DIR, file), {
-      encoding: "utf8",
+      encoding: 'utf8',
     });
 
-    const _functions = content.split("\n");
+    const _functions = content.split('\n');
     _functions.forEach((_function) => {
-      const fields = _function.split("\t");
+      const fields = _function.split('\t');
 
       if (fields.length != 3) return;
 
@@ -39,7 +38,7 @@ BASE_DIRS.forEach(BASE_DIR => {
         type: fields[2],
       });
     });
-  
+
     fs.unlinkSync(path.join(BASE_DIR, file));
   });
 
@@ -53,18 +52,13 @@ BASE_DIRS.forEach(BASE_DIR => {
       console.error(
         `\x1b[31mFunction \x1b[1m${_function.name}\x1b[0m \x1b[31mexceeds threshold (\x1b[1m${_function.cost}\x1b[0m\x1b[31m)\x1b[0m`
       );
-    } else if (LEVEL === "info") {
+    } else if (LEVEL === 'info') {
       console.error(
         `\x1b[32mFunction \x1b[1m${_function.name}\x1b[0m \x1b[32mbelow threshold (\x1b[1m${_function.cost}\x1b[0m\x1b[32m)\x1b[0m`
       );
     }
 
-    fs.writeSync(
-      output,
-      `${_function.cost}\t${_function.type}\t${_function.name}\n`,
-      null,
-      { encoding: "utf8" }
-    );
+    fs.writeSync(output, `${_function.cost}\t${_function.type}\t${_function.name}\n`, null, { encoding: 'utf8' });
   });
 
   fs.closeSync(output);

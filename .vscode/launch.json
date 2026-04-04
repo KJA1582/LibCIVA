@@ -2,7 +2,7 @@
   "configurations": [
     {
       "name": "Data Analysis",
-      "program": "${workspaceFolder}/data-analysis.js",
+      "program": "${workspaceFolder}/scripts/data-analysis.js",
       "request": "launch",
       "skipFiles": ["<node_internals>/**"],
       "cwd": "${workspaceFolder}",
@@ -10,7 +10,7 @@
     },
     {
       "name": "Stack Analysis",
-      "program": "${workspaceFolder}/stack-analysis.js",
+      "program": "${workspaceFolder}/scripts/stack-analysis.js",
       "request": "launch",
       "skipFiles": ["<node_internals>/**"],
       "cwd": "${workspaceFolder}",
@@ -18,14 +18,14 @@
     },
     {
       "name": "AP LNAV PID Analysis",
-      "program": "${workspaceFolder}/graph_lateral_ap.py",
+      "program": "${workspaceFolder}/scripts/graph_lateral_ap.py",
       "request": "launch",
       "cwd": "${workspaceFolder}",
       "type": "debugpy"
     },
     {
       "name": "AP VNAV PID Analysis",
-      "program": "${workspaceFolder}/graph_vertical_ap.py",
+      "program": "${workspaceFolder}/scripts/graph_vertical_ap.py",
       "request": "launch",
       "cwd": "${workspaceFolder}",
       "type": "debugpy"

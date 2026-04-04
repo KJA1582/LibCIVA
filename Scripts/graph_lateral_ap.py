@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import csv
 
-timestamps = []
-desiredBanks = []
-actualBanks = []
+timestamps: list[float] = []
+desiredBanks: list[float] = []
+actualBanks: list[float] = []
 
 with open('./Examples/civaWin/out/Debug/lateral_autopilot_log.csv', 'r') as f:
     reader = csv.DictReader(f)

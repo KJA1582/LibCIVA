@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import csv
 
-timestamps = []
-desiredAltitudes = []
-actualAltitudes = []
+timestamps: list[float] = []
+desiredAltitudes: list[float] = []
+actualAltitudes: list[float] = []
 
 with open('./Examples/civaWin/out/Debug/vertical_autopilot_log.csv', 'r') as f:
     reader = csv.DictReader(f)
