@@ -365,13 +365,5 @@ FodyWeavers.xsd
 # Clang SU
 *.su
 
-# MSFS gauge
-MSFS/
-
-INS Model/
+# Data dumps for Debug
 pos_log.geojson
-
-_PackageInt
-Packages
-PackagesMetadata
-*.wasm

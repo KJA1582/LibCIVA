@@ -19,14 +19,6 @@ msbuild .\libciva.sln
 Options:
 - `-DSHARED=ON` - Build shared library (default OFF)
 
-### civa24 Example (MSFS2024)
-```powershell
-cd Examples/civa24
-.\build.ps1 [-Build Debug|Release] [-Clean] [-StackAnalysis]
-```
-
-Build order: libciva (MSFS) -> libciva (MSFS2024) -> civa24 example
-
 ### civaWin Example (FSX)
 ```powershell
 cd Examples/civaWin
@@ -38,8 +30,6 @@ msbuild civaWin.sln
 ### Key Build Files
 - `libciva/msfs.vcxproj` - MSFS version
 - `libciva/msfs2024.vcxproj` - MSFS2024 version
-- `Examples/civa24/civa24.sln` - civa24 example
-- `Examples/civa24/build.ps1` - Build script for civa24
 
 ### Testing
 No automated test framework exists. Manual testing in the simulator is required.
@@ -267,7 +257,6 @@ When adding features to both examples, implement the appropriate interface for e
 | VarManager                   | `libciva/include/varManager/varManager.h`    |
 | Logger                       | `libciva/include/logger/logger.h`            |
 | Config                       | `libciva/include/config/config.h`            |
-| civa24 example               | `Examples/civa24/src/civa24.cpp`             |
 | civaWin example              | `Examples/civaWin/src/civaWin.cpp`           |
 | Lateral autopilot (civaWin)  | `Examples/civaWin/src/lateralAutopilot.h`    |
 | Lateral autopilot impl       | `Examples/civaWin/src/lateralAutopilot.cpp`  |
