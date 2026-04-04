@@ -116,6 +116,7 @@ void INS::exportVars() const noexcept {
   unit.distance = remainingDistance;
   unit.gs = groundSpeed;
   unit.valid = (uint8_t)valid;
+  unit.powerState = state != INS_STATE::OFF && state != INS_STATE::FAIL;
 }
 
 } // namespace libciva

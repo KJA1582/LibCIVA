@@ -40,7 +40,7 @@ void INS::temperatureBatterySim(const double dTime) noexcept {
   if (externalPower) {
     batteryRuntime = std::min((double)(hasExpandedBattery ? EXPANDED_BATTERY_DURATION : BATTERY_DURATION),
                               batteryRuntime + CHARGE_RATE * dTime);
-    if (batteryTest != BATTERY_TEST::RUNNING) indicators.indicator.CDU_BAT = false;
+    if (batteryTest != BATTERY_TEST::RUNNING && !inTestMode) indicators.indicator.CDU_BAT = false;
   } else if (state > INS_STATE::OFF && !externalPower) {
     batteryRuntime = std::max(0.0, batteryRuntime - dTime);
     if (batteryTest != BATTERY_TEST::RUNNING) indicators.indicator.CDU_BAT = true;
@@ -186,7 +186,8 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
   double targetAccuracy = 2 * (accuracyIndex + 1 + timeInMode / TIME_PER_AI);
 
   // Check if either units DME data is valid
-  if (std::fabs(gcDist - slantCorrectedDMEDist1) < targetAccuracy && std::fabs(gcDist - slantCorrectedDMEDist2) < targetAccuracy) {
+  if (std::fabs(gcDist - slantCorrectedDMEDist1) < targetAccuracy &&
+      std::fabs(gcDist - slantCorrectedDMEDist2) < targetAccuracy) {
     dmeArmed = dmeUpdating = false;
     activeDME = 0;
     if (unitIndex == UNIT_INDEX::UNIT_1) indicators.indicator.DME1 = false;

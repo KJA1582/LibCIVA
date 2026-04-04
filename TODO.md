@@ -7,7 +7,7 @@
     - SB import
       - 24
         - Tie into JS example gauge
-- Civa24 inhibit new event until event has toggled to zero or has changed value
+- Logger add timestamp
 
 # Updating
 

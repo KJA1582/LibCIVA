@@ -29,7 +29,8 @@ constexpr const char *TRACK_VAR = "LIBCIVA_TRACK_";
 constexpr const char *TRACK_ANGLE_ERROR_VAR = "LIBCIVA_TRACK_ANGLE_ERROR_";
 constexpr const char *DISTANCE_VAR = "LIBCIVA_DISTANCE_";
 constexpr const char *GROUND_SPEED_VAR = "LIBCIVA_GROUND_SPEED_";
-constexpr const char *VALID = "LIBCIVA_VALID_";
+constexpr const char *VALID_VAR = "LIBCIVA_VALID_";
+constexpr const char *POWER_STATE_VAR = "LIBCIVA_POWER_STATE_";
 
 constexpr const char *SIM_VAR_AIRSPEED_TRUE = "AIRSPEED TRUE";
 constexpr const char *SIM_VAR_GROUND_VELOCITY = "GROUND VELOCITY";
@@ -61,6 +62,7 @@ struct VarManager {
     double distance = 0;             // LIBCIVA_DISTANCE_x
     double gs = 0;                   // LIBCIVA_GROUND_SPEED_x
     uint8_t valid = 0;               // LIBCIVA_VALID_x
+    uint8_t powerState = 0;          // LIBCIVA_POWER_STATE_x
   };
 #pragma pack(pop)
 

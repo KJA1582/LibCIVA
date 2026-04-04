@@ -566,7 +566,11 @@ Calculated ground speed in knots.
 | 1     | Attitude only |
 | 2     | Navigation    |
 
-### JS Example for MSFS
+### LIBCIVA_POWER_STATE_UNIT_x
+
+True if unit is powered on.
+
+## MSFS JS Example for display decoding
 
 ```js
 function CodeToChar(c) {

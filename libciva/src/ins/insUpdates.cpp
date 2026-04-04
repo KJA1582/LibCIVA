@@ -181,14 +181,29 @@ void INS::updateNav(const double dTime) noexcept {
 #pragma region Public
 
 void INS::updatePreMix(const double dTime) noexcept {
-  // Oven/Battery
-  temperatureBatterySim(dTime);
-  if (state > INS_STATE::OFF && (batteryRuntime == 0 || batteryTest == BATTERY_TEST::FAILED)) {
+  // Failed
+  if (state == INS_STATE::FAIL && !externalPower) {
     state = INS_STATE::FAIL;
     indicators.value = 0;
     indicators.indicator.MSU_BAT = true;
     valid = SIGNAL_VALIDITY::INV;
     clearDisplay();
+
+    return;
+  }
+
+  // Oven/Battery
+  temperatureBatterySim(dTime);
+  if (state > INS_STATE::OFF && (batteryRuntime <= 1 || batteryTest == BATTERY_TEST::FAILED)) {
+    state = INS_STATE::FAIL;
+    indicators.value = 0;
+    indicators.indicator.MSU_BAT = true;
+    valid = SIGNAL_VALIDITY::INV;
+    clearDisplay();
+
+#ifndef NDEBUG
+    Logger::GetInstance() << "Battery ran out\n";
+#endif
   }
 
   // Aux data
@@ -207,7 +222,7 @@ void INS::updatePreMix(const double dTime) noexcept {
     valid = SIGNAL_VALIDITY::ATT;
     clearDisplay();
 
-    double msuBat = indicators.indicator.MSU_BAT;
+    bool msuBat = indicators.indicator.MSU_BAT;
     indicators.value = 0;
     indicators.indicator.MSU_BAT = msuBat;
     activePerformanceIndex = PERFORMANCE_INDEX::UNAIDED;

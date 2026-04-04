@@ -153,6 +153,12 @@ static std::string getValuesLine6(const libciva::VarManager::UnitExport &ins) {
   return oss.str();
 }
 
+static std::string getPowerLine(const libciva::VarManager::UnitExport &ins) {
+  std::ostringstream oss;
+  oss << "Valid   : " << std::right << std::setfill(' ') << std::setw(13) << ins.powerState ? "Powered" : "Unpowered";
+  return oss.str();
+}
+
 static std::string getValidLine(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
   oss << "Valid   : " << std::right << std::setfill(' ') << std::setw(13)
@@ -170,12 +176,12 @@ static std::string getAutoManLine(const libciva::VarManager::UnitExport &ins) {
 
 static std::string getWptSelLine(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "Wpt Sel : " << std::right << std::setfill(' ') << std::setw(13) << ins.waypointSelectorPos;
+  oss << "Wpt Sel : " << std::right << std::setfill(' ') << std::setw(13) << (int)ins.waypointSelectorPos;
   return oss.str();
 }
 
 void WinVarManager::dump() const noexcept {
-  std::string lines[3][14];
+  std::string lines[3][15];
 
   for (int i = 0; i < 3; i++) {
     uint64_t combinedDisplay = ((uint64_t)unit[i].displayLeft | (((uint64_t)unit[i].displayRight) << 32));
@@ -196,9 +202,10 @@ void WinVarManager::dump() const noexcept {
     lines[i][11] = getAutoManLine(unit[i]);
     lines[i][12] = getWptSelLine(unit[i]);
     lines[i][13] = getValidLine(unit[i]);
+    lines[i][14] = getPowerLine(unit[i]);
   }
 
-  for (int l = 0; l <= 12; l++) {
+  for (int l = 0; l < 15; l++) {
     for (int i = 0; i < 3; i++) {
       const libciva::INDICATORS ind = *reinterpret_cast<const libciva::INDICATORS *>(&unit[i].indicators);
 
