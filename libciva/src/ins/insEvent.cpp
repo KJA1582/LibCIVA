@@ -226,10 +226,10 @@ void INS::handleNumeric(const uint8_t value) noexcept {
 
       if (value == 2 && insertMode == INSERT_MODE::INV) {
         insertMode = INSERT_MODE::POS_LAT;
-        startLatS(display, indicators, charactersRead);
+        startLatN(display, indicators, charactersRead);
       } else if (value == 8 && insertMode == INSERT_MODE::INV) {
         insertMode = INSERT_MODE::POS_LAT;
-        startLatN(display, indicators, charactersRead);
+        startLatS(display, indicators, charactersRead);
       } else if (insertMode == INSERT_MODE::POS_LAT && charactersRead < 5) {
         readLat(display, charactersRead, value);
       } else if (insertMode == INSERT_MODE::PRE_POS_LON && value == 4) {
