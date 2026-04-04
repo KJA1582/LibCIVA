@@ -61,7 +61,8 @@ static void handleSimConnect() {
       }
       case SIMCONNECT_RECV_ID_EXCEPTION: {
         SIMCONNECT_RECV_EXCEPTION *except = (SIMCONNECT_RECV_EXCEPTION *)pData;
-        libciva::Logger::GetInstance() << "SimConnect Exception: " << except->dwException << "\n";
+        libciva::Logger::GetInstance() << libciva::Logger::GetInstance().time() << "SimConnect Exception: " << except->dwException
+                                       << "\n";
         break;
       }
       default:
@@ -232,6 +233,9 @@ static void importSimBrief(std::shared_ptr<libciva::INS> unit1, std::shared_ptr<
 }
 
 int main() {
+  libciva::Logger::GetInstance() << libciva::Logger::GetInstance().time() << "civaWIN Example booting"
+                                 << "\n";
+
   setupSimConnect();
 
   winVarManager = std::make_unique<WinVarManager>();

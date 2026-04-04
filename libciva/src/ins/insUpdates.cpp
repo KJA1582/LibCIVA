@@ -157,12 +157,13 @@ void INS::updateNav(const double dTime) noexcept {
   if (autoModePassed || dist <= turnDist || passed) {
 
 #ifndef NDEBUG
-    if (autoModePassed) Logger::GetInstance() << "Min leg time delay\n";
-    if (passed) Logger::GetInstance() << "Waypoint was passed\n";
+    if (autoModePassed) Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Min leg time delay\n";
+    if (passed) Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Waypoint was passed\n";
 
-    Logger::GetInstance() << "Leg changed at " << dist << "/" << turnDist << " remaining from WPT " << (int)currentLegStart
-                          << " along " << track << " to WPT " << (int)currentLegEnd << ". Next crs " << nextCrs << " to WPT "
-                          << (int)((currentLegEnd % 9) + 1) << "\n";
+    Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Leg changed at " << dist << "/" << turnDist
+                          << " remaining from WPT " << (int)currentLegStart << " along " << track << " to WPT "
+                          << (int)currentLegEnd << ". Next crs " << nextCrs << " to WPT " << (int)((currentLegEnd % 9) + 1)
+                          << "\n";
 #endif
 
     currentLegStart = currentLegEnd;
@@ -202,7 +203,7 @@ void INS::updatePreMix(const double dTime) noexcept {
     clearDisplay();
 
 #ifndef NDEBUG
-    Logger::GetInstance() << "Battery ran out\n";
+    Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Battery ran out\n";
 #endif
   }
 
@@ -332,7 +333,7 @@ void INS::updatePostMix(const double dTime) noexcept {
 
   // Display
   if (state > INS_STATE::OFF && state < INS_STATE::ATT) {
-    if (displayTimer >= 0.5) {
+    if (displayTimer >= 0.25) {
       updateDisplay(dTime);
       displayTimer = 0;
     } else {

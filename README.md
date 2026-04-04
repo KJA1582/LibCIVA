@@ -24,6 +24,10 @@ Simulation of a Delco Electronics Carousel IV-A unit with flight program CIV-A-2
 - ADEU import logic (no failures)
   - ADEU, if available, is connected to all units
 
+## Not Implemented
+
+- Semi-permanent malfunction list due to lacking reference which malfunctions are stored in it
+
 ## Planned
 
 ## Wishes

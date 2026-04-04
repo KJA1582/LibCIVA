@@ -7,8 +7,6 @@
     - SB import
       - 24
         - Tie into JS example gauge
-- Logger add timestamp
-  - How to do since stream based
 - DME LL and FREQ XML events
   - Use new LVar?
   - Right-Click

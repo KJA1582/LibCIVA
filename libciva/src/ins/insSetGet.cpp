@@ -68,11 +68,11 @@ void INS::advanceActionMalfunctionIndex() noexcept {
 const POSITION INS::currentNavPosition(const double dTime) noexcept {
   if (currentTripleMixPosition.isValid()) {
     POSITION p =
-        currentINSPosition + (currentTripleMixPosition - currentINSPosition) * std::min(1.0, mixEaseTime / MIX_EASE_TIME);
-    mixEaseTime += dTime;
+        currentINSPosition + (currentTripleMixPosition - currentINSPosition) * std::min(1.0, mixEaseTimer / MIX_EASE_TIME);
+    mixEaseTimer += dTime;
     return p;
   } else {
-    mixEaseTime = 0;
+    mixEaseTimer = 0;
     return currentINSPosition;
   }
 }

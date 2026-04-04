@@ -520,14 +520,14 @@ void INS::alertLamp(const double dTime) noexcept {
       // We passed
       if (autoModePassed || !autoMode) {
         // Either in manual mode or flight time is < 25.6 in auto mode
-        if (flashTime < 1) {
+        if (flashTimer < 1) {
           indicators.indicator.ALERT = true;
-          flashTime += dTime;
-        } else if (flashTime < 2) {
+          flashTimer += dTime;
+        } else if (flashTimer < 2) {
           indicators.indicator.ALERT = false;
-          flashTime += dTime;
+          flashTimer += dTime;
         } else {
-          flashTime = 0;
+          flashTimer = 0;
         }
       } else {
         // Auto mode, this should hit when switching from MAN to AUTO

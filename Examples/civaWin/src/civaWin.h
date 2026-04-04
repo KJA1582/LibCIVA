@@ -12,7 +12,7 @@
 #define __restrict__
 
 // HACK
-#ifndef _MSC_VER
+#ifndef CIVA_WIN
 #include <__config>
 #undef _LIBCPP_HAS_NO_THREADS
 #endif

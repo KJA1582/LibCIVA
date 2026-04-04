@@ -186,9 +186,9 @@ class INS {
   // Speed drift in kts/s, minimum 0.05
   double speedDriftPerSecond = 0;
   // Easing timer
-  double mixEaseTime = 0;
+  double mixEaseTimer = 0;
   // Alert lamp flash timer
-  double flashTime = 0;
+  double flashTimer = 0;
   // Display update timer
   double displayTimer = 0;
   // Current INS State
