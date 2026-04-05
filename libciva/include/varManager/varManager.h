@@ -16,34 +16,34 @@
 
 namespace libciva {
 
-constexpr const char *DISPLAY_LEFT_VAR = "LIBCIVA_DISPLAY_LEFT_";
-constexpr const char *DISPLAY_RIGHT_VAR = "LIBCIVA_DISPLAY_RIGHT_";
-constexpr const char *INDICATORS_VAR = "LIBCIVA_INDICATORS_";
-constexpr const char *DATA_SELECTOR_POS_VAR = "LIBCIVA_DATA_SELECTOR_POS_";
-constexpr const char *MODE_SELECTOR_POS_VAR = "LIBCIVA_MODE_SELECTOR_POS_";
-constexpr const char *WAYPOINT_SELECTOR_POS_VAR = "LIBCIVA_WAYPOINT_SELECTOR_POS_";
-constexpr const char *AUTO_MAN_POS_VAR = "LIBCIVA_AUTO_MAN_POS_";
-constexpr const char *CROSS_TRACK_ERROR_VAR = "LIBCIVA_CROSS_TRACK_ERROR_";
-constexpr const char *DESIRED_TRACK_VAR = "LIBCIVA_DESIRED_TRACK_";
-constexpr const char *TRACK_VAR = "LIBCIVA_TRACK_";
-constexpr const char *TRACK_ANGLE_ERROR_VAR = "LIBCIVA_TRACK_ANGLE_ERROR_";
-constexpr const char *DISTANCE_VAR = "LIBCIVA_DISTANCE_";
-constexpr const char *GROUND_SPEED_VAR = "LIBCIVA_GROUND_SPEED_";
-constexpr const char *VALID_VAR = "LIBCIVA_VALID_";
-constexpr const char *POWER_STATE_VAR = "LIBCIVA_POWER_STATE_";
+static constexpr const char *DISPLAY_LEFT_VAR = "LIBCIVA_DISPLAY_LEFT_";
+static constexpr const char *DISPLAY_RIGHT_VAR = "LIBCIVA_DISPLAY_RIGHT_";
+static constexpr const char *INDICATORS_VAR = "LIBCIVA_INDICATORS_";
+static constexpr const char *DATA_SELECTOR_POS_VAR = "LIBCIVA_DATA_SELECTOR_POS_";
+static constexpr const char *MODE_SELECTOR_POS_VAR = "LIBCIVA_MODE_SELECTOR_POS_";
+static constexpr const char *WAYPOINT_SELECTOR_POS_VAR = "LIBCIVA_WAYPOINT_SELECTOR_POS_";
+static constexpr const char *AUTO_MAN_POS_VAR = "LIBCIVA_AUTO_MAN_POS_";
+static constexpr const char *CROSS_TRACK_ERROR_VAR = "LIBCIVA_CROSS_TRACK_ERROR_";
+static constexpr const char *DESIRED_TRACK_VAR = "LIBCIVA_DESIRED_TRACK_";
+static constexpr const char *TRACK_VAR = "LIBCIVA_TRACK_";
+static constexpr const char *TRACK_ANGLE_ERROR_VAR = "LIBCIVA_TRACK_ANGLE_ERROR_";
+static constexpr const char *DISTANCE_VAR = "LIBCIVA_DISTANCE_";
+static constexpr const char *GROUND_SPEED_VAR = "LIBCIVA_GROUND_SPEED_";
+static constexpr const char *VALID_VAR = "LIBCIVA_VALID_";
+static constexpr const char *POWER_STATE_VAR = "LIBCIVA_POWER_STATE_";
 
-constexpr const char *SIM_VAR_AIRSPEED_TRUE = "AIRSPEED TRUE";
-constexpr const char *SIM_VAR_GROUND_VELOCITY = "GROUND VELOCITY";
-constexpr const char *SIM_VAR_AMBIENT_TEMPERATURE = "AMBIENT TEMPERATURE";
-constexpr const char *SIM_VAR_AMBIENT_WIND_DIRECTION = "AMBIENT WIND DIRECTION";
-constexpr const char *SIM_VAR_AMBIENT_WIND_VELOCITY = "AMBIENT WIND VELOCITY";
-constexpr const char *SIM_VAR_PLANE_HEADING_DEGREES_TRUE = "PLANE HEADING DEGREES TRUE";
-constexpr const char *SIM_VAR_PLANE_LATITUDE = "PLANE LATITUDE";
-constexpr const char *SIM_VAR_PLANE_LONGITUDE = "PLANE LONGITUDE";
-constexpr const char *SIM_VAR_NAV_DME_1 = "NAV DME:1";
-constexpr const char *SIM_VAR_NAV_DME_2 = "NAV DME:2";
-constexpr const char *SIM_VAR_SIMULATION_RATE = "SIMULATION RATE";
-constexpr const char *SIM_VAR_PLANE_ALTITUDE = "PLANE ALTITUDE";
+static constexpr const char *SIM_VAR_AIRSPEED_TRUE = "AIRSPEED TRUE";
+static constexpr const char *SIM_VAR_GROUND_VELOCITY = "GROUND VELOCITY";
+static constexpr const char *SIM_VAR_AMBIENT_TEMPERATURE = "AMBIENT TEMPERATURE";
+static constexpr const char *SIM_VAR_AMBIENT_WIND_DIRECTION = "AMBIENT WIND DIRECTION";
+static constexpr const char *SIM_VAR_AMBIENT_WIND_VELOCITY = "AMBIENT WIND VELOCITY";
+static constexpr const char *SIM_VAR_PLANE_HEADING_DEGREES_TRUE = "PLANE HEADING DEGREES TRUE";
+static constexpr const char *SIM_VAR_PLANE_LATITUDE = "PLANE LATITUDE";
+static constexpr const char *SIM_VAR_PLANE_LONGITUDE = "PLANE LONGITUDE";
+static constexpr const char *SIM_VAR_NAV_DME_1 = "NAV DME:1";
+static constexpr const char *SIM_VAR_NAV_DME_2 = "NAV DME:2";
+static constexpr const char *SIM_VAR_SIMULATION_RATE = "SIMULATION RATE";
+static constexpr const char *SIM_VAR_PLANE_ALTITUDE = "PLANE ALTITUDE";
 
 struct VarManager {
 #pragma pack(push, 1)

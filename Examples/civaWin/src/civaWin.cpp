@@ -131,7 +131,7 @@ static void runner() {
                 << std::endl;
     }
 
-    constexpr int COL_WIDTH = 29;
+    static constexpr int COL_WIDTH = 29;
 
     if (selectedUnit == 4)
       std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "All units selected" << std::endl << std::endl;

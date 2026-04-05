@@ -18,10 +18,10 @@
 
 namespace libciva {
 
-constexpr double PI = 3.14159265358979323846;
-constexpr double EPSILON = 2.22044604925031308085e-16;
-constexpr double DEG2RAD = PI / 180.0;
-constexpr double RAD2DEG = 180.0 / PI;
+static constexpr double PI = 3.14159265358979323846;
+static constexpr double EPSILON = 2.22044604925031308085e-16;
+static constexpr double DEG2RAD = PI / 180.0;
+static constexpr double RAD2DEG = 180.0 / PI;
 
 enum class UNIT_COUNT : uint8_t {
   ONE,
