@@ -273,10 +273,10 @@ void INS::updateDisplay(const double dTime) noexcept {
           (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
         int16_t xtk = 0;
         if (insertMode == INSERT_MODE::WPT_CHG_FROM || insertMode == INSERT_MODE::WPT_CHG_TO) {
-          xtk = (int16_t)std::round(std::min(
+          xtk = (int16_t)std::round(std::fmin(
               9999.0, pos.crossTrackDistance(waypoints[display.characters.FROM], waypoints[display.characters.TO]) * 10));
         } else {
-          xtk = (int16_t)std::round(std::min(9999.0, crossTrackError * 10));
+          xtk = (int16_t)std::round(std::fmin(9999.0, crossTrackError * 10));
         }
 
         uint8_t xtkDir = DISPLAY_CHAR_RIGHT;
@@ -371,7 +371,7 @@ void INS::updateDisplay(const double dTime) noexcept {
         dist = waypoints[display.characters.FROM].distanceTo(waypoints[display.characters.TO]);
         if (state >= INS_STATE::ALIGN &&
             (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
-          time = gs > MIN_GS_TIME ? (int16_t)std::round(std::min(9999.0, (dist / gs) * 600)) : 9999;
+          time = gs > MIN_GS_TIME ? (int16_t)std::round(std::fmin(9999.0, (dist / gs) * 600)) : 9999;
         } else {
           time = 9999;
         }
@@ -379,13 +379,13 @@ void INS::updateDisplay(const double dTime) noexcept {
         dist = pos.distanceTo(waypoints[currentLegEnd]);
         if (state >= INS_STATE::ALIGN &&
             (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
-          time = gs > MIN_GS_TIME ? (int16_t)std::round(std::min(9999.0, (dist / gs) * 600)) : 9999;
+          time = gs > MIN_GS_TIME ? (int16_t)std::round(std::fmin(9999.0, (dist / gs) * 600)) : 9999;
         } else {
           time = 9999;
         }
       }
 
-      formatQuad(display, (uint16_t)std::round(std::min(9999.0, dist)), true, false, 0);
+      formatQuad(display, (uint16_t)std::round(std::fmin(9999.0, dist)), true, false, 0);
       if (time >= 0) {
         formatQuad(display, time, false, false, 0, true);
       } else {
@@ -414,7 +414,7 @@ void INS::updateDisplay(const double dTime) noexcept {
         display.characters.LEFT_5 = display.characters.RIGHT_6 = 0;
       } else {
         double dir = std::round(varManager.sim.ambientWindDirection);
-        double speed = std::min(std::round(varManager.sim.ambientWindVelocity), 606.0);
+        double speed = std::fmin(std::round(varManager.sim.ambientWindVelocity), 606.0);
 
         formatTri(display, dir, true, false, 0);
         formatTri(display, speed, false, false, 0);
@@ -452,7 +452,7 @@ void INS::updateDisplay(const double dTime) noexcept {
 
       if (state == INS_STATE::NAV) {
         display.characters.RIGHT_1 = 1;
-        display.characters.RIGHT_5 = std::min(accuracyIndex, (uint8_t)9);
+        display.characters.RIGHT_5 = std::fmin(accuracyIndex, (uint8_t)9);
       } else {
         display.characters.RIGHT_1 = 0;
         display.characters.RIGHT_5 = (uint8_t)alignSubmode;

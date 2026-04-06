@@ -38,11 +38,11 @@ INS::~INS() noexcept {
 void INS::temperatureBatterySim(const double dTime) noexcept {
   // Battery
   if (externalPower) {
-    batteryRuntime = std::min((double)(hasExpandedBattery ? EXPANDED_BATTERY_DURATION : BATTERY_DURATION),
+    batteryRuntime = std::fmin((double)(hasExpandedBattery ? EXPANDED_BATTERY_DURATION : BATTERY_DURATION),
                               batteryRuntime + CHARGE_RATE * dTime);
     if (batteryTest != BATTERY_TEST::RUNNING && !inTestMode) indicators.indicator.CDU_BAT = false;
   } else if (state > INS_STATE::OFF && !externalPower) {
-    batteryRuntime = std::max(0.0, batteryRuntime - dTime);
+    batteryRuntime = std::fmax(0.0, batteryRuntime - dTime);
     if (batteryTest != BATTERY_TEST::RUNNING) indicators.indicator.CDU_BAT = true;
   }
 

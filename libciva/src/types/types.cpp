@@ -95,8 +95,8 @@ POSITION POSITION::intersection(const double bearing1, const POSITION &pos, cons
   // initial/final bearings between points
   double cosθa = (std::sin(φ2) - std::sin(φ1) * std::cos(δ12)) / (std::sin(δ12) * std::cos(φ1));
   double cosθb = (std::sin(φ1) - std::sin(φ2) * std::cos(δ12)) / (std::sin(δ12) * std::cos(φ2));
-  double θa = std::acos(std::min(std::max(cosθa, -1.0), 1.0)); // protect against rounding errors
-  double θb = std::acos(std::min(std::max(cosθb, -1.0), 1.0)); // protect against rounding errors
+  double θa = std::acos(std::fmin(std::fmax(cosθa, -1.0), 1.0)); // protect against rounding errors
+  double θb = std::acos(std::fmin(std::fmax(cosθb, -1.0), 1.0)); // protect against rounding errors
 
   double θ12 = std::sin(λ2 - λ1) > 0 ? θa : 2 * PI - θa;
   double θ21 = std::sin(λ2 - λ1) > 0 ? 2 * PI - θb : θb;
@@ -112,7 +112,7 @@ POSITION POSITION::intersection(const double bearing1, const POSITION &pos, cons
   double δ13 = std::atan2(std::sin(δ12) * std::sin(α1) * std::sin(α2), std::cos(α2) + std::cos(α1) * cosα3);
 
   double φ3 =
-      std::asin(std::min(std::max(std::sin(φ1) * std::cos(δ13) + std::cos(φ1) * std::sin(δ13) * std::cos(θ13), -1.0), 1.0));
+      std::asin(std::fmin(std::fmax(std::sin(φ1) * std::cos(δ13) + std::cos(φ1) * std::sin(δ13) * std::cos(θ13), -1.0), 1.0));
 
   double Δλ13 = std::atan2(std::sin(θ13) * std::sin(δ13) * std::cos(φ1), std::cos(δ13) - std::sin(φ1) * std::sin(φ3));
   double λ3 = λ1 + Δλ13;

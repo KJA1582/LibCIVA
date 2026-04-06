@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const BASE_DIRS = ['libciva', 'Examples/xkhofmann-fss-aircraft-boeing-727-civa/PackageSources/wasm-module'];
+const BASE_DIRS = ['libciva', './Examples/xkhofmann-fss-aircraft-boeing-727-civa/PackageSources/wasm-module'];
 
 let THRESHOLD = parseInt(process.argv.at(-1) ?? 1024);
 THRESHOLD = isNaN(THRESHOLD) ? 1024 : THRESHOLD;

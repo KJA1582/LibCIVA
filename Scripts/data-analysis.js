@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const data = fs.readFileSync('Examples/civaWin/out/Debug/pos_log.csv', { encoding: 'utf-8' }).split('\n');
+const data = fs.readFileSync('./inputs/pos_log.csv', { encoding: 'utf-8' }).split('\n');
 
 const output = {
   type: 'FeatureCollection',
@@ -151,4 +151,4 @@ output.features.push(unit2String);
 output.features.push(unit3String);
 output.features.push(...dmeUpdates);
 
-fs.writeFileSync('pos_log.geojson', JSON.stringify(output), { encoding: 'utf-8' });
+fs.writeFileSync('./outputs/pos_log.geojson', JSON.stringify(output), { encoding: 'utf-8' });

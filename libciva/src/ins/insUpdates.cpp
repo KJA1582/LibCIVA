@@ -20,7 +20,7 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
   if (!simPos.isValid()) return;
 
   // Max error at 500 GS, base of 0.5kts
-  double speedScalar = std::max(0.001, groundSpeed / DRIFT_GS);
+  double speedScalar = std::fmax(0.001, groundSpeed / DRIFT_GS);
   // Radial gain
   double errorRadial = radialDriftPerSecond * speedScalar;
   initialRadialError += errorRadial * dTime;
@@ -48,12 +48,12 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
 
     // Dual DME
     if (dual) {
-      double newError = std::max(DUAL_DME_MIN_ERROR, currentDistanceError - DME_CORRECTION * dTime);
+      double newError = std::fmax(DUAL_DME_MIN_ERROR, currentDistanceError - DME_CORRECTION * dTime);
       if (newError < currentDistanceError) currentDistanceError = newError;
     }
     // Single
     else if (single) {
-      double newError = std::max(SINGLE_DME_MIN_ERROR, currentDistanceError - DME_CORRECTION * dTime);
+      double newError = std::fmax(SINGLE_DME_MIN_ERROR, currentDistanceError - DME_CORRECTION * dTime);
       if (newError < currentDistanceError) currentDistanceError = newError;
     }
     // Aided, but not updating
@@ -118,7 +118,7 @@ void INS::updateMetrics(const double dTime) noexcept {
 
   /* GS */
 
-  groundSpeed = varManager.sim.groundVelocity + speedDriftPerSecond * std::max(0.0, groundSpeed / DRIFT_GS) * dTime;
+  groundSpeed = varManager.sim.groundVelocity + speedDriftPerSecond * std::fmax(0.0, groundSpeed / DRIFT_GS) * dTime;
 }
 
 void INS::updateNav(const double dTime) noexcept {

@@ -26,7 +26,7 @@ static void handleSimConnect() {
     switch (pData->dwID) {
       case SIMCONNECT_RECV_ID_EVENT: {
         SIMCONNECT_RECV_EVENT *evt = (SIMCONNECT_RECV_EVENT *)pData;
-        if (evt->uEventID == EVENT_ID_PAUSE) {
+        if (evt->uEventID == EVENT_DEFINITIONS_PAUSE) {
           simPaused = evt->dwData != 0;
         }
         break;
@@ -174,7 +174,7 @@ static void setupSimConnect() {
   hr = SimConnect_Open(&simConnect, "civaWin", NULL, 0, NULL, 0);
   if (FAILED(hr)) return;
 
-  SimConnect_SubscribeToSystemEvent(simConnect, EVENT_ID_PAUSE, "Pause_EX1");
+  SimConnect_SubscribeToSystemEvent(simConnect, EVENT_DEFINITIONS_PAUSE, "Pause_EX1");
 
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_AIRSPEED_TRUE, "KNOT");
   SimConnect_AddToDataDefinition(simConnect, DATA_DEFINITIONS_DATA, libciva::SIM_VAR_GROUND_VELOCITY, "KNOT");

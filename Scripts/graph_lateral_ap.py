@@ -5,7 +5,7 @@ timestamps: list[float] = []
 desiredBanks: list[float] = []
 actualBanks: list[float] = []
 
-with open('./Examples/civaWin/out/Debug/lateral_autopilot_log.csv', 'r') as f:
+with open('./inputs/lateral_autopilot_log.csv', 'r') as f:
     reader = csv.DictReader(f)
     for row in reader:
         timestamps.append(float(row['timestamp']))

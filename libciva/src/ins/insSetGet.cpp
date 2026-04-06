@@ -68,7 +68,7 @@ void INS::advanceActionMalfunctionIndex() noexcept {
 const POSITION INS::currentNavPosition(const double dTime) noexcept {
   if (currentTripleMixPosition.isValid()) {
     POSITION p =
-        currentINSPosition + (currentTripleMixPosition - currentINSPosition) * std::min(1.0, mixEaseTimer / MIX_EASE_TIME);
+        currentINSPosition + (currentTripleMixPosition - currentINSPosition) * std::fmin(1.0, mixEaseTimer / MIX_EASE_TIME);
     mixEaseTimer += dTime;
     return p;
   } else {
@@ -89,12 +89,12 @@ void INS::calculateTrack() noexcept {
   }
 
   double _trueHeading = trueHeading * DEG2RAD;
-  double _windDir = std::fmod(windDir + 180, 360) * DEG2RAD;
+  double _windDir = std::fmod(windDir + 180.0, 360.0) * DEG2RAD;
 
-  track = std::fmod(360 + (std::atan2(tas * std::sin(_trueHeading) + windSpeed * std::sin(_windDir),
-                                      tas * std::cos(_trueHeading) + windSpeed * std::cos(_windDir))) *
-                              RAD2DEG,
-                    360);
+  track = std::fmod(360.0 + (std::atan2(tas * std::sin(_trueHeading) + windSpeed * std::sin(_windDir),
+                                        tas * std::cos(_trueHeading) + windSpeed * std::cos(_windDir))) *
+                                RAD2DEG,
+                    360.0);
 }
 
 void INS::exportVars() const noexcept {

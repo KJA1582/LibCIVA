@@ -367,3 +367,6 @@ FodyWeavers.xsd
 
 # Data dumps for Debug
 pos_log.geojson
+
+Scripts/inputs
+Scripts/outputs

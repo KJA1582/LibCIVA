@@ -9,13 +9,11 @@
         - Tie into JS example gauge
 - ModelMerge
   - DME Update indicator
+  - ADEU?
+    - SB import, inc. batching (like ini, but graphically cooler)
 - AP
-  - Requires copy of sources from civaWIN
-    - LNAV
-      - Modify to drive bank ref, not direct aileron control
-        - Keep within 10 °/s rate of roll
-      - Check if in AUX NAV
-      - AUTOPILOT BANK HOLD REF can be used
+  - Test
+
 
 # Updating
 

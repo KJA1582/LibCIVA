@@ -89,7 +89,7 @@ void INS::align(const double dTime) noexcept {
         timeInMode = 0;
       }
       radialScalarAlignTime =
-          std::max(0.0, radialScalarAlignTime - dTime * MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME / (5.0 * MODE_5_TO_0));
+          std::fmax(0.0, radialScalarAlignTime - dTime * MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME / (5.0 * MODE_5_TO_0));
       break;
     }
     case ALIGN_SUBMODE::MODE_0: {
