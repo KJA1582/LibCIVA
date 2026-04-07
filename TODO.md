@@ -13,6 +13,7 @@
     - SB import, inc. batching (like ini, but graphically cooler)
 - AP
   - Test
+- DME update criteria for single unit/unit w/o connection (UNIT3)
 
 # Updating
 

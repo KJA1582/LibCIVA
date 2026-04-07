@@ -515,6 +515,11 @@ void INS::handleInsert() noexcept {
     case INSERT_MODE::WPT_CHG_TO: {
       if (dmeMode != DME_MODE::INV) {
         if (hasDME && activePerformanceIndex == PERFORMANCE_INDEX::AIDED) {
+#ifndef NDEBUG
+          Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1
+                                << " -- DME designated: " << (int)display.characters.TO << "\n";
+#endif
+
           activeDME = display.characters.TO;
           timeInDME = 0;
           dmeArmed = activeDME > 0;

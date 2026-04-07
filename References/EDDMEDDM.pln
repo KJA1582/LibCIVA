@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SimBase.Document>
+    <FlightPlan.FlightPlan>
+        <DepartureID>EDDM</DepartureID>
+        <DestinationID>EDDM</DestinationID>
+        <Title>EDDM - EDDM</Title>
+        <Descr>EDDM to EDDM created by SimBrief</Descr>
+        <FPType>IFR</FPType>
+        <CruisingAlt>20000</CruisingAlt>
+        <AppVersion>
+            <AppVersionMajor>12</AppVersionMajor>
+        </AppVersion>
+        <ATCWaypoint id="4820N01148E">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N48° 20' 42.00",E11° 48' 12.00",+000000.00</WorldPosition>
+        </ATCWaypoint>
+        <ATCWaypoint id="50N011E">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N50° 0' 0.00",E11° 0' 0.00",+000000.00</WorldPosition>
+        </ATCWaypoint>
+        <ATCWaypoint id="50N010E">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N50° 0' 0.00",E10° 0' 0.00",+000000.00</WorldPosition>
+        </ATCWaypoint>
+        <ATCWaypoint id="50N009E">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N50° 0' 0.00",E9° 0' 0.00",+000000.00</WorldPosition>
+        </ATCWaypoint>
+        <ATCWaypoint id="50N008E">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N50° 0' 0.00",E8° 0' 0.00",+000000.00</WorldPosition>
+        </ATCWaypoint>
+        <ATCWaypoint id="51N008E">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N51° 0' 0.00",E8° 0' 0.00",+000000.00</WorldPosition>
+        </ATCWaypoint>
+        <ATCWaypoint id="52N009E">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N52° 0' 0.00",E9° 0' 0.00",+000000.00</WorldPosition>
+        </ATCWaypoint>
+        <ATCWaypoint id="5130N00930E">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N51° 30' 0.00",E9° 30' 0.00",+000000.00</WorldPosition>
+        </ATCWaypoint>
+        <ATCWaypoint id="52N010E">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N52° 0' 0.00",E10° 0' 0.00",+000000.00</WorldPosition>
+        </ATCWaypoint>
+        <ATCWaypoint id="51N011E">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N51° 0' 0.00",E11° 0' 0.00",+000000.00</WorldPosition>
+        </ATCWaypoint>
+        <ATCWaypoint id="50N011E">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N50° 0' 0.00",E11° 0' 0.00",+000000.00</WorldPosition>
+        </ATCWaypoint>
+    </FlightPlan.FlightPlan>
+</SimBase.Document>

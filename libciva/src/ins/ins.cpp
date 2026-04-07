@@ -39,7 +39,7 @@ void INS::temperatureBatterySim(const double dTime) noexcept {
   // Battery
   if (externalPower) {
     batteryRuntime = std::fmin((double)(hasExpandedBattery ? EXPANDED_BATTERY_DURATION : BATTERY_DURATION),
-                              batteryRuntime + CHARGE_RATE * dTime);
+                               batteryRuntime + CHARGE_RATE * dTime);
     if (batteryTest != BATTERY_TEST::RUNNING && !inTestMode) indicators.indicator.CDU_BAT = false;
   } else if (state > INS_STATE::OFF && !externalPower) {
     batteryRuntime = std::fmax(0.0, batteryRuntime - dTime);
@@ -161,6 +161,11 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
   // Not min time, wait
   if (timeInDME < MIN_DME_TIME) return;
 
+  // FIXME: Check if the unit exists and has a DME connection
+  // i.e. for unit1, check if hasDME is true
+  // for offside unit, check if exists and if it's hasDME is true
+  // esp. needed for unit3
+
   // Get DME values
   double dmeDist1 = varManager.sim.navDme1;
   double dmeDist2 = varManager.sim.navDme2;
@@ -168,6 +173,11 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
   // Drop out of DME if not valid
   bool dmeValid = dmeDist1 > 0 || dmeDist2 > 0;
   if (!dmeValid) {
+#ifndef NDEBUG
+    Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1
+                          << " -- DME dropout validity - 1: " << dmeDist1 << ", 2: " << dmeDist2 << "\n";
+#endif
+
     dmeArmed = dmeUpdating = false;
     activeDME = 0;
     if (unitIndex == UNIT_INDEX::UNIT_1) indicators.indicator.DME1 = false;
@@ -186,8 +196,14 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
   double targetAccuracy = 2 * (accuracyIndex + 1 + timeInMode / TIME_PER_AI);
 
   // Check if either units DME data is valid
-  if (std::fabs(gcDist - slantCorrectedDMEDist1) < targetAccuracy &&
-      std::fabs(gcDist - slantCorrectedDMEDist2) < targetAccuracy) {
+  if (std::fabs(gcDist - slantCorrectedDMEDist1) > targetAccuracy &&
+      std::fabs(gcDist - slantCorrectedDMEDist2) > targetAccuracy) {
+#ifndef NDEBUG
+    Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1
+                          << " -- DME dropout distance - 1: " << std::fabs(gcDist - slantCorrectedDMEDist1)
+                          << ", 2: " << std::fabs(gcDist - slantCorrectedDMEDist2) << ", THR: " << targetAccuracy << "\n";
+#endif
+
     dmeArmed = dmeUpdating = false;
     activeDME = 0;
     if (unitIndex == UNIT_INDEX::UNIT_1) indicators.indicator.DME1 = false;
@@ -197,6 +213,10 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
 
   // Enter update mode
   if (!dmeUpdating) {
+#ifndef NDEBUG
+    Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1 << " -- DME updating\n";
+#endif
+
     dmeUpdating = true;
     if (unitIndex == UNIT_INDEX::UNIT_1) indicators.indicator.DME1 = true;
     if (unitIndex == UNIT_INDEX::UNIT_2) indicators.indicator.DME2 = true;

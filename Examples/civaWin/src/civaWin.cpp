@@ -61,8 +61,8 @@ static void handleSimConnect() {
       }
       case SIMCONNECT_RECV_ID_EXCEPTION: {
         SIMCONNECT_RECV_EXCEPTION *except = (SIMCONNECT_RECV_EXCEPTION *)pData;
-        libciva::Logger::GetInstance() << libciva::Logger::GetInstance().time() << "SimConnect Exception: " << except->dwException
-                                       << "\n";
+        libciva::Logger::GetInstance() << libciva::Logger::GetInstance().time()
+                                       << "civaWin -- SimConnect Exception: " << except->dwException << "\n";
         break;
       }
       default:
@@ -98,8 +98,8 @@ static void runner() {
                                  winVarManager->unit[0].track, winVarManager->unit[0].crossTrackError,
                                  winVarManager->unit[0].trackAngleError, winVarManager->unit[0].desiredTrack);
 
-        verticalAutopilot->update(delta.count() * 1e-9 * winVarManager->simRate, winVarManager->sim.planeAltitude, winVarManager->pitchAngle,
-                                  winVarManager->pitchRate);
+        verticalAutopilot->update(delta.count() * 1e-9 * winVarManager->simRate, winVarManager->sim.planeAltitude,
+                                  winVarManager->pitchAngle, winVarManager->pitchRate);
 
         if (simConnect != NULL && lateralAutopilot->isEnabled()) {
           int16_t aileron = lateralAutopilot->getOutput();
@@ -233,7 +233,7 @@ static void importSimBrief(std::shared_ptr<libciva::INS> unit1, std::shared_ptr<
 }
 
 int main() {
-  libciva::Logger::GetInstance() << libciva::Logger::GetInstance().time() << "civaWIN Example booting"
+  libciva::Logger::GetInstance() << libciva::Logger::GetInstance().time() << "civaWin -- civaWIN Example booting"
                                  << "\n";
 
   setupSimConnect();

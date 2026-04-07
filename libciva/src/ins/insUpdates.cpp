@@ -76,7 +76,7 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
 
     // AI
     if (timeInMode >= DME_AI_TIME) {
-      accuracyIndex = (uint8_t)std::max(dual ? 1 : 0, accuracyIndex - 1);
+      accuracyIndex = (uint8_t)std::max(dual ? 0 : 1, accuracyIndex - 1);
       timeInMode = 0;
     }
   } else {
@@ -159,13 +159,19 @@ void INS::updateNav(const double dTime) noexcept {
   if (autoModePassed || dist <= turnDist || passed) {
 
 #ifndef NDEBUG
-    if (autoModePassed) Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Min leg time delay\n";
-    if (passed) Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Waypoint was passed\n";
+    if (autoModePassed) {
+      Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1
+                            << " -- Min leg time delay\n";
+    }
+    if (passed) {
+      Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1
+                            << " -- Waypoint was passed\n";
+    }
 
-    Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Leg changed at " << dist << "/" << turnDist
-                          << " remaining from WPT " << (int)currentLegStart << " along " << track << " to WPT "
-                          << (int)currentLegEnd << ". Next crs " << nextCrs << " to WPT " << (int)((currentLegEnd % 9) + 1)
-                          << "\n";
+    Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1 << " -- Leg changed at "
+                          << dist << "/" << turnDist << " remaining from WPT " << (int)currentLegStart << " along " << track
+                          << " to WPT " << (int)currentLegEnd << ". Next crs " << nextCrs << " to WPT "
+                          << (int)((currentLegEnd % 9) + 1) << "\n";
 #endif
 
     currentLegStart = currentLegEnd;
