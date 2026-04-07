@@ -64,7 +64,7 @@ public:
     if (count == UNIT_COUNT::THREE) unit3->connectUnit3(unit2.get());
 
 #ifndef NDEBUG
-    posLog = std::ofstream(WORK_DIR "pos_log.csv", std::ios::trunc);
+    posLog = std::ofstream(WORK_DIR "/pos_log.csv", std::ios::trunc);
 #endif
   }
 

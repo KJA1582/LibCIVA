@@ -235,7 +235,9 @@ class INS {
   // AUTO/MAN
   bool autoMode = true;
   // If the waypoint was passed in auto mode
-  bool autoModePassed = true;
+  bool autoModePassed = false;
+  // If the aircraft has faced the current TO waypoint at least once
+  bool hasFacedToWaypoint = false;
   // If ADEU is connected
   bool hasADEU = false;
   // If DME is connected
@@ -343,7 +345,7 @@ public:
 
   // Only unused waypoints are updated, if leg is 3-6, then 7,8,9,1,2 are updated
   // If leg is 0-3, 4,5,6,7,8,9 are updated
-  // At most 8 waypoints will be imported (2,3,4,5,6,7,8,9)
+  // At most 9 waypoints will be imported (1,2,3,4,5,6,7,8,9), but only if 0-0 is active leg
   void remoteInsertWPT(const POSITION (&wpt)[9]) noexcept;
 
 #pragma endregion

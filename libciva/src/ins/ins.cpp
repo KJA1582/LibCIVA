@@ -161,21 +161,23 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
   // Not min time, wait
   if (timeInDME < MIN_DME_TIME) return;
 
-  // FIXME: Check if the unit exists and has a DME connection
-  // i.e. for unit1, check if hasDME is true
-  // for offside unit, check if exists and if it's hasDME is true
-  // esp. needed for unit3
+  // Unit DME status
+  // Unit 3 exits at the top, so here we are either unit1 (with unit2 pointing to unit 2)
+  // or unit2 (with unit2 pointing to unit 1)
+  // Offside check hence only requires to check for unit2 presence and unit2 DME connection
+  bool offsideHasDME = unit2 && unit2->hasDME;
 
   // Get DME values
-  double dmeDist1 = varManager.sim.navDme1;
-  double dmeDist2 = varManager.sim.navDme2;
+  double selfDist = unitIndex == UNIT_INDEX::UNIT_1 ? varManager.sim.navDme1 : varManager.sim.navDme1;
+  double offsideDist = unitIndex == UNIT_INDEX::UNIT_1 ? varManager.sim.navDme2 : varManager.sim.navDme1;
 
   // Drop out of DME if not valid
-  bool dmeValid = dmeDist1 > 0 || dmeDist2 > 0;
+  bool dmeValid = selfDist > 0 || (offsideHasDME && offsideDist > 0);
   if (!dmeValid) {
 #ifndef NDEBUG
     Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1
-                          << " -- DME dropout validity - 1: " << dmeDist1 << ", 2: " << dmeDist2 << "\n";
+                          << " -- DME dropout validity - 1: " << selfDist << ", 2: " << offsideDist
+                          << ", Offside DME: " << (offsideHasDME ? "Yes" : "No") << "\n";
 #endif
 
     dmeArmed = dmeUpdating = false;
@@ -190,18 +192,18 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
 
   double alt = varManager.sim.planeAltitude;
   double gcDist = dme.position.distanceTo((currentINSPosition));
-  double slantCorrectedDMEDist1 = std::sqrt(std::pow(dmeDist1, 2) - std::pow((alt - dme.altitude) * 0.000164579, 2));
-  double slantCorrectedDMEDist2 = std::sqrt(std::pow(dmeDist2, 2) - std::pow((alt - dme.altitude) * 0.000164579, 2));
+  double slantCorrectedSelfDist = std::sqrt(std::pow(selfDist, 2) - std::pow((alt - dme.altitude) * 0.000164579, 2));
+  double slantCorrectedOffsideDist = std::sqrt(std::pow(offsideDist, 2) - std::pow((alt - dme.altitude) * 0.000164579, 2));
   // In lieu of specified reasonability checks, assume that if an error twice that of the AI exists, something is wrong
   double targetAccuracy = 2 * (accuracyIndex + 1 + timeInMode / TIME_PER_AI);
 
   // Check if either units DME data is valid
-  if (std::fabs(gcDist - slantCorrectedDMEDist1) > targetAccuracy &&
-      std::fabs(gcDist - slantCorrectedDMEDist2) > targetAccuracy) {
+  if (std::fabs(gcDist - slantCorrectedSelfDist) > targetAccuracy &&
+      std::fabs(gcDist - slantCorrectedOffsideDist) > targetAccuracy) {
 #ifndef NDEBUG
     Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1
-                          << " -- DME dropout distance - 1: " << std::fabs(gcDist - slantCorrectedDMEDist1)
-                          << ", 2: " << std::fabs(gcDist - slantCorrectedDMEDist2) << ", THR: " << targetAccuracy << "\n";
+                          << " -- DME dropout distance - 1: " << std::fabs(gcDist - slantCorrectedSelfDist)
+                          << ", 2: " << std::fabs(gcDist - slantCorrectedOffsideDist) << ", THR: " << targetAccuracy << "\n";
 #endif
 
     dmeArmed = dmeUpdating = false;

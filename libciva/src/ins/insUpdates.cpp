@@ -134,7 +134,19 @@ void INS::updateNav(const double dTime) noexcept {
 
   double nextCrs = waypoints[currentLegEnd].bearingTo(waypoints[(currentLegEnd % 9) + 1]);
   double dist = pos.distanceTo(waypoints[currentLegEnd]);
-  double passed = !waypoints[currentLegEnd].inFront(pos, track);
+
+  if (!hasFacedToWaypoint) {
+    hasFacedToWaypoint = absDeltaAngle(desiredTrack, track) < 45.0; // quite tight, but needed
+
+#ifndef NDEBUG
+    if (hasFacedToWaypoint) {
+      Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1
+                            << " -- Faced TO waypoint\n";
+    }
+#endif
+  }
+
+  double passed = hasFacedToWaypoint && !waypoints[currentLegEnd].inFront(pos, track);
 
   // Not yet flown min leg time
   if (timeInLeg < MIN_LEG_TIME) {
@@ -177,7 +189,7 @@ void INS::updateNav(const double dTime) noexcept {
     currentLegStart = currentLegEnd;
     currentLegEnd = (currentLegEnd % 9) + 1;
     indicators.indicator.ALERT = false;
-    autoModePassed = false;
+    autoModePassed = hasFacedToWaypoint = false;
     timeInLeg = 0;
     return;
   }
@@ -211,7 +223,7 @@ void INS::updatePreMix(const double dTime) noexcept {
     clearDisplay();
 
 #ifndef NDEBUG
-    Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Battery ran out\n";
+    Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1 << "Battery ran out\n";
 #endif
   }
 
@@ -342,7 +354,7 @@ void INS::updatePostMix(const double dTime) noexcept {
 
   // Display
   if (state > INS_STATE::OFF && state < INS_STATE::ATT) {
-    if (displayTimer >= 0.25) {
+    if (displayTimer >= 0.1) {
       updateDisplay(dTime);
       displayTimer = 0;
     } else {

@@ -11,9 +11,9 @@
   - DME Update indicator
   - ADEU?
     - SB import, inc. batching (like ini, but graphically cooler)
+      - If not, slave to MSU bat, drop batching
 - AP
-  - Test
-- DME update criteria for single unit/unit w/o connection (UNIT3)
+  - Test, test, test
 
 # Updating
 

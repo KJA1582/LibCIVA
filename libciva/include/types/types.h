@@ -226,7 +226,7 @@ struct DME {
 #pragma region Helpers
 
 static inline double absDeltaAngle(const double x, const double y) noexcept {
-  return 180.0 - fabs(fmod(fabs(x - y), 2 * 180.0) - 180.0);
+  return 180.0 - std::fabs(std::fmod(std::fabs(x - y), 360.0) - 180.0);
 }
 
 static inline double deltaAngle(const double x, const double y) noexcept {

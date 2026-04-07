@@ -476,8 +476,6 @@ void INS::updateDisplay(const double dTime) noexcept {
         indicators.indicator.TO_BLINK = insertMode != INSERT_MODE::WPT_CHG_TO ? true : false;
         indicators.indicator.FROM_BLINK = false;
       } else if (insertMode != INSERT_MODE::WPT_CHG_FROM && insertMode != INSERT_MODE::WPT_CHG_TO) {
-        display.characters.FROM = waypointSelector;
-        display.characters.TO = DISPLAY_CHAR_BLANK;
         indicators.indicator.TO_BLINK = indicators.indicator.FROM_BLINK = false;
       }
       break;
@@ -536,6 +534,8 @@ void INS::alertLamp(const double dTime) noexcept {
     } else if (remTime <= LEG_TIME_ALERT) {
       // 2min alert
       indicators.indicator.ALERT = true;
+    } else {
+      indicators.indicator.ALERT = false;
     }
   }
 }

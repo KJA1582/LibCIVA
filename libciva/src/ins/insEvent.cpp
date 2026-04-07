@@ -516,7 +516,7 @@ void INS::handleInsert() noexcept {
       if (dmeMode != DME_MODE::INV) {
         if (hasDME && activePerformanceIndex == PERFORMANCE_INDEX::AIDED) {
 #ifndef NDEBUG
-          Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1
+          Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << (int)unitIndex
                                 << " -- DME designated: " << (int)display.characters.TO << "\n";
 #endif
 
