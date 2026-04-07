@@ -115,6 +115,7 @@ void INS::exportVars() const noexcept {
   unit.trackAngleError = trackAngleError;
   unit.distance = remainingDistance;
   unit.gs = groundSpeed;
+  unit.time = (remainingDistance / groundSpeed) * 60;
   unit.valid = (uint8_t)valid;
   unit.powerState = state != INS_STATE::OFF && state != INS_STATE::FAIL;
 }

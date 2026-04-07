@@ -98,6 +98,12 @@ void INS::updateMetrics(const double dTime) noexcept {
   double legCrs = waypoints[currentLegStart].bearingTo(waypoints[currentLegEnd]);
   POSITION alongPos = waypoints[currentLegStart].destination(alongDist, legCrs);
 
+  /* GS */
+
+  groundSpeed = varManager.sim.groundVelocity + speedDriftPerSecond * std::fmax(0.0, groundSpeed / DRIFT_GS) * dTime;
+
+  /* Remaining Distance */
+
   remainingDistance = alongPos.distanceTo(waypoints[currentLegEnd]);
 
   /* XTK */
@@ -115,10 +121,6 @@ void INS::updateMetrics(const double dTime) noexcept {
   /* TKE */
 
   trackAngleError = deltaAngle(desiredTrack, track);
-
-  /* GS */
-
-  groundSpeed = varManager.sim.groundVelocity + speedDriftPerSecond * std::fmax(0.0, groundSpeed / DRIFT_GS) * dTime;
 }
 
 void INS::updateNav(const double dTime) noexcept {
@@ -291,6 +293,7 @@ void INS::updatePreMix(const double dTime) noexcept {
         radialScalarAlignTime = MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME;
         initialDistanceError = currentDistanceError = 0;
         indicators.indicator.ALERT = false;
+        autoModePassed = false;
       }
 
       dmeUpdateChecks(dTime);

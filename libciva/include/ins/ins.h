@@ -34,9 +34,11 @@ static constexpr double HEATER_EFFICIENCY = 0.9;  // %
 static constexpr double UNIT_MASS = 5;            // kg
 static constexpr double UNIT_SPECIFIC_HEAT = 900; // J/(kg * K)
 
-static constexpr double MAX_BANK_ANGLE = 30; // °
-static constexpr double MAX_BANK_RATE = 10;  // °/s
-static constexpr double LEAD_CORRECTION = (MAX_BANK_ANGLE / MAX_BANK_RATE) / 3600.0;
+static constexpr double MAX_BANK_ANGLE = 30;      // °
+static constexpr double MAX_BANK_RATE = 10;       // °/s
+static constexpr double TIME_MAX_BANK_RATE = 0.5; // s, time it takes to hit max bank rate
+static constexpr double LEAD_CORRECTION =
+    (2 * TIME_MAX_BANK_RATE + (MAX_BANK_ANGLE - (2 * ((MAX_BANK_RATE / 2.0) * TIME_MAX_BANK_RATE))) / MAX_BANK_RATE) / 3600;
 
 static constexpr uint8_t MIN_MODE_8 = 51;
 static constexpr uint8_t MAX_MODE_7 = 90;        // Not specified in manual, but "shortly"

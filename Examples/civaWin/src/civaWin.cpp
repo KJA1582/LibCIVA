@@ -48,7 +48,7 @@ static void handleSimConnect() {
         winVarManager->sim.planeLongitude = data->longitude;
         winVarManager->sim.navDme1 = data->navDME1;
         winVarManager->sim.navDme2 = data->navDME2;
-        winVarManager->sim.simulationRate = data->simRate;
+        winVarManager->simRate = data->simRate;
         winVarManager->sim.planeAltitude = data->altitude;
 
         // Pure AP Demo
@@ -88,18 +88,18 @@ static void runner() {
       std::lock_guard<std::mutex> guard(lock);
 
       if (!simPaused) {
-        ins->update(delta.count() * 1e-9 * winVarManager->sim.simulationRate);
+        ins->update(delta.count() * 1e-9 * winVarManager->simRate);
 
         // Pure AP Demo
         if (lateralAutopilot->isEnabled() && winVarManager->unit[0].valid != (double)libciva::SIGNAL_VALIDITY::NAV)
           lateralAutopilot->disable();
 
-        lateralAutopilot->update(delta.count() * 1e-9 * winVarManager->sim.simulationRate, winVarManager->bankAngle,
-                                 winVarManager->rollRate, winVarManager->unit[0].track, winVarManager->unit[0].crossTrackError,
+        lateralAutopilot->update(delta.count() * 1e-9 * winVarManager->simRate, winVarManager->bankAngle, winVarManager->rollRate,
+                                 winVarManager->unit[0].track, winVarManager->unit[0].crossTrackError,
                                  winVarManager->unit[0].trackAngleError, winVarManager->unit[0].desiredTrack);
 
-        verticalAutopilot->update(delta.count() * 1e-9 * winVarManager->sim.simulationRate, winVarManager->sim.planeAltitude,
-                                  winVarManager->pitchAngle, winVarManager->pitchRate);
+        verticalAutopilot->update(delta.count() * 1e-9 * winVarManager->simRate, winVarManager->sim.planeAltitude, winVarManager->pitchAngle,
+                                  winVarManager->pitchRate);
 
         if (simConnect != NULL && lateralAutopilot->isEnabled()) {
           int16_t aileron = lateralAutopilot->getOutput();

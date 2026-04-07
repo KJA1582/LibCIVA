@@ -20,6 +20,9 @@
 
 class WinVarManager : public libciva::VarManager {
 public:
+  double simRate = 0;
+
+  // Pure AP Demo
   double rollRate = 0;
   double bankAngle = 0;
   double pitchRate = 0;

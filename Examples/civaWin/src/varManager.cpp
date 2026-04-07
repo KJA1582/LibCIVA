@@ -19,8 +19,9 @@ WinVarManager::WinVarManager() noexcept {
   sim.planeLongitude = 8;
   sim.navDme1 = 38.9; // for station at 50N009E, 1000ft, 112.00
   sim.navDme2 = 60.2; // for station at 51N008E, 1500ft, 111.00
-  sim.simulationRate = 1;
   sim.planeAltitude = 32000;
+
+  simRate = 1;
 
   // Pure AP Demo
   rollRate = 0;
@@ -153,6 +154,12 @@ static std::string getValuesLine6(const libciva::VarManager::UnitExport &ins) {
   return oss.str();
 }
 
+static std::string getValuesLine7(const libciva::VarManager::UnitExport &ins) {
+  std::ostringstream oss;
+  oss << "Time    : " << std::right << std::setfill(' ') << std::setw(13) << ins.time;
+  return oss.str();
+}
+
 static std::string getPowerLine(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
   oss << "Valid   : " << std::right << std::setfill(' ') << std::setw(13) << ins.powerState ? "Powered" : "Unpowered";
@@ -181,7 +188,7 @@ static std::string getWptSelLine(const libciva::VarManager::UnitExport &ins) {
 }
 
 void WinVarManager::dump() const noexcept {
-  std::string lines[3][15];
+  std::string lines[3][16];
 
   for (int i = 0; i < 3; i++) {
     uint64_t combinedDisplay = ((uint64_t)unit[i].displayLeft | (((uint64_t)unit[i].displayRight) << 32));
@@ -199,13 +206,14 @@ void WinVarManager::dump() const noexcept {
     lines[i][8] = getValuesLine4(unit[i]);
     lines[i][9] = getValuesLine5(unit[i]);
     lines[i][10] = getValuesLine6(unit[i]);
-    lines[i][11] = getAutoManLine(unit[i]);
-    lines[i][12] = getWptSelLine(unit[i]);
-    lines[i][13] = getValidLine(unit[i]);
-    lines[i][14] = getPowerLine(unit[i]);
+    lines[i][11] = getValuesLine6(unit[i]);
+    lines[i][12] = getAutoManLine(unit[i]);
+    lines[i][13] = getWptSelLine(unit[i]);
+    lines[i][14] = getValidLine(unit[i]);
+    lines[i][15] = getPowerLine(unit[i]);
   }
 
-  for (int l = 0; l < 15; l++) {
+  for (int l = 0; l < 16; l++) {
     for (int i = 0; i < 3; i++) {
       const libciva::INDICATORS ind = *reinterpret_cast<const libciva::INDICATORS *>(&unit[i].indicators);
 
@@ -233,7 +241,7 @@ void WinVarManager::dump() const noexcept {
   std::cout << "  Longitude      : " << std::right << std::setfill(' ') << std::setw(13) << sim.planeLongitude << std::endl;
   std::cout << "  NAV DME 1      : " << std::right << std::setfill(' ') << std::setw(13) << sim.navDme1 << std::endl;
   std::cout << "  NAV DME 2      : " << std::right << std::setfill(' ') << std::setw(13) << sim.navDme2 << std::endl;
-  std::cout << "  Simulation Rate: " << std::right << std::setfill(' ') << std::setw(13) << sim.simulationRate << std::endl;
+  std::cout << "  Simulation Rate: " << std::right << std::setfill(' ') << std::setw(13) << simRate << std::endl;
   std::cout << "  Plane Altitude : " << std::right << std::setfill(' ') << std::setw(13) << sim.planeAltitude << std::endl;
 
   // Pure AP Demo

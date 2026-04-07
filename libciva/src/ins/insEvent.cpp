@@ -328,7 +328,7 @@ void INS::handleInsert() noexcept {
       if (dataSelector != DATA_SELECTOR::POS) return;
 
       displayPosition.longitude = convertLon(display);
-      if (!displayPosition.isValid()) return; // Essential get the user stuck here
+      if (!displayPosition.isValid()) return; // Essentialy get the user stuck here
 
       if (state == INS_STATE::NAV && inHoldMode) {
         // Reject
@@ -531,6 +531,7 @@ void INS::handleInsert() noexcept {
       }
 
       indicators.indicator.WAYPOINT_CHANGE = indicators.indicator.ALERT = false;
+      autoModePassed = false;
 
       break;
     }

@@ -29,6 +29,7 @@ static constexpr const char *TRACK_VAR = "LIBCIVA_TRACK_";
 static constexpr const char *TRACK_ANGLE_ERROR_VAR = "LIBCIVA_TRACK_ANGLE_ERROR_";
 static constexpr const char *DISTANCE_VAR = "LIBCIVA_DISTANCE_";
 static constexpr const char *GROUND_SPEED_VAR = "LIBCIVA_GROUND_SPEED_";
+static constexpr const char *TIME_VAR = "LIBCIVA_TIME_";
 static constexpr const char *VALID_VAR = "LIBCIVA_VALID_";
 static constexpr const char *POWER_STATE_VAR = "LIBCIVA_POWER_STATE_";
 
@@ -61,6 +62,7 @@ struct VarManager {
     double trackAngleError = 0;      // LIBCIVA_TRACK_ANGLE_ERROR_x
     double distance = 0;             // LIBCIVA_DISTANCE_x
     double gs = 0;                   // LIBCIVA_GROUND_SPEED_x
+    double time = 0;                 // LIBCIVA_TIME_x
     uint8_t valid = 0;               // LIBCIVA_VALID_x
     uint8_t powerState = 0;          // LIBCIVA_POWER_STATE_x
   };
@@ -78,7 +80,6 @@ struct VarManager {
     double planeLongitude = 0;
     double navDme1 = -1;
     double navDme2 = -1;
-    double simulationRate = 1;
     double planeAltitude = 0;
   } sim;
 #pragma pack(pop)

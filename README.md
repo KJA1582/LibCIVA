@@ -234,10 +234,6 @@ void update(double deltaTime) {
     varManager.sim.ambientWindVelocity = readFromSim("AMBIENT WIND VELOCITY");
     varManager.sim.ambientTemperature = readFromSim("AMBIENT TEMPERATURE");
     varManager.sim.simulationRate = readFromSim("SIMULATION RATE");
-    varManager.sim.velocityWorldX = readFromSim("VELOCITY WORLD X");
-    varManager.sim.velocityWorldZ = readFromSim("VELOCITY WORLD Z");
-    varManager.sim.accelWorldX = readFromSim("ACCELERATION WORLD X");
-    varManager.sim.accelWorldZ = readFromSim("ACCELERATION WORLD Z");
 
     // 2. Update INS
     ins.update(deltaTime);
@@ -355,6 +351,19 @@ void importWaypoints(std::array<libciva::POSITION, 9> wptData) {
 }
 ```
 
+## Considerations for Autopilots
+
+The unit track change includes a turn anticipation. This anticipations is distance based using
+following parameters:
+
+- Bank during turn is 30°
+- Bank rate leading in and out of the turn is at max 10°/s until bank of 30° is reached
+- Time required to achieve bank rate is 0.5s.
+
+This reduces to a total time required for a 0° -> 30° -> 0° turn to be 7s long.
+Groundspeed is used to convert to distance, which is added to the turn distance calculates using
+the track angle delta of the inbound and new outbound track.
+
 # API Reference
 
 ## Data Input
@@ -424,6 +433,7 @@ struct UnitExport {
   double track = 0;                // LIBCIVA_TRACK_x
   double trackAngleError = 0;      // LIBCIVA_TRACK_ANGLE_ERROR_x
   double distance = 0;             // LIBCIVA_DISTANCE_x
+  double time = 0;                 // LIBCIVA_TIME_x
   double gs = 0;                   // LIBCIVA_GROUND_SPEED_x
   uint8_t valid = 0;               // LIBCIVA_VALID_x
 };
@@ -561,6 +571,10 @@ Along track remaining distance (nmi) to active waypoint.
 ### LIBCIVA_GROUND_SPEED_UNIT_x
 
 Calculated ground speed in knots.
+
+### LIBCIVA_TIME_UNIT_x
+
+Along track remaining time (min) to active waypoint.
 
 ### LIBCIVA_VALID_UNIT_x
 
