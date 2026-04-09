@@ -75,7 +75,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
-        __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_LIBCPP_STD_VER=14;_WINDLL;WORK_DIR="\\work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_LIBCPP_STD_VER=17;_WINDLL;WORK_DIR="\\work";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ShowIncludes>false</ShowIncludes>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeTypeInfo>
@@ -86,7 +86,8 @@
       <BasicRuntimeChecks>
       </BasicRuntimeChecks>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalOptions>/clang:-Wall /clang:-Wextra /clang:-pedantic /clang:-fstack-usage %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/clang:-Wall /clang:-Wextra /clang:-pedantic /clang:-fstack-usage
+        %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -128,11 +129,12 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>include;$(MSBuildProjectDirectory)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
-        __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_LIBCPP_STD_VER=14;_WINDLL;WORK_DIR="\\work";NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        __wasi__;_STRING_H_CPLUSPLUS_98_CONFORMANCE_;_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_;_LIBCPP_HAS_NO_THREADS;_LIBCPP_STD_VER=17;_WINDLL;WORK_DIR="\\work";NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>false</DebugInformationFormat>
       <SupportJustMyCode>
       </SupportJustMyCode>
-      <AdditionalOptions>/clang:-Wall /clang:-Wextra /clang:-pedantic /clang:-fstack-usage %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/clang:-Wall /clang:-Wextra /clang:-pedantic /clang:-fstack-usage
+        %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
