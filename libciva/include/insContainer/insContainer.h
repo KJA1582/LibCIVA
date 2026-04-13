@@ -122,6 +122,21 @@ public:
   handleEvent(std::function<void(std::shared_ptr<INS>, std::shared_ptr<INS>, std::shared_ptr<INS>)> callback) const noexcept {
     callback(unit1, unit2, unit3);
   }
+
+  inline void remoteInsert(const POSITION (&wpts)[9], const DME (&dmes)[9]) const noexcept {
+    if (unit1) {
+      unit1->remoteInsertWPT(wpts);
+      unit1->remoteInsertDME(dmes);
+    }
+    if (unit2) {
+      unit2->remoteInsertWPT(wpts);
+      unit2->remoteInsertDME(dmes);
+    }
+    if (unit3) {
+      unit3->remoteInsertWPT(wpts);
+      unit3->remoteInsertDME(dmes);
+    }
+  }
 };
 
 } // namespace libciva
