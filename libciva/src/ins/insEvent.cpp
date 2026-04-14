@@ -222,7 +222,6 @@ void INS::handleNumeric(const uint8_t value) noexcept {
   switch (dataSelector) {
     case DATA_SELECTOR::POS: {
       if (state == INS_STATE::NAV && !inHoldMode) break;
-      ;
 
       if (value == 2 && insertMode == INSERT_MODE::INV) {
         insertMode = INSERT_MODE::POS_LAT;
@@ -328,7 +327,7 @@ void INS::handleInsert() noexcept {
       if (dataSelector != DATA_SELECTOR::POS) return;
 
       displayPosition.longitude = convertLon(display);
-      if (!displayPosition.isValid()) return; // Essentialy get the user stuck here
+      if (!displayPosition.isValid()) return; // Essentially get the user stuck here
 
       if (state == INS_STATE::NAV && inHoldMode) {
         // Reject
@@ -689,6 +688,7 @@ void INS::handleInstantAlign() noexcept {
   double lat = varManager.sim.planeLatitude;
   double lon = varManager.sim.planeLongitude;
   initialINSPosition = currentINSPosition = displayPosition = {lat, lon};
+  simPosDelta = {0, 0};
 
   alignSubmode = ALIGN_SUBMODE::MODE_0;
   valid = SIGNAL_VALIDITY::ATT;
