@@ -4,9 +4,11 @@
 
 // For MSFS so IntelliSense doesn't crap out
 #ifndef __INTELLISENSE__
+#ifndef MODULE_EXPORT
 #define MODULE_EXPORT __attribute__((visibility("default")))
-#define CIVA_EXPORT __attribute__((visibility("default")))
 #define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
+#endif
+#define CIVA_EXPORT __attribute__((visibility("default")))
 #else
 #if defined(WIN32) && defined(SHARED)
 #define CIVA_EXPORT __declspec(dllexport)

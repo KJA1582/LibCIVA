@@ -3,8 +3,10 @@
 
 // For MSFS so IntelliSense doesn't crap out
 #ifndef __INTELLISENSE__
+#ifndef MODULE_EXPORT
 #define MODULE_EXPORT __attribute__((visibility("default")))
 #define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
+#endif
 #else
 #define MODULE_EXPORT
 #define MODULE_WASM_MODNAME(mod)
@@ -72,7 +74,7 @@ struct VarManager {
   struct SimVars {
     double airspeedTrue = 0;
     double groundVelocity = 0;
-    double ambientTemperature = 15;
+    double ambientTemperature = 0;
     double ambientWindDirection = 0;
     double ambientWindVelocity = 0;
     double planeHeadingDegreesTrue = 0;

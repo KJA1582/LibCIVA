@@ -64,8 +64,10 @@ Traditional include guards:
 Use MSFS compatibility macros for IntelliSense compatibility:
 ```cpp
 #ifndef __INTELLISENSE__
+#ifndef MODULE_EXPORT
 #define MODULE_EXPORT __attribute__((visibility("default")))
 #define MODULE_WASM_MODNAME(mod) __attribute__((import_module(mod)))
+#endif
 #else
 #define MODULE_EXPORT
 #define MODULE_WASM_MODNAME(mod)
