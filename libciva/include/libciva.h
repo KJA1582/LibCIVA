@@ -20,11 +20,12 @@
 #define WORK_DIR "\\work"
 #endif
 
-#include "config/config.h"
 #include "ins/ins.h"
 #include "insContainer/insContainer.h"
 #include "logger/logger.h"
+#include "state/state.h"
 #include "types/types.h"
 #include "varManager/varManager.h"
+
 
 #endif

@@ -23,8 +23,8 @@
 #include <utility>
 #include <vector>
 
-#include "config/config.h"
 #include "logger/logger.h"
+#include "state/state.h"
 #include "types/types.h"
 #include "varManager/varManager.h"
 
@@ -91,7 +91,7 @@ class INS {
 
   VarManager &varManager;
   // INS Config
-  std::unique_ptr<Config> config;
+  std::unique_ptr<State> config;
   // List of active malfunctions
   ACTION_MALFUNCTION_CODES actionMalfunctionCodes;
   // Random

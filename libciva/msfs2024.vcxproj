@@ -151,7 +151,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\config\config.cpp" />
     <ClCompile Include="src\ins\modes\align.cpp" />
     <ClCompile Include="src\ins\ins.cpp" />
     <ClCompile Include="src\ins\insDisplay.cpp" />
@@ -159,13 +158,14 @@
     <ClCompile Include="src\ins\insSetGet.cpp" />
     <ClCompile Include="src\ins\insUpdates.cpp" />
     <ClCompile Include="src\logger\logger.cpp" />
+    <ClCompile Include="src\state\state.cpp" />
     <ClCompile Include="src\types\types.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\config\config.h" />
     <ClInclude Include="include\ins\ins.h" />
     <ClCompile Include="include\insContainer\insContainer.h" />
     <ClInclude Include="include\logger\logger.h" />
+    <ClInclude Include="include\state\state.h" />
     <ClInclude Include="include\types\types.h" />
     <ClInclude Include="include\varManager\varManager.h" />
     <ClInclude Include="include\libciva.h" />

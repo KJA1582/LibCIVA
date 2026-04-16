@@ -1,9 +1,9 @@
-#include "config/config.h"
+#include "state/state.h"
 
 namespace libciva {
 
-Config::Config(const std::string &basePath, const std::string &id) noexcept : basePath(basePath), id(id) {
-  std::ifstream file(basePath + "/config_" + id, std::ios::binary);
+State::State(const std::string &basePath, const std::string &id) noexcept : basePath(basePath), id(id) {
+  std::ifstream file(basePath + "/libciva_unit_state_" + id, std::ios::binary);
   if (file) {
     file.read((char *)&lastINSPosition, sizeof(lastINSPosition));
     file.read((char *)&lastDMEs, sizeof(lastDMEs));
@@ -26,8 +26,8 @@ Config::Config(const std::string &basePath, const std::string &id) noexcept : ba
   }
 }
 
-void Config::save() const noexcept {
-  std::ofstream file(basePath + "/config_" + id, std::ios::binary);
+void State::save() const noexcept {
+  std::ofstream file(basePath + "/libciva_unit_state_" + id, std::ios::binary);
   if (file) {
     file.write((const char *)&lastINSPosition, sizeof(lastINSPosition));
     file.write((const char *)&lastDMEs, sizeof(lastDMEs));

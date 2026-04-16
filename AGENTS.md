@@ -258,7 +258,7 @@ When adding features to both examples, implement the appropriate interface for e
 | Type definitions             | `libciva/include/types/types.h`              |
 | VarManager                   | `libciva/include/varManager/varManager.h`    |
 | Logger                       | `libciva/include/logger/logger.h`            |
-| Config                       | `libciva/include/config/config.h`            |
+| Config                       | `libciva/include/state/state.h`              |
 | civaWin example              | `Examples/civaWin/src/civaWin.cpp`           |
 | Lateral autopilot (civaWin)  | `Examples/civaWin/src/lateralAutopilot.h`    |
 | Lateral autopilot impl       | `Examples/civaWin/src/lateralAutopilot.cpp`  |

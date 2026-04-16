@@ -4,7 +4,7 @@
     <ClCompile Include="src\ins\modes\align.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\config\config.cpp">
+    <ClCompile Include="src\state\state.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\ins\ins.cpp">
@@ -28,7 +28,7 @@
     <ClCompile Include="src\ins\insUpdates.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\config\config.h">
+    <ClInclude Include="include\state\state.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\ins\ins.h">

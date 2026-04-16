@@ -12,7 +12,7 @@ INS::INS(VarManager &varManager, const UNIT_INDEX id, const std::string &configI
 
   ovenTemperature = varManager.sim.ambientTemperature;
 
-  config = std::make_unique<Config>(workDir, configID);
+  config = std::make_unique<State>(workDir, configID);
   randomGen = std::make_unique<std::mt19937>((std::random_device())());
   distributionRadialDrift = std::make_unique<std::normal_distribution<>>(0, 0.01 / 3);
   distributionDistanceDrift = std::make_unique<std::normal_distribution<>>(0);

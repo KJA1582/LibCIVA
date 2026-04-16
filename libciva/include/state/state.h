@@ -23,7 +23,7 @@
 
 namespace libciva {
 
-class Config {
+class State {
   const std::string basePath;
   const std::string id;
 
@@ -32,8 +32,8 @@ class Config {
                      {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}, {{0, 0}, 0, 0}};
 
 public:
-  Config(const std::string &workDir, const std::string &id) noexcept;
-  inline ~Config() noexcept { save(); }
+  State(const std::string &workDir, const std::string &id) noexcept;
+  inline ~State() noexcept { save(); }
 
   void save() const noexcept;
 

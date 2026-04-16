@@ -17,15 +17,14 @@ project ("libciva")
 option(SHARED "Shared" OFF)
 
 set(header
-  "include/config/config.h"
 	"include/ins/ins.h"
 	"include/insContainer/insContainer.h"
 	"include/logger/logger.h"
+  "include/state/state.h"
 	"include/types/types.h"
 	"include/varManager/varManager.h"
 )
 set(sources
-	"src/config/config.cpp"
 	"src/ins/modes/align.cpp"
 	"src/ins/ins.cpp"
 	"src/ins/insDisplay.cpp"
@@ -33,6 +32,7 @@ set(sources
 	"src/ins/insSetGet.cpp"
 	"src/ins/insUpdates.cpp"
 	"src/logger/logger.cpp"
+	"src/state/state.cpp"
 	"src/types/types.cpp"
 )
 
