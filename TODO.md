@@ -24,8 +24,6 @@
 - AP
   - Test, test, test
 
-- Alert Lamp not triggering at 2min
-
 # Updating
 
 # Multi Unit

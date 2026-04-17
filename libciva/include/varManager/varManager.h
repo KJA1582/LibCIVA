@@ -45,7 +45,6 @@ static constexpr const char *SIM_VAR_PLANE_LATITUDE = "PLANE LATITUDE";
 static constexpr const char *SIM_VAR_PLANE_LONGITUDE = "PLANE LONGITUDE";
 static constexpr const char *SIM_VAR_NAV_DME_1 = "NAV DME:1";
 static constexpr const char *SIM_VAR_NAV_DME_2 = "NAV DME:2";
-static constexpr const char *SIM_VAR_SIMULATION_RATE = "SIMULATION RATE";
 static constexpr const char *SIM_VAR_PLANE_ALTITUDE = "PLANE ALTITUDE";
 
 struct VarManager {
@@ -57,7 +56,7 @@ struct VarManager {
     uint8_t modeSelectorPos = 0;     // LIBCIVA_DATA_SELECTOR_POS_x
     uint8_t dataSelectorPos = 0;     // LIBCIVA_MODE_SELECTOR_POS_x
     uint8_t waypointSelectorPos = 0; // LIBCIVA_WAYPOINT_SELECTOR_POS_x
-    uint8_t autoMode = 0;            // LIBCIVA_AUTO_MAN_POS_x
+    uint8_t autoManPos = 0;          // LIBCIVA_AUTO_MAN_POS_x
     double crossTrackError = 0;      // LIBCIVA_CROSS_TRACK_ERROR_x
     double desiredTrack = 0;         // LIBCIVA_DESIRED_TRACK_x
     double track = 0;                // LIBCIVA_TRACK_x

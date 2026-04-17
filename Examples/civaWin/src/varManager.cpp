@@ -162,7 +162,7 @@ static std::string getValuesLine7(const libciva::VarManager::UnitExport &ins) {
 
 static std::string getPowerLine(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "Valid   : " << std::right << std::setfill(' ') << std::setw(13) << ins.powerState ? "Powered" : "Unpowered";
+  oss << "Power   : " << std::right << std::setfill(' ') << std::setw(13) << ins.powerState ? "Powered" : "Unpowered";
   return oss.str();
 }
 
@@ -177,7 +177,7 @@ static std::string getValidLine(const libciva::VarManager::UnitExport &ins) {
 
 static std::string getAutoManLine(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "Auto/Man: " << std::right << std::setfill(' ') << std::setw(13) << (ins.autoMode ? "Auto" : "Manual");
+  oss << "Auto/Man: " << std::right << std::setfill(' ') << std::setw(13) << (ins.autoManPos ? "Auto" : "Manual");
   return oss.str();
 }
 
@@ -206,7 +206,7 @@ void WinVarManager::dump() const noexcept {
     lines[i][8] = getValuesLine4(unit[i]);
     lines[i][9] = getValuesLine5(unit[i]);
     lines[i][10] = getValuesLine6(unit[i]);
-    lines[i][11] = getValuesLine6(unit[i]);
+    lines[i][11] = getValuesLine7(unit[i]);
     lines[i][12] = getAutoManLine(unit[i]);
     lines[i][13] = getWptSelLine(unit[i]);
     lines[i][14] = getValidLine(unit[i]);

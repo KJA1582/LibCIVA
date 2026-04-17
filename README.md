@@ -245,7 +245,7 @@ void update(double deltaTime) {
     double modeSelectorPos = unit1.modeSelectorPos;
     double dataSelectorPos = unit1.dataSelectorPos;
     double waypointSelectorPos = unit1.waypointSelectorPos;
-    double autoMode = unit1.autoMode;
+    double autoManPos = unit1.autoManPos;
     double track = unit1.track;
     double desiredTrack = unit1.desiredTrack;
     double crossTrackError = unit1.crossTrackError;
@@ -427,7 +427,7 @@ struct UnitExport {
   uint8_t modeSelectorPos = 0;     // LIBCIVA_DATA_SELECTOR_POS_x
   uint8_t dataSelectorPos = 0;     // LIBCIVA_MODE_SELECTOR_POS_x
   uint8_t waypointSelectorPos = 0; // LIBCIVA_WAYPOINT_SELECTOR_POS_x
-  uint8_t autoMode = 0;            // LIBCIVA_AUTO_MAN_POS_x
+  uint8_t autoManPos = 0;          // LIBCIVA_AUTO_MAN_POS_x
   double crossTrackError = 0;      // LIBCIVA_CROSS_TRACK_ERROR_x
   double desiredTrack = 0;         // LIBCIVA_DESIRED_TRACK_x
   double track = 0;                // LIBCIVA_TRACK_x
@@ -528,7 +528,11 @@ Values 0 through 9, corresponding with the thumb wheel on the unit.
 
 ### LIBCIVA_AUTO_MAN_POS_UNIT_x
 
-True if in AUTO.
+Bit field, 8bits
+
+| 31 - 02 | 01        | 00        |
+| ------- | --------- | --------- |
+| Unset   | Test Mode | Auto Mode |
 
 ### LIBCIVA_DATA_MAN_POS_UNIT_x
 

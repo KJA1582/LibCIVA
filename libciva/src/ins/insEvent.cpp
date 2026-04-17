@@ -596,7 +596,7 @@ void INS::handleTestButtonState(const bool _state) noexcept {
         previousIndicators = indicators;
       }
       inTestMode = true;
-    } else {
+    } else if (inTestMode) {
       indicators = previousIndicators;
       previousIndicators = {0};
       inTestMode = false;
@@ -693,8 +693,10 @@ void INS::handleInstantAlign() noexcept {
   alignSubmode = ALIGN_SUBMODE::MODE_0;
   valid = SIGNAL_VALIDITY::ATT;
   batteryTest = BATTERY_TEST::COMPLETED;
+  insertMode = INSERT_MODE::INV;
   ovenTemperature = OPERATING_TEMP;
   indicators.indicator.READY_NAV = true;
+  indicators.indicator.INSERT = false;
   timeInMode = 0;
 }
 

@@ -86,6 +86,9 @@ void INS::reset(const bool full) noexcept {
 
     actionMalfunctionCodes.value = 0;
     displayActionMalfunctionCodeIndex = 0;
+
+    currentLegStart = 1;
+    currentLegEnd = 2;
   }
 
   batteryTest = BATTERY_TEST::IDLE;
