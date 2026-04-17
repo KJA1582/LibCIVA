@@ -476,6 +476,8 @@ void INS::updateDisplay(const double dTime) noexcept {
         indicators.indicator.TO_BLINK = insertMode != INSERT_MODE::WPT_CHG_TO ? true : false;
         indicators.indicator.FROM_BLINK = false;
       } else if (insertMode != INSERT_MODE::WPT_CHG_FROM && insertMode != INSERT_MODE::WPT_CHG_TO) {
+        display.characters.FROM = currentLegStart;
+        display.characters.TO = currentLegEnd;
         indicators.indicator.TO_BLINK = indicators.indicator.FROM_BLINK = false;
       }
       break;
