@@ -137,7 +137,7 @@ void INS::handleOutOfBounds() noexcept {
     POSITION simPos = {simLat, simLon};
 
     if (!actionMalfunctionCodes.codes.A04_57 && simPos.isValid() &&
-        (simPos + simPosDelta).distanceTo(initialINSPosition) > 0.0001) {
+        (simPos + simPosDelta).distanceTo(initialINSPosition) > 0.001) {
       actionMalfunctionCodes.codes.A04_57 = true;
       indicators.indicator.WARN = true;
       advanceActionMalfunctionIndex();
