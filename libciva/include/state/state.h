@@ -1,5 +1,5 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef STATE_H
+#define STATE_H
 
 // For MSFS so IntelliSense doesn't crap out
 #ifndef __INTELLISENSE__
@@ -16,7 +16,6 @@
 
 #include <cstring>
 #include <fstream>
-#include <random>
 #include <string>
 
 #include "../types/types.h"

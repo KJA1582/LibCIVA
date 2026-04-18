@@ -26,6 +26,7 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\ins\insUpdates.cpp" />
+    <ClCompile Include="include\insContainer\insContainer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\state\state.h">
