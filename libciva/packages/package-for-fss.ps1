@@ -1,9 +1,12 @@
-Remove-Item -r -fo .\dist
+Set-Location ..\
+
+Remove-Item -r -fo .\dist\fss
 
 mkdir .\dist
-mkdir .\dist\lib
-mkdir .\dist\lib\debug
-mkdir .\dist\lib\release
+mkdir .\dist\fss
+mkdir .\dist\fss\lib
+mkdir .\dist\fss\lib\debug
+mkdir .\dist\fss\lib\release
 
 Set-Location .\out
 
@@ -15,9 +18,9 @@ Set-Location .\x64
 cmake -DCMAKE_BUILD_TYPE="Debug" ..\..
 msbuild .\libciva.vcxproj /property:Configuration="Debug" /m
 
-Copy-Item .\Debug\libciva.idb ..\..\dist\lib\debug
-Copy-Item .\Debug\libciva.lib ..\..\dist\lib\debug
-Copy-Item .\Debug\libciva.pdb ..\..\dist\lib\debug
+Copy-Item .\Debug\libciva.idb ..\..\dist\fss\lib\debug
+Copy-Item .\Debug\libciva.lib ..\..\dist\fss\lib\debug
+Copy-Item .\Debug\libciva.pdb ..\..\dist\fss\lib\debug
 
 Set-Location ..\
 
@@ -29,7 +32,7 @@ Set-Location .\x64
 cmake -DCMAKE_BUILD_TYPE="Release" ..\..
 msbuild .\libciva.vcxproj /property:Configuration="Release" /m
 
-Copy-Item .\Release\libciva.lib ..\..\dist\lib\release
+Copy-Item .\Release\libciva.lib ..\..\dist\fss\lib\release
 
 Set-Location ..\..\
 
@@ -38,15 +41,15 @@ Remove-Item -r -fo .\out\MSFS
 
 msbuild .\msfs.vcxproj /property:Platform=MSFS /property:Configuration="Debug" /m
 
-Copy-Item .\out\MSFS\Debug\libciva.a .\dist\lib\debug
+Copy-Item .\out\MSFS\Debug\libciva.a .\dist\fss\lib\debug
 
 # MSFS Release
 Remove-Item -r -fo .\out\MSFS
 
 msbuild .\msfs.vcxproj /property:Platform=MSFS /property:Configuration="Release" /m
 
-Copy-Item .\out\MSFS\Release\libciva.a .\dist\lib\release
+Copy-Item .\out\MSFS\Release\libciva.a .\dist\fss\lib\release
 
 # Include
 
-Copy-Item .\include .\dist\include -Recurse
+Copy-Item .\include .\dist\fss\include -Recurse

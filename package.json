@@ -2,7 +2,9 @@
   "name": "libciva",
   "version": "0.0.1",
   "description": "LibCIVA, Simulation of a Delco Instruments Carousel IV-A INS",
-  "scripts": {},
+  "scripts": {
+    "package:fss": "Set-Location ./libciva/packages &&./package-for-fss.ps1"
+  },
   "keywords": [],
   "author": "Kilian Kurt Hofmann",
   "license": "CC BY-SA 4.0",
