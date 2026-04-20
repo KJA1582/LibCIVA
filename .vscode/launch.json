@@ -1,22 +1,6 @@
 {
   "configurations": [
     {
-      "name": "Generate Patches",
-      "program": "${workspaceFolder}/Examples/xkhofmann-fss-aircraft-boeing-727-civa/PackageSources/PATCHING/generate-patches.js",
-      "request": "launch",
-      "skipFiles": ["<node_internals>/**"],
-      "cwd": "${workspaceFolder}/Examples/xkhofmann-fss-aircraft-boeing-727-civa/PackageSources/PATCHING",
-      "type": "node"
-    },
-    {
-      "name": "Apply Patches",
-      "program": "${workspaceFolder}/Examples/xkhofmann-fss-aircraft-boeing-727-civa/PackageSources/PATCHING/apply-patches.js",
-      "request": "launch",
-      "skipFiles": ["<node_internals>/**"],
-      "cwd": "${workspaceFolder}/Examples/xkhofmann-fss-aircraft-boeing-727-civa/PackageSources/PATCHING",
-      "type": "node"
-    },
-    {
       "name": "Data Analysis",
       "program": "${workspaceFolder}/Scripts/data-analysis.js",
       "request": "launch",
