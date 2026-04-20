@@ -414,7 +414,7 @@ void INS::updateDisplay(const double dTime) noexcept {
         display.characters.LEFT_5 = display.characters.RIGHT_6 = 0;
       } else {
         double dir = std::round(varManager.sim.ambientWindDirection);
-        double speed = std::fmin(std::round(varManager.sim.ambientWindVelocity), 606.0);
+        double speed = std::fmin(std::round(varManager.sim.ambientWindVelocity), MAX_TAS_WIND);
 
         formatTri(display, dir, true, false, 0);
         formatTri(display, speed, false, false, 0);
