@@ -34,6 +34,10 @@ Simulation of a Delco Electronics Carousel IV-A unit with flight program CIV-A-2
 
 # Build
 
+Project assumes UTF-8 for all files.
+
+## CMake
+
 LibCIVA uses CMake as its build tool.
 
 ```sh
