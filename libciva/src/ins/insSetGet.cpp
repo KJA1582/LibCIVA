@@ -107,7 +107,7 @@ void INS::exportVars() const noexcept {
   unit.modeSelectorPos = (uint8_t)modeSelector;
   unit.dataSelectorPos = (uint8_t)dataSelector;
   unit.waypointSelectorPos = waypointSelector;
-  unit.autoManPos = (inTestMode << 1) | autoMode;
+  unit.autoManPos = (inTestMode << 1) | (uint8_t)autoMode;
   // For systems consumption
   unit.crossTrackError = crossTrackError;
   unit.desiredTrack = desiredTrack;

@@ -344,7 +344,6 @@ void INS::handleInsert() noexcept {
         POSITION delta = holdPosition - displayPosition;
         // Set updated position to be w/e currently is + delta
         currentINSPosition = currentINSPosition + delta;
-        updateSimPosDelta();
         indicators.indicator.HOLD = false;
         inHoldMode = false;
       }
@@ -388,6 +387,7 @@ void INS::handleInsert() noexcept {
         waypoints[0] = currentINSPosition = initialINSPosition = displayPosition;
       }
 
+      updateSimPosDelta();
       break;
     }
     case INSERT_MODE::WPT_LAT: {
@@ -689,6 +689,9 @@ void INS::handleInstantAlign() noexcept {
   double lon = varManager.sim.planeLongitude;
   initialINSPosition = currentINSPosition = displayPosition = {lat, lon};
   simPosDelta = {0, 0};
+
+  actionMalfunctionCodes.value = 0;
+  advanceActionMalfunctionIndex();
 
   alignSubmode = ALIGN_SUBMODE::MODE_0;
   valid = SIGNAL_VALIDITY::ATT;

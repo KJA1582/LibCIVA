@@ -40,6 +40,8 @@ if(SHARED)
 	message("Building shared")
 	add_library(libciva SHARED ${sources} ${headers})
 
+	set_target_properties(libciva PROPERTIES PREFIX "")
+
 	target_compile_definitions(libciva PRIVATE SHARED)
 else()
 	add_library(libciva ${sources} ${headers})
