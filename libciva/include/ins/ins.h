@@ -30,63 +30,63 @@
 
 namespace libciva {
 
-static constexpr double OPERATING_TEMP = 76;      // °C
-static constexpr double HEATER_WATTAGE = 2000;    // W
-static constexpr double HEATER_EFFICIENCY = 0.9;  // %
-static constexpr double UNIT_MASS = 5;            // kg
-static constexpr double UNIT_SPECIFIC_HEAT = 900; // J/(kg * K)
-
-static constexpr double MAX_BANK_ANGLE = 30;      // °
-static constexpr double MAX_BANK_RATE = 10;       // °/s
-static constexpr double TIME_MAX_BANK_RATE = 0.5; // s, time it takes to hit max bank rate
-static constexpr double LEAD_CORRECTION =
-    (2 * TIME_MAX_BANK_RATE + (MAX_BANK_ANGLE - (2 * ((MAX_BANK_RATE / 2.0) * TIME_MAX_BANK_RATE))) / MAX_BANK_RATE) / 3600;
-
-static constexpr uint8_t MIN_MODE_8 = 51;
-static constexpr uint8_t MAX_MODE_7 = 90;        // Not specified in manual, but "shortly"
-static constexpr uint16_t MAX_MODE_6 = 420;      // Rest of the ~8.5min MODE 7 and 6
-static constexpr uint8_t MODE_5_TO_0 = 204;      // 3.4min per mode
-static constexpr uint16_t TIME_PER_AI = 1200;    // 20min per AI, 3 AI per hour, 3h results in AI9
-static constexpr uint8_t MAX_BAT_TEST_TIME = 12; // 12s bat test
-
-static constexpr uint8_t PROG_NUM[] = {1, 1, 0, 7}; // CIV-A-22
-
-static constexpr uint8_t MIN_GS = 75;
-static constexpr uint8_t MIN_GS_TIME = 10;
-static constexpr uint8_t MIN_TAS_WIND = 115;
-static constexpr uint16_t MAX_TAS_WIND = 606;
-static constexpr uint8_t MAX_RAMP_DEV = 76;
-static constexpr uint8_t MAX_DEV = 33;
-static constexpr uint16_t MAX_GS = 910;
-static constexpr uint16_t DRIFT_GS = 500;
-static constexpr uint16_t MAX_GS_DISPLAY = 2400;
-static constexpr uint8_t MAX_DRIFT_ANGLE = 45;
-static constexpr uint16_t MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME =
-    5400; // AI5 Time. This scales the radial error to simulate the difference between full align and minimal align
-static constexpr double MIN_LEG_TIME = 25.6;
-static constexpr uint8_t LEG_TIME_ALERT = 120;
-static constexpr uint8_t MIN_DME_TIME = 12;                 // After this, DME indicator can go green
-static constexpr uint16_t BATTERY_DURATION = 900;           // Battery runtime, seconds, 15min
-static constexpr uint16_t EXPANDED_BATTERY_DURATION = 1800; // 30 min
-static constexpr uint16_t MIN_BATTERY_DURATION = 600;       // 10 min
-static constexpr uint8_t CHARGE_RATE = 3;                   // 3 seconds of runtime per second gained
-static constexpr uint8_t MAX_DME_RANGE = 250;               // Maximum range upon which DME updating can occur
-static constexpr double DME_CORRECTION = 1.0 / 300.0;       // 1nmi per 5 min
-static constexpr double SINGLE_DME_MIN_ERROR = 0.5;         // nmi, creative license
-static constexpr double DUAL_DME_MIN_ERROR = 0.0;           // nmi, creative license
-static constexpr uint16_t DME_AI_TIME = 300;                // 5min
-static constexpr uint8_t MIX_EASE_TIME = 60;                // Triple mix ease-on-off
-static constexpr uint8_t ALERT_MIN_GS = 250;                // Minimum GS required for alert lamp to light for leg changes
-
 static constexpr uint8_t DISPLAY_CHAR_RIGHT = 10;
 static constexpr uint8_t DISPLAY_CHAR_LEFT = 11;
 static constexpr uint8_t DISPLAY_CHAR_BLANK = 12;
 
-static constexpr const char *ID_UNIT_1 = "UNIT_1";
-static constexpr const char *ID_UNIT_2 = "UNIT_2";
-static constexpr const char *ID_UNIT_3 = "UNIT_3";
-
 class INS {
+  static constexpr const char *ID_UNIT_1 = "UNIT_1";
+  static constexpr const char *ID_UNIT_2 = "UNIT_2";
+  static constexpr const char *ID_UNIT_3 = "UNIT_3";
+
+  static constexpr double OPERATING_TEMP = 76;      // °C
+  static constexpr double HEATER_WATTAGE = 2000;    // W
+  static constexpr double HEATER_EFFICIENCY = 0.9;  // %
+  static constexpr double UNIT_MASS = 5;            // kg
+  static constexpr double UNIT_SPECIFIC_HEAT = 900; // J/(kg * K)
+
+  static constexpr double MAX_BANK_ANGLE = 30;      // °
+  static constexpr double MAX_BANK_RATE = 10;       // °/s
+  static constexpr double TIME_MAX_BANK_RATE = 0.5; // s, time it takes to hit max bank rate
+  static constexpr double LEAD_CORRECTION =
+      (2 * TIME_MAX_BANK_RATE + (MAX_BANK_ANGLE - (2 * ((MAX_BANK_RATE / 2.0) * TIME_MAX_BANK_RATE))) / MAX_BANK_RATE) / 3600;
+
+  static constexpr uint8_t MIN_MODE_8 = 51;
+  static constexpr uint8_t MAX_MODE_7 = 90;        // Not specified in manual, but "shortly"
+  static constexpr uint16_t MAX_MODE_6 = 420;      // Rest of the ~8.5min MODE 7 and 6
+  static constexpr uint8_t MODE_5_TO_0 = 204;      // 3.4min per mode
+  static constexpr uint16_t TIME_PER_AI = 1200;    // 20min per AI, 3 AI per hour, 3h results in AI9
+  static constexpr uint8_t MAX_BAT_TEST_TIME = 12; // 12s bat test
+
+  static constexpr uint8_t PROG_NUM[] = {1, 1, 0, 7}; // CIV-A-22
+
+  static constexpr uint8_t MIN_GS = 75;
+  static constexpr uint8_t MIN_GS_TIME = 10;
+  static constexpr uint8_t MIN_TAS_WIND = 115;
+  static constexpr uint16_t MAX_TAS_WIND = 606;
+  static constexpr uint8_t MAX_RAMP_DEV = 76;
+  static constexpr uint8_t MAX_DEV = 33;
+  static constexpr uint16_t MAX_GS = 910;
+  static constexpr uint16_t DRIFT_GS = 500;
+  static constexpr uint16_t MAX_GS_DISPLAY = 2400;
+  static constexpr uint8_t MAX_DRIFT_ANGLE = 45;
+  static constexpr uint16_t MAX_RADIAL_ERROR_SCALAR_ALIGN_TIME =
+      5400; // AI5 Time. This scales the radial error to simulate the difference between full align and minimal align
+  static constexpr double MIN_LEG_TIME = 25.6;
+  static constexpr uint8_t LEG_TIME_ALERT = 120;
+  static constexpr uint8_t MIN_DME_TIME = 12;                 // After this, DME indicator can go green
+  static constexpr uint16_t BATTERY_DURATION = 900;           // Battery runtime, seconds, 15min
+  static constexpr uint16_t EXPANDED_BATTERY_DURATION = 1800; // 30 min
+  static constexpr uint16_t MIN_BATTERY_DURATION = 600;       // 10 min
+  static constexpr uint8_t CHARGE_RATE = 3;                   // 3 seconds of runtime per second gained
+  static constexpr uint8_t MAX_DME_RANGE = 250;               // Maximum range upon which DME updating can occur
+  static constexpr double DME_CORRECTION = 1.0 / 300.0;       // 1nmi per 5 min
+  static constexpr double SINGLE_DME_MIN_ERROR = 0.5;         // nmi, creative license
+  static constexpr double DUAL_DME_MIN_ERROR = 0.0;           // nmi, creative license
+  static constexpr uint16_t DME_AI_TIME = 300;                // 5min
+  static constexpr uint8_t MIX_EASE_TIME = 60;                // Triple mix ease-on-off
+  static constexpr uint8_t ALERT_MIN_GS = 250;                // Minimum GS required for alert lamp to light for leg changes
+
   friend class INSContainer;
 
   VarManager &varManager;
