@@ -7,7 +7,7 @@ Simulation of a Delco Electronics Carousel IV-A unit with flight program CIV-A-2
 - Unit temperature sim
 - Instant align shortcut
 - Multi Unit install up to three independent units, including triple mix.
-- Unit drift, units drift along a radial. Drift radial and max 1h drift is selected on unit boot (OFF -> STBY). Radial is
+- Unit drift, units drift along a radial. Drift radial and max 1h drift are selected on unit boot (OFF -> STBY). Radial is
   uniformly distributed, max 1h drift is normal distributed (μ = 0, σ = 1).
 - Ground speed drift
 - Failures
@@ -238,25 +238,29 @@ void update(double deltaTime) {
     varManager.sim.ambientWindVelocity = readFromSim("AMBIENT WIND VELOCITY");
     varManager.sim.ambientTemperature = readFromSim("AMBIENT TEMPERATURE");
     varManager.sim.simulationRate = readFromSim("SIMULATION RATE");
+    varManager.sim.groundVelocity = readFromSim("GROUND VELOCITY");
 
     // 2. Update INS
     ins.update(deltaTime);
 
     // 3. Read outputs from varManager.unit[x]
     auto& unit1 = varManager.unit[0];
-    double display = unit1.display;
-    double indicators = unit1.indicators;
-    double modeSelectorPos = unit1.modeSelectorPos;
-    double dataSelectorPos = unit1.dataSelectorPos;
-    double waypointSelectorPos = unit1.waypointSelectorPos;
-    double autoManPos = unit1.autoManPos;
-    double track = unit1.track;
-    double desiredTrack = unit1.desiredTrack;
+    uint32_t displayLeft = unit1.displayLeft;
+    uint32_t displayRight = unit1.displayRight;
+    uint32_t indicators = unit1.indicators;
+    uint8_t modeSelectorPos = unit1.modeSelectorPos;
+    uint8_t dataSelectorPos = unit1.dataSelectorPos;
+    uint8_t waypointSelectorPos = unit1.waypointSelectorPos;
+    uint8_t autoManPos = unit1.autoManPos;
     double crossTrackError = unit1.crossTrackError;
+    double desiredTrack = unit1.desiredTrack;
+    double track = unit1.track;
     double trackAngleError = unit1.trackAngleError;
     double distance = unit1.distance;
     double gs = unit1.gs;
-    double valid = unit1.valid;
+    double time = unit1.time;
+    uint8_t valid = unit1.valid;
+    uint8_t powerState = unit1.powerState;
 }
 ```
 
@@ -357,7 +361,7 @@ void importWaypoints(std::array<libciva::POSITION, 9> wptData) {
 
 ## Considerations for Autopilots
 
-The unit track change includes a turn anticipation. This anticipations is distance based using
+The unit track change includes a turn anticipation. This anticipation is distance based using
 following parameters:
 
 - Bank during turn is 30°
@@ -365,7 +369,7 @@ following parameters:
 - Time required to achieve bank rate is 0.5s.
 
 This reduces to a total time required for a 0° -> 30° -> 0° turn to be 7s long.
-Groundspeed is used to convert to distance, which is added to the turn distance calculates using
+Groundspeed is used to convert to distance, which is added to the turn distance calculated using
 the track angle delta of the inbound and new outbound track.
 
 # API Reference
@@ -444,20 +448,22 @@ The VarManager header defines the LVar names and SimVar names for use with SimCo
 
 ```c++
 struct UnitExport {
-  uint64_t display = 0;            // LIBCIVA_DISPLAY_UNIT_x
-  uint32_t indicators = 0;         // LIBCIVA_INDICATORS_x
-  uint8_t modeSelectorPos = 0;     // LIBCIVA_DATA_SELECTOR_POS_x
-  uint8_t dataSelectorPos = 0;     // LIBCIVA_MODE_SELECTOR_POS_x
-  uint8_t waypointSelectorPos = 0; // LIBCIVA_WAYPOINT_SELECTOR_POS_x
-  uint8_t autoManPos = 0;          // LIBCIVA_AUTO_MAN_POS_x
-  double crossTrackError = 0;      // LIBCIVA_CROSS_TRACK_ERROR_x
-  double desiredTrack = 0;         // LIBCIVA_DESIRED_TRACK_x
-  double track = 0;                // LIBCIVA_TRACK_x
-  double trackAngleError = 0;      // LIBCIVA_TRACK_ANGLE_ERROR_x
-  double distance = 0;             // LIBCIVA_DISTANCE_x
-  double time = 0;                 // LIBCIVA_TIME_x
-  double gs = 0;                   // LIBCIVA_GROUND_SPEED_x
-  uint8_t valid = 0;               // LIBCIVA_VALID_x
+  uint32_t displayLeft = 0;      // LIBCIVA_DISPLAY_LEFT_UNIT_x
+uint32_t displayRight = 0;       // LIBCIVA_DISPLAY_RIGHT_UNIT_x
+uint32_t indicators = 0;         // LIBCIVA_INDICATORS_UNIT_x
+uint8_t modeSelectorPos = 0;     // LIBCIVA_DATA_SELECTOR_POS_UNIT_x
+uint8_t dataSelectorPos = 0;     // LIBCIVA_MODE_SELECTOR_POS_UNIT_x
+uint8_t waypointSelectorPos = 0; // LIBCIVA_WAYPOINT_SELECTOR_POS_UNIT_x
+uint8_t autoManPos = 0;          // LIBCIVA_AUTO_MAN_POS_UNIT_x
+double crossTrackError = 0;      // LIBCIVA_CROSS_TRACK_ERROR_UNIT_x
+double desiredTrack = 0;         // LIBCIVA_DESIRED_TRACK_UNIT_x
+double track = 0;                // LIBCIVA_TRACK_UNIT_x
+double trackAngleError = 0;      // LIBCIVA_TRACK_ANGLE_ERROR_UNIT_x
+double distance = 0;             // LIBCIVA_DISTANCE_UNIT_x
+double gs = 0;                   // LIBCIVA_GROUND_SPEED_UNIT_x
+double time = 0;                 // LIBCIVA_TIME_UNIT_x
+uint8_t valid = 0;               // LIBCIVA_VALID_UNIT_x
+uint8_t powerState = 0;          // LIBCIVA_POWER_STATE_UNIT_x
 };
 ```
 
@@ -481,15 +487,16 @@ if x == 12: ' ' // blank space
 
 #### Notes on the type
 
-For packing reasons, two characters of the right display are picked into here.
+For packing reasons, two characters of the right display are packed into here.
 
 The primary user of this library is the MSFS and MSFS 2024 simulator platform.
 These simulators can export data into local variables (LVar).
-LVars are of FLOAT64 type.
-As such, this variable is defined as a `union` type, with the first member being a `uint32_t`, to allow compatibility with JS.  
+LVars are of FLOAT64 type.  
+To ensure compatibility with JS, the exported variable is split into LEFT and RIGHT.
+
+As such, this variable is defined as a `union` type, with the first member being a `uint64_t`.  
 This member is not to be used by C++ consumers, those shall use the second member of type `struct`, which exposes the bit field
 properly.
-
 ### LIBCIVA_DISPLAY_RIGHT_UNIT_x
 
 Bit field, 32bits
@@ -510,10 +517,14 @@ if x == 12: ' ' // blank space
 
 #### Notes on the type
 
+For packing reasons, two characters of the right display are packed into here.
+
 The primary user of this library is the MSFS and MSFS 2024 simulator platform.
 These simulators can export data into local variables (LVar).
-LVars are of FLOAT64 type.
-As such, this variable is defined as a `union` type, with the first member being a `uint32_t`, to allow compatibility with JS.  
+LVars are of FLOAT64 type.  
+To ensure compatibility with JS, the exported variable is split into LEFT and RIGHT.
+
+As such, this variable is defined as a `union` type, with the first member being a `uint64_t`.  
 This member is not to be used by C++ consumers, those shall use the second member of type `struct`, which exposes the bit field
 properly.
 
@@ -530,7 +541,7 @@ Bit field, 32bits
 The primary user of this library is the MSFS and MSFS 2024 simulator platform.
 These simulators can export data into local variables (LVar).
 LVars are of FLOAT64 type.
-As such, this variable is defined as a `union` type, with the first member being a `uint32_t`, to allow compatibility with JS.  
+As such, this variable is defined as a `union` type, with the first member being a `uint16_t`, to allow compatibility with JS.  
 This member is not to be used by C++ consumers, those shall use the second member of type `struct`, which exposes the bit field
 properly.
 
@@ -656,6 +667,6 @@ function GetDisplay() {
   const e     =            (right >> 28) & 0x4 ? "E" : " ";
   const w     =            (right >> 28) & 0x8 ? "W" : " ";
 
- return `${l1}${l2}${lDeg1}${l3}${lDec1}${l4}${lDec2}${l5}${lDeg2}${n}${s}|${to}${from}|${r1}${r2}${r3}${rDeg1}${r4}${rDec1}${r5}${rDec2}${r6}${rDeg2}${e}${w}`;
+ return `${l1}${l2}${lDeg1}${l3}${lDec1}${l4}${lDec2}${l5}${lDeg2}${n}${s}|${from}${to}|${r1}${r2}${r3}${rDeg1}${r4}${rDec1}${r5}${rDec2}${r6}${rDeg2}${e}${w}`;
 }
 ```

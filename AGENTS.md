@@ -229,12 +229,6 @@ The gauge runs in a single-threaded context. No thread synchronization needed.
 
 ### Example Event Handling Differences
 
-#### civa24 (MSFS Gauge)
-Uses gauge events via LVar and SimConnect data callbacks:
-- Events are triggered by setting `L:LIBCIVA_EVENT`
-- `handleEvent()` dispatches to INS units via event IDs
-- Uses `EVENT_AP_TOGGLE = 31` for autopilot toggle
-- Single-threaded, runs in MSFS gauge callback context
 
 #### civaWin (Standalone Console)
 Uses direct keyboard input and thread-based architecture:
@@ -244,23 +238,39 @@ Uses direct keyboard input and thread-based architecture:
 - Thread-safe via `std::atomic` for shared data (roll rate)
 
 When adding features to both examples, implement the appropriate interface for each:
-- **civa24**: Add event constant, handle in `handleEvent()` lambda
 - **civaWin**: Add key handler in main loop switch statement
 
 ---
 
 ## File Locations
 
-| Component                    | Path                                         |
-| ---------------------------- | -------------------------------------------- |
-| Main INS class               | `libciva/include/ins/ins.h`                  |
-| INS implementation           | `libciva/src/ins/ins.cpp`                    |
-| Type definitions             | `libciva/include/types/types.h`              |
-| VarManager                   | `libciva/include/varManager/varManager.h`    |
-| Logger                       | `libciva/include/logger/logger.h`            |
-| Config                       | `libciva/include/state/state.h`              |
-| civaWin example              | `Examples/civaWin/src/civaWin.cpp`           |
-| Lateral autopilot (civaWin)  | `Examples/civaWin/src/lateralAutopilot.h`    |
-| Lateral autopilot impl       | `Examples/civaWin/src/lateralAutopilot.cpp`  |
-| Vertical autopilot (civaWin) | `Examples/civaWin/src/verticalAutopilot.h`   |
-| Vertical autopilot impl      | `Examples/civaWin/src/verticalAutopilot.cpp` |
+### Library
+
+| Component               | Path                                          |
+| ----------------------- | --------------------------------------------- |
+| Public header           | `libciva/include/libciva.h`                   |
+| INS Container           | `libciva/include/insContainer/insContainer.h` |
+| Main INS class          | `libciva/include/ins/ins.h`                   |
+| INS implementation      | `libciva/src/ins/ins.cpp`                     |
+| INS event handling      | `libciva/src/ins/insEvent.cpp`                |
+| INS display formatting  | `libciva/src/ins/insDisplay.cpp`              |
+| INS setters/getters     | `libciva/src/ins/insSetGet.cpp`               |
+| INS update calculations | `libciva/src/ins/insUpdates.cpp`              |
+| INS alignment mode      | `libciva/src/ins/modes/align.cpp`             |
+| Type definitions        | `libciva/include/types/types.h`               |
+| VarManager              | `libciva/include/varManager/varManager.h`     |
+| Logger                  | `libciva/include/logger/logger.h`             |
+| Config                  | `libciva/include/state/state.h`               |
+
+### Examples
+
+| Component                   | Path                                         |
+| --------------------------- | -------------------------------------------- |
+| civaWin (civaWin.cpp)       | `Examples/civaWin/src/civaWin.cpp`           |
+| civaWin (civaWin.h)         | `Examples/civaWin/src/civaWin.h`             |
+| civaWin VarManager          | `Examples/civaWin/src/varManager.h`          |
+| civaWin VarManager impl     | `Examples/civaWin/src/varManager.cpp`        |
+| Lateral autopilot (header)  | `Examples/civaWin/src/lateralAutopilot.h`    |
+| Lateral autopilot (impl)    | `Examples/civaWin/src/lateralAutopilot.cpp`  |
+| Vertical autopilot (header) | `Examples/civaWin/src/verticalAutopilot.h`   |
+| Vertical autopilot (impl)   | `Examples/civaWin/src/verticalAutopilot.cpp` |
