@@ -372,6 +372,24 @@ the track angle delta of the inbound and new outbound track.
 
 ## Data Input
 
+### VarManager
+
+Input (SimVars) variables are read from the simulator and stored in `varManager.sim`:
+
+| Variable                  | Type   | Description                          |
+| ------------------------- | ------ | ------------------------------------ |
+| `planeLatitude`           | double | Aircraft latitude (degrees)          |
+| `planeLongitude`          | double | Aircraft longitude (degrees)         |
+| `planeHeadingDegreesTrue` | double | Aircraft true heading (degrees)      |
+| `planeAltitude`           | double | Aircraft altitude (feet)             |
+| `airspeedTrue`            | double | True airspeed (knots)                |
+| `groundVelocity`          | double | Ground velocity (knots)              |
+| `navDme1`                 | double | DME 1 distance (-1 if not available) |
+| `navDme2`                 | double | DME 2 distance (-1 if not available) |
+| `ambientWindDirection`    | double | Wind direction (degrees true)        |
+| `ambientWindVelocity`     | double | Wind velocity (knots)                |
+| `ambientTemperature`      | double | Ambient temperature (°C)             |
+
 ### INS
 
 #### Update Functions

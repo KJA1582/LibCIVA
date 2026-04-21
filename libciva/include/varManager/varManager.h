@@ -52,20 +52,20 @@ struct VarManager {
   struct UnitExport {
     uint32_t displayLeft = 0;        // LIBCIVA_DISPLAY_LEFT_UNIT_x
     uint32_t displayRight = 0;       // LIBCIVA_DISPLAY_RIGHT_UNIT_x
-    uint32_t indicators = 0;         // LIBCIVA_INDICATORS_x
-    uint8_t modeSelectorPos = 0;     // LIBCIVA_DATA_SELECTOR_POS_x
-    uint8_t dataSelectorPos = 0;     // LIBCIVA_MODE_SELECTOR_POS_x
-    uint8_t waypointSelectorPos = 0; // LIBCIVA_WAYPOINT_SELECTOR_POS_x
-    uint8_t autoManPos = 0;          // LIBCIVA_AUTO_MAN_POS_x
-    double crossTrackError = 0;      // LIBCIVA_CROSS_TRACK_ERROR_x
-    double desiredTrack = 0;         // LIBCIVA_DESIRED_TRACK_x
-    double track = 0;                // LIBCIVA_TRACK_x
-    double trackAngleError = 0;      // LIBCIVA_TRACK_ANGLE_ERROR_x
-    double distance = 0;             // LIBCIVA_DISTANCE_x
-    double gs = 0;                   // LIBCIVA_GROUND_SPEED_x
-    double time = 0;                 // LIBCIVA_TIME_x
-    uint8_t valid = 0;               // LIBCIVA_VALID_x
-    uint8_t powerState = 0;          // LIBCIVA_POWER_STATE_x
+    uint32_t indicators = 0;         // LIBCIVA_INDICATORS_UNIT_x
+    uint8_t modeSelectorPos = 0;     // LIBCIVA_DATA_SELECTOR_POS_UNIT_x
+    uint8_t dataSelectorPos = 0;     // LIBCIVA_MODE_SELECTOR_POS_UNIT_x
+    uint8_t waypointSelectorPos = 0; // LIBCIVA_WAYPOINT_SELECTOR_POS_UNIT_x
+    uint8_t autoManPos = 0;          // LIBCIVA_AUTO_MAN_POS_UNIT_x
+    double crossTrackError = 0;      // LIBCIVA_CROSS_TRACK_ERROR_UNIT_x
+    double desiredTrack = 0;         // LIBCIVA_DESIRED_TRACK_UNIT_x
+    double track = 0;                // LIBCIVA_TRACK_UNIT_x
+    double trackAngleError = 0;      // LIBCIVA_TRACK_ANGLE_ERROR_UNIT_x
+    double distance = 0;             // LIBCIVA_DISTANCE_UNIT_x
+    double gs = 0;                   // LIBCIVA_GROUND_SPEED_UNIT_x
+    double time = 0;                 // LIBCIVA_TIME_UNIT_x
+    uint8_t valid = 0;               // LIBCIVA_VALID_UNIT_x
+    uint8_t powerState = 0;          // LIBCIVA_POWER_STATE_UNIT_x
   };
 #pragma pack(pop)
 

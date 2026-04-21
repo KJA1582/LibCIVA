@@ -691,7 +691,6 @@ void INS::handleInstantAlign() noexcept {
   simPosDelta = {0, 0};
 
   actionMalfunctionCodes.value = 0;
-  advanceActionMalfunctionIndex();
 
   alignSubmode = ALIGN_SUBMODE::MODE_0;
   valid = SIGNAL_VALIDITY::ATT;

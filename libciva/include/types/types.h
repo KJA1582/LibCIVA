@@ -106,7 +106,7 @@ enum class DME_MODE : int8_t {
   DME_FREQ,
 };
 
-enum class SIGNAL_VALIDITY : int8_t {
+enum class SIGNAL_VALIDITY : uint8_t {
   INV,
   ATT,
   NAV,
