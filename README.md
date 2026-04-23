@@ -23,6 +23,7 @@ Simulation of a Delco Electronics Carousel IV-A unit with flight program CIV-A-2
     unit interconnect.
 - ADEU import logic (no failures)
   - ADEU, if available, is connected to all units
+- State save and restore function to persist states between sessions
 
 ## Not Implemented
 
@@ -374,25 +375,7 @@ the track angle delta of the inbound and new outbound track.
 
 # API Reference
 
-## Data Input
-
-### VarManager
-
-Input (SimVars) variables are read from the simulator and stored in `varManager.sim`:
-
-| Variable                  | Type   | Description                          |
-| ------------------------- | ------ | ------------------------------------ |
-| `planeLatitude`           | double | Aircraft latitude (degrees)          |
-| `planeLongitude`          | double | Aircraft longitude (degrees)         |
-| `planeHeadingDegreesTrue` | double | Aircraft true heading (degrees)      |
-| `planeAltitude`           | double | Aircraft altitude (feet)             |
-| `airspeedTrue`            | double | True airspeed (knots)                |
-| `groundVelocity`          | double | Ground velocity (knots)              |
-| `navDme1`                 | double | DME 1 distance (-1 if not available) |
-| `navDme2`                 | double | DME 2 distance (-1 if not available) |
-| `ambientWindDirection`    | double | Wind direction (degrees true)        |
-| `ambientWindVelocity`     | double | Wind velocity (knots)                |
-| `ambientTemperature`      | double | Ambient temperature (°C)             |
+## Functions
 
 ### INS
 
@@ -433,12 +416,41 @@ Input (SimVars) variables are read from the simulator and stored in `varManager.
 | `remoteInsertDME` | `dme: DME[9]`      | `void`  | Bulk import all 9 DME stations. Each DME contains: position (lat/lon), frequency (MHz×100), altitude (1000ft) |
 | `remoteInsertWPT` | `wpt: POSITION[9]` | `void`  | Bulk import up to 9 waypoints. Updates only unused waypoints based on current leg                             |
 
+#### State load
+
+| Function  | Parameters                 | Returns              | Description                 |
+| --------- | -------------------------- | -------------------- | --------------------------- |
+| `restore` | `Snapshot::UnitData &data` | `void`               | Restores the provided state |
+| `save`    | none                       | `Snapshot::UnitData` | Saves internal state        |
+
 ### INSContainer
 
 | Function      | Parameters                                                              | Returns | Description                                                        |
 | ------------- | ----------------------------------------------------------------------- | ------- | ------------------------------------------------------------------ |
 | `update`      | `dTime: double`                                                         | `void`  | Call updatePreMix → updateMix → updatePostMix on all units         |
 | `handleEvent` | `callback: function<shared_ptr<INS>, shared_ptr<INS>, shared_ptr<INS>>` | `void`  | Invoke callback with all three unit shared_ptr for event handling. |
+
+## Data Input
+
+### VarManager
+
+Input (SimVars) variables are read from the simulator and stored in `varManager.sim`:
+
+| Variable                  | Type   | Description                          |
+| ------------------------- | ------ | ------------------------------------ |
+| `planeLatitude`           | double | Aircraft latitude (degrees)          |
+| `planeLongitude`          | double | Aircraft longitude (degrees)         |
+| `planeHeadingDegreesTrue` | double | Aircraft true heading (degrees)      |
+| `planeAltitude`           | double | Aircraft altitude (feet)             |
+| `airspeedTrue`            | double | True airspeed (knots)                |
+| `groundVelocity`          | double | Ground velocity (knots)              |
+| `navDme1`                 | double | DME 1 distance (-1 if not available) |
+| `navDme2`                 | double | DME 2 distance (-1 if not available) |
+| `ambientWindDirection`    | double | Wind direction (degrees true)        |
+| `ambientWindVelocity`     | double | Wind velocity (knots)                |
+| `ambientTemperature`      | double | Ambient temperature (°C)             |
+
+
 
 ## Data output
 
@@ -497,6 +509,7 @@ To ensure compatibility with JS, the exported variable is split into LEFT and RI
 As such, this variable is defined as a `union` type, with the first member being a `uint64_t`.  
 This member is not to be used by C++ consumers, those shall use the second member of type `struct`, which exposes the bit field
 properly.
+
 ### LIBCIVA_DISPLAY_RIGHT_UNIT_x
 
 Bit field, 32bits

@@ -39,7 +39,7 @@ No automated test framework exists. Manual testing in the simulator is required.
 ## Code Style Guidelines
 
 ### General
-- **C++ Standard**: C++14 (`set_property(TARGET libciva PROPERTY CXX_STANDARD 14)`)
+- **C++ Standard**: C++17 (`set_property(TARGET libciva PROPERTY CXX_STANDARD 17)`)
 - **No comments** unless explicitly requested by user
 - **2-space indentation**
 - **No trailing whitespace**

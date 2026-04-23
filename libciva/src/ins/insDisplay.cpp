@@ -30,38 +30,40 @@ static void formatPos(DISPLAY &display, POSITION pos) noexcept {
   }
 
   double degrees = std::trunc(pos.latitude);
-  double minutes = std::round((pos.latitude - (uint8_t)pos.latitude) * 600);
+  double minutes = std::round((pos.latitude - static_cast<double>(static_cast<uint8_t>(pos.latitude))) * 600);
   if (minutes >= 600) {
     minutes -= 600;
     degrees += 1;
   }
 
-  display.characters.LEFT_1 = (uint8_t)degrees / 10;
-  display.characters.LEFT_2 = (uint8_t)degrees - display.characters.LEFT_1 * 10;
-  display.characters.LEFT_3 = (uint16_t)minutes / 100;
-  display.characters.LEFT_4 = (uint16_t)minutes / 10 - display.characters.LEFT_3 * 10;
-  display.characters.LEFT_5 = (uint16_t)minutes - display.characters.LEFT_3 * 100 - display.characters.LEFT_4 * 10;
+  display.characters.LEFT_1 = static_cast<uint8_t>(degrees) / 10;
+  display.characters.LEFT_2 = static_cast<uint8_t>(degrees) - display.characters.LEFT_1 * 10;
+  display.characters.LEFT_3 = static_cast<uint16_t>(minutes) / 100;
+  display.characters.LEFT_4 = static_cast<uint16_t>(minutes) / 10 - display.characters.LEFT_3 * 10;
+  display.characters.LEFT_5 = static_cast<uint16_t>(minutes) - display.characters.LEFT_3 * 100 - display.characters.LEFT_4 * 10;
 
   degrees = std::trunc(pos.longitude);
-  minutes = std::round((pos.longitude - (uint16_t)pos.longitude) * 600);
+  minutes = std::round((pos.longitude - static_cast<double>(static_cast<uint16_t>(pos.longitude))) * 600);
   if (minutes >= 600) {
     minutes -= 600;
     degrees += 1;
   }
-  display.characters.RIGHT_1 = (uint16_t)degrees / 100;
-  display.characters.RIGHT_2 = (uint16_t)degrees / 10 - display.characters.RIGHT_1 * 10;
-  display.characters.RIGHT_3 = (uint16_t)degrees - display.characters.RIGHT_1 * 100 - display.characters.RIGHT_2 * 10;
-  display.characters.RIGHT_4 = (uint16_t)minutes / 100;
-  display.characters.RIGHT_5 = (uint16_t)minutes / 10 - display.characters.RIGHT_4 * 10;
-  display.characters.RIGHT_6 = (uint16_t)minutes - display.characters.RIGHT_4 * 100 - display.characters.RIGHT_5 * 10;
+  display.characters.RIGHT_1 = static_cast<uint16_t>(degrees) / 100;
+  display.characters.RIGHT_2 = static_cast<uint16_t>(degrees) / 10 - display.characters.RIGHT_1 * 10;
+  display.characters.RIGHT_3 =
+      static_cast<uint16_t>(degrees) - display.characters.RIGHT_1 * 100 - display.characters.RIGHT_2 * 10;
+  display.characters.RIGHT_4 = static_cast<uint16_t>(minutes) / 100;
+  display.characters.RIGHT_5 = static_cast<uint16_t>(minutes) / 10 - display.characters.RIGHT_4 * 10;
+  display.characters.RIGHT_6 =
+      static_cast<uint16_t>(minutes) - display.characters.RIGHT_4 * 100 - display.characters.RIGHT_5 * 10;
 }
 
 static void formatQuad(DISPLAY &display, const double value, const bool left, const bool hasDirection, const uint8_t dir,
                        const bool decimal = false) {
-  uint8_t valueH = (uint8_t)((uint16_t)value / 1000);
-  uint8_t valueT = (uint8_t)((uint16_t)(value - valueH * 1000) / 100);
-  uint8_t valueO = (uint8_t)((uint16_t)(value - valueH * 1000 - valueT * 100) / 10);
-  uint8_t valueD = (uint8_t)(value - valueH * 1000 - valueT * 100 - valueO * 10);
+  uint8_t valueH = static_cast<uint8_t>(static_cast<uint16_t>(value) / 1000);
+  uint8_t valueT = static_cast<uint8_t>(static_cast<uint16_t>(value - valueH * 1000) / 100);
+  uint8_t valueO = static_cast<uint8_t>(static_cast<uint16_t>(value - valueH * 1000 - valueT * 100) / 10);
+  uint8_t valueD = static_cast<uint8_t>(value - valueH * 1000 - valueT * 100 - valueO * 10);
 
   if (left) {
     if (hasDirection) {
@@ -93,9 +95,9 @@ static void formatQuad(DISPLAY &display, const double value, const bool left, co
 }
 
 static void formatTri(DISPLAY &display, const double value, const bool left, const bool hasDirection, const uint8_t dir) {
-  uint8_t valueH = (uint8_t)((uint16_t)value / 100);
-  uint8_t valueT = (uint8_t)((uint16_t)(value - valueH * 100) / 10);
-  uint8_t valueO = (uint8_t)((uint16_t)value - valueH * 100 - valueT * 10);
+  uint8_t valueH = static_cast<uint8_t>(static_cast<uint16_t>(value) / 100);
+  uint8_t valueT = static_cast<uint8_t>(static_cast<uint16_t>(value - valueH * 100) / 10);
+  uint8_t valueO = static_cast<uint8_t>(static_cast<uint16_t>(value) - valueH * 100 - valueT * 10);
 
   if (left) {
     if (hasDirection) {
@@ -204,7 +206,7 @@ void INS::updateDisplay(const double dTime) noexcept {
   // Main display
   switch (dataSelector) {
     case DATA_SELECTOR::TKGS: {
-      uint16_t _track = (uint16_t)(std::round(track * 10));
+      uint16_t _track = static_cast<uint16_t>(std::round(track * 10));
 
       if (gs > MAX_GS_DISPLAY) {
         gs = MAX_GS_DISPLAY;
@@ -231,9 +233,10 @@ void INS::updateDisplay(const double dTime) noexcept {
       break;
     }
     case DATA_SELECTOR::HDGDA: {
-      uint16_t heading = (uint16_t)(std::round(varManager.sim.planeHeadingDegreesTrue * 10));
+      uint16_t heading = static_cast<uint16_t>(std::round(varManager.sim.planeHeadingDegreesTrue * 10));
 
-      int16_t driftAngle = (int16_t)std::round(((uint16_t)absDeltaAngle(heading / 10.0, track) % 180));
+      int16_t driftAngle = static_cast<int16_t>(
+          std::round(static_cast<double>(static_cast<uint16_t>(absDeltaAngle(heading / 10.0, track)) % 180)));
       uint8_t driftAngleDir = DISPLAY_CHAR_RIGHT;
       if (driftAngle <= 0) {
         driftAngle *= -1;
@@ -273,10 +276,10 @@ void INS::updateDisplay(const double dTime) noexcept {
           (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
         int16_t xtk = 0;
         if (insertMode == INSERT_MODE::WPT_CHG_FROM || insertMode == INSERT_MODE::WPT_CHG_TO) {
-          xtk = (int16_t)std::round(std::fmin(
-              9999.0, pos.crossTrackDistance(waypoints[display.characters.FROM], waypoints[display.characters.TO]) * 10));
+          xtk = static_cast<int16_t>(std::round(std::fmin(
+              9999.0, pos.crossTrackDistance(waypoints[display.characters.FROM], waypoints[display.characters.TO]) * 10)));
         } else {
-          xtk = (int16_t)std::round(std::fmin(9999.0, crossTrackError * 10));
+          xtk = static_cast<int16_t>(std::round(std::fmin(9999.0, crossTrackError * 10)));
         }
 
         uint8_t xtkDir = DISPLAY_CHAR_RIGHT;
@@ -286,7 +289,7 @@ void INS::updateDisplay(const double dTime) noexcept {
         }
         formatQuad(display, xtk, true, true, xtkDir, true);
 
-        int16_t tke = (int16_t)trackAngleError;
+        int16_t tke = static_cast<int16_t>(trackAngleError);
         uint8_t tkeDir = DISPLAY_CHAR_LEFT;
         if (tke < 0) {
           tke *= -1;
@@ -336,11 +339,11 @@ void INS::updateDisplay(const double dTime) noexcept {
         display.characters.LEFT_4 = altT > 0 ? altT : DISPLAY_CHAR_BLANK;
         display.characters.LEFT_5 = altO;
 
-        uint8_t freqTTH = (uint8_t)(dme.frequency / 10000);
-        uint8_t freqTH = (uint8_t)(dme.frequency / 1000 - freqTTH * 10);
-        uint8_t freqH = (uint8_t)(dme.frequency / 100 - freqTTH * 100 - freqTH * 10);
-        uint8_t freqT = (uint8_t)(dme.frequency / 10 - freqTTH * 1000 - freqTH * 100 - freqH * 10);
-        uint8_t freqO = (uint8_t)(dme.frequency - freqTTH * 10000 - freqTH * 1000 - freqH * 100 - freqT * 10);
+        uint8_t freqTTH = static_cast<uint8_t>(dme.frequency / 10000);
+        uint8_t freqTH = static_cast<uint8_t>(dme.frequency / 1000 - freqTTH * 10);
+        uint8_t freqH = static_cast<uint8_t>(dme.frequency / 100 - freqTTH * 100 - freqTH * 10);
+        uint8_t freqT = static_cast<uint8_t>(dme.frequency / 10 - freqTTH * 1000 - freqTH * 100 - freqH * 10);
+        uint8_t freqO = static_cast<uint8_t>(dme.frequency - freqTTH * 10000 - freqTH * 1000 - freqH * 100 - freqT * 10);
         display.characters.RIGHT_2 = freqTTH;
         display.characters.RIGHT_3 = freqTH;
         display.characters.RIGHT_4 = freqH;
@@ -371,7 +374,7 @@ void INS::updateDisplay(const double dTime) noexcept {
         dist = waypoints[display.characters.FROM].distanceTo(waypoints[display.characters.TO]);
         if (state >= INS_STATE::ALIGN &&
             (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
-          time = gs > MIN_GS_TIME ? (int16_t)std::round(std::fmin(9999.0, (dist / gs) * 600)) : 9999;
+          time = gs > MIN_GS_TIME ? static_cast<int16_t>(std::round(std::fmin(9999.0, (dist / gs) * 600))) : 9999;
         } else {
           time = 9999;
         }
@@ -379,13 +382,13 @@ void INS::updateDisplay(const double dTime) noexcept {
         dist = pos.distanceTo(waypoints[currentLegEnd]);
         if (state >= INS_STATE::ALIGN &&
             (alignSubmode < ALIGN_SUBMODE::MODE_7 || (alignSubmode == ALIGN_SUBMODE::MODE_7 && timeInMode >= MAX_MODE_7))) {
-          time = gs > MIN_GS_TIME ? (int16_t)std::round(std::fmin(9999.0, (dist / gs) * 600)) : 9999;
+          time = gs > MIN_GS_TIME ? static_cast<int16_t>(std::round(std::fmin(9999.0, (dist / gs) * 600))) : 9999;
         } else {
           time = 9999;
         }
       }
 
-      formatQuad(display, (uint16_t)std::round(std::fmin(9999.0, dist)), true, false, 0);
+      formatQuad(display, static_cast<uint16_t>(std::round(std::fmin(9999.0, dist))), true, false, 0);
       if (time >= 0) {
         formatQuad(display, time, false, false, 0, true);
       } else {
@@ -437,9 +440,9 @@ void INS::updateDisplay(const double dTime) noexcept {
         uint16_t crs = 0;
 
         if (insertMode == INSERT_MODE::WPT_CHG_FROM || insertMode == INSERT_MODE::WPT_CHG_TO) {
-          crs = (uint16_t)std::round(waypoints[display.characters.FROM].bearingTo(waypoints[display.characters.TO]));
+          crs = static_cast<uint16_t>(std::round(waypoints[display.characters.FROM].bearingTo(waypoints[display.characters.TO])));
         } else {
-          crs = (uint16_t)std::round(desiredTrack);
+          crs = static_cast<uint16_t>(std::round(desiredTrack));
         }
 
         formatTri(display, crs, true, false, 0);
@@ -452,16 +455,16 @@ void INS::updateDisplay(const double dTime) noexcept {
 
       if (state == INS_STATE::NAV) {
         display.characters.RIGHT_1 = 1;
-        display.characters.RIGHT_5 = std::min(accuracyIndex, (uint8_t)9);
+        display.characters.RIGHT_5 = std::min(accuracyIndex, static_cast<uint8_t>(9));
       } else {
         display.characters.RIGHT_1 = 0;
-        display.characters.RIGHT_5 = (uint8_t)alignSubmode;
+        display.characters.RIGHT_5 = static_cast<uint8_t>(alignSubmode);
       }
 
       formatActionMalfunctionCode(malfunctionCodeDisplayed);
 
       if (insertMode != INSERT_MODE::PERFORMANCE_INDEX) {
-        display.characters.RIGHT_6 = (uint8_t)activePerformanceIndex;
+        display.characters.RIGHT_6 = static_cast<uint8_t>(activePerformanceIndex);
       }
 
       break;

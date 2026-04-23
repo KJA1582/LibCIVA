@@ -169,9 +169,9 @@ static std::string getPowerLine(const libciva::VarManager::UnitExport &ins) {
 static std::string getValidLine(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
   oss << "Valid   : " << std::right << std::setfill(' ') << std::setw(13)
-      << (ins.valid == (double)libciva::SIGNAL_VALIDITY::INV   ? "Invalid"
-          : ins.valid == (double)libciva::SIGNAL_VALIDITY::NAV ? "Navigation"
-                                                               : "Attitude only");
+      << (ins.valid == static_cast<double>(libciva::SIGNAL_VALIDITY::INV)   ? "Invalid"
+          : ins.valid == static_cast<double>(libciva::SIGNAL_VALIDITY::NAV) ? "Navigation"
+                                                                            : "Attitude only");
   return oss.str();
 }
 
@@ -183,7 +183,7 @@ static std::string getAutoManLine(const libciva::VarManager::UnitExport &ins) {
 
 static std::string getWptSelLine(const libciva::VarManager::UnitExport &ins) {
   std::ostringstream oss;
-  oss << "Wpt Sel : " << std::right << std::setfill(' ') << std::setw(13) << (int)ins.waypointSelectorPos;
+  oss << "Wpt Sel : " << std::right << std::setfill(' ') << std::setw(13) << static_cast<int>(ins.waypointSelectorPos);
   return oss.str();
 }
 

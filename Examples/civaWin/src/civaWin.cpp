@@ -17,6 +17,31 @@ std::atomic<bool> simPaused = false;
 HANDLE simConnect = 0;
 SIMCONNECT_RECV_OPEN openData;
 
+static libciva::Snapshot savedState;
+static const std::string SNAPSHOT_FILE = WORK_DIR "civaWin_snapshot";
+
+static bool saveSnapshotToFile(const std::string &filename, const libciva::Snapshot &snapshot) noexcept {
+  std::ofstream file(filename, std::ios::binary);
+  if (!file) return false;
+
+  std::vector<uint8_t> data = snapshot.serialize();
+  file.write(reinterpret_cast<const char *>(data.data()), static_cast<std::streamsize>(data.size()));
+  return file.good();
+}
+
+static bool loadSnapshotFromFile(const std::string &filename, libciva::Snapshot &snapshot) noexcept {
+  std::ifstream file(filename, std::ios::binary | std::ios::ate);
+  if (!file) return false;
+
+  std::streamsize size = file.tellg();
+  file.seekg(0, std::ios::beg);
+
+  std::vector<uint8_t> data(static_cast<size_t>(size));
+  if (!file.read(reinterpret_cast<char *>(data.data()), size)) return false;
+
+  return snapshot.deserialize(data);
+}
+
 static void handleSimConnect() {
   SIMCONNECT_RECV *pData;
   DWORD cbData;
@@ -91,7 +116,7 @@ static void runner() {
         ins->update(delta.count() * 1e-9 * winVarManager->simRate);
 
         // Pure AP Demo
-        if (lateralAutopilot->isEnabled() && winVarManager->unit[0].valid != (double)libciva::SIGNAL_VALIDITY::NAV)
+        if (lateralAutopilot->isEnabled() && winVarManager->unit[0].valid != static_cast<double>(libciva::SIGNAL_VALIDITY::NAV))
           lateralAutopilot->disable();
 
         lateralAutopilot->update(delta.count() * 1e-9 * winVarManager->simRate, winVarManager->bankAngle, winVarManager->rollRate,
@@ -136,7 +161,8 @@ static void runner() {
     if (selectedUnit == 4)
       std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "All units selected" << std::endl << std::endl;
     else
-      std::cout << "Selected Unit: " << std::left << std::setfill(' ') << std::setw(14) << (double)selectedUnit << std::endl
+      std::cout << "Selected Unit: " << std::left << std::setfill(' ') << std::setw(14) << static_cast<double>(selectedUnit)
+                << std::endl
                 << std::endl;
 
     std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "Unit Sel  : 1,2,3,4 (All)";
@@ -156,6 +182,8 @@ static void runner() {
     std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "INST ALIGN: I" << std::endl;
     std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "AC POWER  : P";
     std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "SB Import : U" << std::endl;
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "SAVE STATE: S";
+    std::cout << std::left << std::setfill(' ') << std::setw(COL_WIDTH) << "LOAD STATE: X" << std::endl;
 
     // Pure AP Demo
     std::cout << std::endl;
@@ -262,7 +290,7 @@ int main() {
       case '2':
       case '3':
       case '4':
-        selectedUnit = (const uint8_t)(inp.Event.KeyEvent.wVirtualKeyCode - '0');
+        selectedUnit = static_cast<uint8_t>(inp.Event.KeyEvent.wVirtualKeyCode - '0');
         continue;
     }
 
@@ -381,11 +409,11 @@ int main() {
             case 'L':
             case 'F':
               if (selectedUnit == 1 || selectedUnit == 4)
-                unit1->handleDMEModeEntry((const uint8_t)inp.Event.KeyEvent.wVirtualKeyCode);
+                unit1->handleDMEModeEntry(static_cast<const uint8_t>(inp.Event.KeyEvent.wVirtualKeyCode));
               if (unit2 && (selectedUnit == 2 || selectedUnit == 4))
-                unit2->handleDMEModeEntry((const uint8_t)inp.Event.KeyEvent.wVirtualKeyCode);
+                unit2->handleDMEModeEntry(static_cast<const uint8_t>(inp.Event.KeyEvent.wVirtualKeyCode));
               if (unit2 && (selectedUnit == 3 || selectedUnit == 4))
-                unit3->handleDMEModeEntry((const uint8_t)inp.Event.KeyEvent.wVirtualKeyCode);
+                unit3->handleDMEModeEntry(static_cast<const uint8_t>(inp.Event.KeyEvent.wVirtualKeyCode));
               break;
             case 'W':
               if (selectedUnit == 1 || selectedUnit == 4) unit1->handleWaypointChange();
@@ -420,6 +448,26 @@ int main() {
               break;
             case 'U':
               importSimBrief(unit1, unit2, unit3);
+              break;
+            case 'S':
+              ins->saveState(savedState);
+              if (saveSnapshotToFile(SNAPSHOT_FILE, savedState)) {
+                libciva::Logger::GetInstance() << libciva::Logger::GetInstance().time() << "civaWin -- Snapshot saved\n";
+              } else {
+                libciva::Logger::GetInstance() << libciva::Logger::GetInstance().time() << "civaWin -- Snapshot save failed\n";
+              }
+              break;
+            case 'X':
+              if (loadSnapshotFromFile(SNAPSHOT_FILE, savedState)) {
+                if (ins->restoreState(savedState)) {
+                  libciva::Logger::GetInstance() << libciva::Logger::GetInstance().time() << "civaWin -- Snapshot restored\n";
+                } else {
+                  libciva::Logger::GetInstance()
+                      << libciva::Logger::GetInstance().time() << "civaWin -- Snapshot restore failed (version mismatch)\n";
+                }
+              } else {
+                libciva::Logger::GetInstance() << libciva::Logger::GetInstance().time() << "civaWin -- Snapshot load failed\n";
+              }
               break;
 
               // Pure AP Demo

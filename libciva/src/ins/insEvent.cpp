@@ -126,13 +126,15 @@ static void startFreq(DISPLAY &display, INDICATORS &indicators, uint8_t &read) n
 
 static double convertLat(DISPLAY &display) noexcept {
   double latD = display.characters.LEFT_1 * 10 + display.characters.LEFT_2;
-  double latM = display.characters.LEFT_3 * 10 + display.characters.LEFT_4 + (double)display.characters.LEFT_5 / 10.0;
+  double latM =
+      display.characters.LEFT_3 * 10 + display.characters.LEFT_4 + static_cast<double>(display.characters.LEFT_5) / 10.0;
   return (display.characters.N ? 1 : -1) * (latD + latM / 60.0);
 }
 
 static double convertLon(DISPLAY &display) noexcept {
   double lonD = display.characters.RIGHT_1 * 100 + display.characters.RIGHT_2 * 10 + display.characters.RIGHT_3;
-  double lonM = display.characters.RIGHT_4 * 10 + display.characters.RIGHT_5 + (double)display.characters.RIGHT_6 / 10.0;
+  double lonM =
+      display.characters.RIGHT_4 * 10 + display.characters.RIGHT_5 + static_cast<double>(display.characters.RIGHT_6) / 10.0;
   return (display.characters.E ? 1 : -1) * (lonD + lonM / 60.0);
 }
 
@@ -144,11 +146,11 @@ void INS::incDataSelectorPos() noexcept {
       dmeMode = DME_MODE::INV;
       insertMode = INSERT_MODE::INV;
       indicators.indicator.WAYPOINT_CHANGE = false;
-      dataSelector = (DATA_SELECTOR)((uint8_t)dataSelector + 1);
+      dataSelector = static_cast<DATA_SELECTOR>(static_cast<uint8_t>(dataSelector) + 1);
 
       return;
     }
-    dataSelector = (DATA_SELECTOR)((uint8_t)dataSelector + 1);
+    dataSelector = static_cast<DATA_SELECTOR>(static_cast<uint8_t>(dataSelector) + 1);
 
     if (insertMode != INSERT_MODE::WPT_CHG_FROM && insertMode != INSERT_MODE::WPT_CHG_TO) {
       insertMode = INSERT_MODE::INV;
@@ -161,7 +163,7 @@ void INS::incDataSelectorPos() noexcept {
 
 void INS::incModeSelectorPos() noexcept {
   if (modeSelector != MODE_SELECTOR::ATT) {
-    modeSelector = (MODE_SELECTOR)((uint8_t)modeSelector + 1);
+    modeSelector = static_cast<MODE_SELECTOR>(static_cast<uint8_t>(modeSelector) + 1);
   }
 }
 
@@ -173,11 +175,11 @@ void INS::decDataSelectorPos() noexcept {
       dmeMode = DME_MODE::INV;
       insertMode = INSERT_MODE::INV;
       indicators.indicator.WAYPOINT_CHANGE = false;
-      dataSelector = (DATA_SELECTOR)((uint8_t)dataSelector - 1);
+      dataSelector = static_cast<DATA_SELECTOR>(static_cast<uint8_t>(dataSelector) - 1);
 
       return;
     }
-    dataSelector = (DATA_SELECTOR)((uint8_t)dataSelector - 1);
+    dataSelector = static_cast<DATA_SELECTOR>(static_cast<uint8_t>(dataSelector) - 1);
 
     if (insertMode != INSERT_MODE::WPT_CHG_FROM && insertMode != INSERT_MODE::WPT_CHG_TO) {
       insertMode = INSERT_MODE::INV;
@@ -190,7 +192,7 @@ void INS::decDataSelectorPos() noexcept {
 
 void INS::decModeSelectorPos() noexcept {
   if (modeSelector != MODE_SELECTOR::OFF) {
-    modeSelector = (MODE_SELECTOR)((uint8_t)modeSelector - 1);
+    modeSelector = static_cast<MODE_SELECTOR>(static_cast<uint8_t>(modeSelector) - 1);
   }
 }
 
@@ -474,7 +476,7 @@ void INS::handleInsert() noexcept {
       if (dataSelector != DATA_SELECTOR::DSRTKSTS) return;
 
       // Eradication
-      if (display.characters.RIGHT_6 == (uint8_t)PERFORMANCE_INDEX::ERADICATE) {
+      if (display.characters.RIGHT_6 == static_cast<uint8_t>(PERFORMANCE_INDEX::ERADICATE)) {
         currentINSPosition = initialINSPosition;
         currentTripleMixPosition = {999, 999};
         accuracyIndex = 0;
@@ -486,7 +488,7 @@ void INS::handleInsert() noexcept {
         updateSimPosDelta();
       }
       // Aided
-      else if (display.characters.RIGHT_6 == (uint8_t)PERFORMANCE_INDEX::AIDED) {
+      else if (display.characters.RIGHT_6 == static_cast<uint8_t>(PERFORMANCE_INDEX::AIDED)) {
         activePerformanceIndex = PERFORMANCE_INDEX::AIDED;
       }
       // Unaided
@@ -515,8 +517,8 @@ void INS::handleInsert() noexcept {
       if (dmeMode != DME_MODE::INV) {
         if (hasDME && activePerformanceIndex == PERFORMANCE_INDEX::AIDED) {
 #ifndef NDEBUG
-          Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << (int)unitIndex
-                                << " -- DME designated: " << (int)display.characters.TO << "\n";
+          Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << static_cast<int>(unitIndex)
+                                << " -- DME designated: " << static_cast<int>(display.characters.TO) << "\n";
 #endif
 
           activeDME = display.characters.TO;

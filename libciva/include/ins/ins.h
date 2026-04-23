@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "logger/logger.h"
+#include "state/snapshot.h"
 #include "state/state.h"
 #include "types/types.h"
 #include "varManager/varManager.h"
@@ -35,9 +36,6 @@ static constexpr uint8_t DISPLAY_CHAR_LEFT = 11;
 static constexpr uint8_t DISPLAY_CHAR_BLANK = 12;
 
 class INS {
-  static constexpr const char *ID_UNIT_1 = "UNIT_1";
-  static constexpr const char *ID_UNIT_2 = "UNIT_2";
-  static constexpr const char *ID_UNIT_3 = "UNIT_3";
 
   static constexpr double OPERATING_TEMP = 76;      // °C
   static constexpr double HEATER_WATTAGE = 2000;    // W
@@ -74,18 +72,18 @@ class INS {
       5400; // AI5 Time. This scales the radial error to simulate the difference between full align and minimal align
   static constexpr double MIN_LEG_TIME = 25.6;
   static constexpr uint8_t LEG_TIME_ALERT = 120;
-  static constexpr uint8_t MIN_DME_TIME = 12;                 // After this, DME indicator can go green
-  static constexpr uint16_t BATTERY_DURATION = 900;           // Battery runtime, seconds, 15min
-  static constexpr uint16_t EXPANDED_BATTERY_DURATION = 1800; // 30 min
-  static constexpr uint16_t MIN_BATTERY_DURATION = 600;       // 10 min
-  static constexpr uint8_t CHARGE_RATE = 3;                   // 3 seconds of runtime per second gained
-  static constexpr uint8_t MAX_DME_RANGE = 250;               // Maximum range upon which DME updating can occur
-  static constexpr double DME_CORRECTION = 1.0 / 300.0;       // 1nmi per 5 min
-  static constexpr double SINGLE_DME_MIN_ERROR = 0.5;         // nmi, creative license
-  static constexpr double DUAL_DME_MIN_ERROR = 0.0;           // nmi, creative license
-  static constexpr uint16_t DME_AI_TIME = 300;                // 5min
-  static constexpr uint8_t MIX_EASE_TIME = 60;                // Triple mix ease-on-off
-  static constexpr uint8_t ALERT_MIN_GS = 250;                // Minimum GS required for alert lamp to light for leg changes
+  static constexpr uint8_t MIN_DME_TIME = 12;               // After this, DME indicator can go green
+  static constexpr double BATTERY_DURATION = 900;           // Battery runtime, seconds, 15min
+  static constexpr double EXPANDED_BATTERY_DURATION = 1800; // 30 min
+  static constexpr double MIN_BATTERY_DURATION = 600;       // 10 min
+  static constexpr uint8_t CHARGE_RATE = 3;                 // 3 seconds of runtime per second gained
+  static constexpr uint8_t MAX_DME_RANGE = 250;             // Maximum range upon which DME updating can occur
+  static constexpr double DME_CORRECTION = 1.0 / 300.0;     // 1nmi per 5 min
+  static constexpr double SINGLE_DME_MIN_ERROR = 0.5;       // nmi, creative license
+  static constexpr double DUAL_DME_MIN_ERROR = 0.0;         // nmi, creative license
+  static constexpr uint16_t DME_AI_TIME = 300;              // 5min
+  static constexpr uint8_t MIX_EASE_TIME = 60;              // Triple mix ease-on-off
+  static constexpr uint8_t ALERT_MIN_GS = 250;              // Minimum GS required for alert lamp to light for leg changes
 
   friend class INSContainer;
 
@@ -298,6 +296,10 @@ class INS {
   inline void connectUnit3(INS *unit) noexcept { unit3 = unit; }
 
 public:
+  static constexpr const char *ID_UNIT_1 = "UNIT_1";
+  static constexpr const char *ID_UNIT_2 = "UNIT_2";
+  static constexpr const char *ID_UNIT_3 = "UNIT_3";
+
 #pragma region Lifecycle
 
   INS(VarManager &varManager, const UNIT_INDEX id, const std::string &configID, const std::string &workDir, const bool hasADEU,
@@ -349,6 +351,13 @@ public:
   // If leg is 0-3, 4,5,6,7,8,9 are updated
   // At most 9 waypoints will be imported (1,2,3,4,5,6,7,8,9), but only if 0-0 is active leg
   void remoteInsertWPT(const POSITION (&wpt)[9]) noexcept;
+
+#pragma endregion
+
+#pragma region Save / Restore
+
+  Snapshot::UnitData save() const noexcept;
+  void restore(const Snapshot::UnitData &data) noexcept;
 
 #pragma endregion
 };

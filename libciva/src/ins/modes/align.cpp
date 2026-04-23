@@ -37,7 +37,7 @@ void INS::align(const double dTime) noexcept {
       break;
     }
     case ALIGN_SUBMODE::MODE_8: {
-      if (batteryTest == BATTERY_TEST::IDLE && (uint8_t)state != (uint8_t)modeSelector) {
+      if (batteryTest == BATTERY_TEST::IDLE && static_cast<uint8_t>(state) != static_cast<uint8_t>(modeSelector)) {
         batteryTest = BATTERY_TEST::INHIBITED;
       } else if (batteryTest == BATTERY_TEST::IDLE && timeInMode < MAX_BAT_TEST_TIME) {
         indicators.indicator.CDU_BAT = true;
@@ -85,7 +85,7 @@ void INS::align(const double dTime) noexcept {
     case ALIGN_SUBMODE::MODE_2:
     case ALIGN_SUBMODE::MODE_1: {
       if (timeInMode >= MODE_5_TO_0) {
-        alignSubmode = (ALIGN_SUBMODE)((uint8_t)alignSubmode - 1);
+        alignSubmode = static_cast<ALIGN_SUBMODE>(static_cast<uint8_t>(alignSubmode) - 1);
         timeInMode = 0;
       }
       radialScalarAlignTime =

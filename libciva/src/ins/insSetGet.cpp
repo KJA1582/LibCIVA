@@ -3,7 +3,7 @@
 namespace libciva {
 
 void INS::advanceActionMalfunctionIndex() noexcept {
-  uint8_t index = (uint8_t)std::max(1, (displayActionMalfunctionCodeIndex + 1) % 8);
+  uint8_t index = static_cast<uint8_t>(std::max(1, (displayActionMalfunctionCodeIndex + 1) % 8));
   while (true) {
     switch (index) {
       case 1: {
@@ -56,7 +56,7 @@ void INS::advanceActionMalfunctionIndex() noexcept {
         break;
       }
     }
-    index = (uint8_t)std::max(1, (index + 1) % 8);
+    index = static_cast<uint8_t>(std::max(1, (index + 1) % 8));
 
     if (index == displayActionMalfunctionCodeIndex) {
       if (actionMalfunctionCodes.value == 0) displayActionMalfunctionCodeIndex = 0;
@@ -98,16 +98,16 @@ void INS::calculateTrack() noexcept {
 }
 
 void INS::exportVars() const noexcept {
-  VarManager::UnitExport &unit = varManager.unit[(uint8_t)unitIndex];
+  VarManager::UnitExport &unit = varManager.unit[static_cast<uint8_t>(unitIndex)];
   // For UI
   unit.displayLeft = display.value & 0x00000000FFFFFFFF;
   unit.displayRight = (display.value & 0xFFFFFFFF00000000) >> 32;
   unit.indicators = indicators.value;
   // For UX
-  unit.modeSelectorPos = (uint8_t)modeSelector;
-  unit.dataSelectorPos = (uint8_t)dataSelector;
+  unit.modeSelectorPos = static_cast<uint8_t>(modeSelector);
+  unit.dataSelectorPos = static_cast<uint8_t>(dataSelector);
   unit.waypointSelectorPos = waypointSelector;
-  unit.autoManPos = (inTestMode << 1) | (uint8_t)autoMode;
+  unit.autoManPos = (inTestMode << 1) | static_cast<uint8_t>(autoMode);
   // For systems consumption
   unit.crossTrackError = crossTrackError;
   unit.desiredTrack = desiredTrack;
@@ -116,7 +116,7 @@ void INS::exportVars() const noexcept {
   unit.distance = remainingDistance;
   unit.gs = groundSpeed;
   unit.time = (remainingDistance / groundSpeed) * 60;
-  unit.valid = (uint8_t)valid;
+  unit.valid = static_cast<uint8_t>(valid);
   unit.powerState = state != INS_STATE::OFF && state != INS_STATE::FAIL;
 }
 

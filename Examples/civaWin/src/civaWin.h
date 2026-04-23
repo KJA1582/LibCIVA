@@ -23,10 +23,12 @@
 #include <windows.h>
 
 #include <atomic>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <vector>
 
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>

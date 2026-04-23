@@ -23,13 +23,12 @@
 #define __restrict__
 #endif
 
-#ifndef NDEBUG
 #include <fstream>
-#endif
 #include <functional>
 #include <memory>
 
 #include "ins/ins.h"
+#include "state/snapshot.h"
 
 namespace libciva {
 
@@ -138,6 +137,26 @@ public:
       unit3->remoteInsertWPT(wpts);
       unit3->remoteInsertDME(dmes);
     }
+  }
+
+  inline void saveState(Snapshot &snapshot) const noexcept {
+    snapshot.version = Snapshot::LIBCIVA_SNAPSHOT_VERSION;
+    snapshot.units.clear();
+    snapshot.units.push_back(unit1->save());
+    if (unit2) snapshot.units.push_back(unit2->save());
+    if (unit3) snapshot.units.push_back(unit3->save());
+    snapshot.unitCount = static_cast<uint8_t>(snapshot.units.size());
+  }
+
+  inline bool restoreState(const Snapshot &snapshot) noexcept {
+    if (snapshot.version != Snapshot::LIBCIVA_SNAPSHOT_VERSION) return false;
+    if (snapshot.units.empty()) return false;
+
+    unit1->restore(snapshot.units[0]);
+    if (unit2 && snapshot.units.size() > 1) unit2->restore(snapshot.units[1]);
+    if (unit3 && snapshot.units.size() > 2) unit3->restore(snapshot.units[2]);
+
+    return true;
   }
 };
 

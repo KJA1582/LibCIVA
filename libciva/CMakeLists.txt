@@ -20,7 +20,8 @@ set(header
 	"include/ins/ins.h"
 	"include/insContainer/insContainer.h"
 	"include/logger/logger.h"
-  "include/state/state.h"
+	"include/state/snapshot.h"
+	"include/state/state.h"
 	"include/types/types.h"
 	"include/varManager/varManager.h"
 )
@@ -29,9 +30,11 @@ set(sources
 	"src/ins/ins.cpp"
 	"src/ins/insDisplay.cpp"
 	"src/ins/insEvent.cpp"
+	"src/ins/insSaveRestore.cpp"
 	"src/ins/insSetGet.cpp"
 	"src/ins/insUpdates.cpp"
 	"src/logger/logger.cpp"
+	"src/state/snapshot.cpp"
 	"src/state/state.cpp"
 	"src/types/types.cpp"
 )

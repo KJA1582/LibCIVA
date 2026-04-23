@@ -76,7 +76,7 @@ void INS::updateCurrentINSPosition(const double dTime) noexcept {
 
     // AI
     if (timeInMode >= DME_AI_TIME) {
-      accuracyIndex = (uint8_t)std::max(dual ? 0 : 1, accuracyIndex - 1);
+      accuracyIndex = static_cast<uint8_t>(std::max(dual ? 0 : 1, accuracyIndex - 1));
       timeInMode = 0;
     }
   } else {
@@ -140,7 +140,7 @@ void INS::updateNav(const double dTime) noexcept {
 
 #ifndef NDEBUG
     if (hasFacedToWaypoint) {
-      Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1
+      Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Unit " << static_cast<int>(unitIndex) + 1
                             << " -- Faced TO waypoint\n";
     }
 #endif
@@ -172,18 +172,19 @@ void INS::updateNav(const double dTime) noexcept {
 
 #ifndef NDEBUG
     if (autoModePassed) {
-      Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1
+      Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Unit " << static_cast<int>(unitIndex) + 1
                             << " -- Min leg time delay\n";
     }
     if (passed) {
-      Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1
+      Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Unit " << static_cast<int>(unitIndex) + 1
                             << " -- Waypoint was passed\n";
     }
 
-    Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1 << " -- Leg changed at "
-                          << dist << "/" << turnDist << " remaining from WPT " << (int)currentLegStart << " along " << track
-                          << " to WPT " << (int)currentLegEnd << ". Next crs " << nextCrs << " to WPT "
-                          << (int)((currentLegEnd % 9) + 1) << "\n";
+    Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Unit " << static_cast<int>(unitIndex) + 1
+                          << " -- Leg changed at " << dist << "/" << turnDist << " remaining from WPT "
+                          << static_cast<int>(currentLegStart) << " along " << track << " to WPT "
+                          << static_cast<int>(currentLegEnd) << ". Next crs " << nextCrs << " to WPT "
+                          << static_cast<int>((currentLegEnd % 9) + 1) << "\n";
 #endif
 
     currentLegStart = currentLegEnd;
@@ -223,7 +224,8 @@ void INS::updatePreMix(const double dTime) noexcept {
     clearDisplay();
 
 #ifndef NDEBUG
-    Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1 << "Battery ran out\n";
+    Logger::GetInstance() << libciva::Logger::GetInstance().time() << "Unit " << static_cast<int>(unitIndex) + 1
+                          << "Battery ran out\n";
 #endif
   }
 

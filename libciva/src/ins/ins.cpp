@@ -38,8 +38,8 @@ INS::~INS() noexcept {
 void INS::temperatureBatterySim(const double dTime) noexcept {
   // Battery
   if (externalPower) {
-    batteryRuntime = std::fmin((double)(hasExpandedBattery ? EXPANDED_BATTERY_DURATION : BATTERY_DURATION),
-                               batteryRuntime + CHARGE_RATE * dTime);
+    batteryRuntime =
+        std::fmin((hasExpandedBattery ? EXPANDED_BATTERY_DURATION : BATTERY_DURATION), batteryRuntime + CHARGE_RATE * dTime);
     if (batteryTest != BATTERY_TEST::RUNNING && !inTestMode) indicators.indicator.CDU_BAT = false;
   } else if (state > INS_STATE::OFF && !externalPower) {
     batteryRuntime = std::fmax(0.0, batteryRuntime - dTime);
@@ -178,7 +178,7 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
   bool dmeValid = selfDist > 0 || (offsideHasDME && offsideDist > 0);
   if (!dmeValid) {
 #ifndef NDEBUG
-    Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1
+    Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << static_cast<int>(unitIndex) + 1
                           << " -- DME dropout validity - 1: " << selfDist << ", 2: " << offsideDist
                           << ", Offside DME: " << (offsideHasDME ? "Yes" : "No") << "\n";
 #endif
@@ -204,7 +204,7 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
   if (std::fabs(gcDist - slantCorrectedSelfDist) > targetAccuracy &&
       std::fabs(gcDist - slantCorrectedOffsideDist) > targetAccuracy) {
 #ifndef NDEBUG
-    Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1
+    Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << static_cast<int>(unitIndex) + 1
                           << " -- DME dropout distance - 1: " << std::fabs(gcDist - slantCorrectedSelfDist)
                           << ", 2: " << std::fabs(gcDist - slantCorrectedOffsideDist) << ", THR: " << targetAccuracy << "\n";
 #endif
@@ -219,7 +219,7 @@ void INS::dmeUpdateChecks(const double dTime) noexcept {
   // Enter update mode
   if (!dmeUpdating) {
 #ifndef NDEBUG
-    Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << (int)unitIndex + 1 << " -- DME updating\n";
+    Logger::GetInstance() << Logger::GetInstance().time() << "Unit " << static_cast<int>(unitIndex) + 1 << " -- DME updating\n";
 #endif
 
     dmeUpdating = true;
