@@ -425,10 +425,12 @@ the track angle delta of the inbound and new outbound track.
 
 ### INSContainer
 
-| Function      | Parameters                                                              | Returns | Description                                                        |
-| ------------- | ----------------------------------------------------------------------- | ------- | ------------------------------------------------------------------ |
-| `update`      | `dTime: double`                                                         | `void`  | Call updatePreMix → updateMix → updatePostMix on all units         |
-| `handleEvent` | `callback: function<shared_ptr<INS>, shared_ptr<INS>, shared_ptr<INS>>` | `void`  | Invoke callback with all three unit shared_ptr for event handling. |
+| Function       | Parameters                                                              | Returns | Description                                                        |
+| -------------- | ----------------------------------------------------------------------- | ------- | ------------------------------------------------------------------ |
+| `update`       | `dTime: double`                                                         | `void`  | Call updatePreMix → updateMix → updatePostMix on all units         |
+| `handleEvent`  | `callback: function<shared_ptr<INS>, shared_ptr<INS>, shared_ptr<INS>>` | `void`  | Invoke callback with all three unit shared_ptr for event handling. |
+| `restoreState` | `Snapshot &snapshot`                                                    | `bool`  | Restores all units to the the provided snapshot                    |
+| `saveState`    | `Snapshot &snapshot`                                                    | `void`  | Saves internal state to snapshot                                   |
 
 ## Data Input
 
