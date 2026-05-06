@@ -695,7 +695,7 @@ void INS::handleInstantAlign() noexcept {
   actionMalfunctionCodes.value = 0;
 
   alignSubmode = ALIGN_SUBMODE::MODE_0;
-  valid = SIGNAL_VALIDITY::ATT;
+  valid = SIGNAL_VALIDITY::NAV;
   batteryTest = BATTERY_TEST::COMPLETED;
   insertMode = INSERT_MODE::INV;
   ovenTemperature = OPERATING_TEMP;

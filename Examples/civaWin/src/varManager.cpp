@@ -1,9 +1,9 @@
 #include "varManager.h"
 
 static uint8_t convertCharacter(uint8_t c) {
-  if (c == 10) return 'R';
-  if (c == 11) return 'L';
-  if (c == 12) return ' ';
+  if (c == libciva::DISPLAY_CHAR_RIGHT) return 'R';
+  if (c == libciva::DISPLAY_CHAR_LEFT) return 'L';
+  if (c == libciva::DISPLAY_CHAR_BLANK) return ' ';
 
   return 48 + c;
 }
