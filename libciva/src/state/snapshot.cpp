@@ -31,7 +31,7 @@ bool Snapshot::deserialize(const std::vector<uint8_t> &data) noexcept {
   std::memcpy(&version, data.data() + offset, sizeof(version));
   offset += sizeof(version);
 
-  if (version != VERSION) {
+  if (version != LIBCIVA_SNAPSHOT_VERSION) {
     return false;
   }
 
