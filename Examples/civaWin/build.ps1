@@ -45,4 +45,4 @@ cmake -DCMAKE_BUILD_TYPE="$Build" ..
 msbuild .\civaWin.vcxproj /property:Configuration="$Build" /m
 Set-Location ..\
 # Copy DLL
-Copy-Item "$Env:MSFS_SDK\SimConnect SDK\lib\SimConnect.dll" .\out\$Build\SimConnect.dll
+Copy-Item "$Env:MSFS2024_SDK\SimConnect SDK\lib\SimConnect.dll" .\out\$Build\SimConnect.dll
