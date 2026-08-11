@@ -23,7 +23,7 @@ if ($Clean) {
 # Build
 mkdir .\x64
 Set-Location .\x64
-cmake -DCMAKE_BUILD_TYPE="$Build" ..\..
+cmake -A x64 -DCMAKE_BUILD_TYPE="$Build" ..\..
 msbuild .\libciva.vcxproj /property:Configuration="$Build" /m
 
 # Example
@@ -41,7 +41,7 @@ if ($Clean) {
 # Build
 mkdir .\out
 Set-Location .\out
-cmake -DCMAKE_BUILD_TYPE="$Build" ..
+cmake -A x64 -DCMAKE_BUILD_TYPE="$Build" ..
 msbuild .\civaWin.vcxproj /property:Configuration="$Build" /m
 Set-Location ..\
 # Copy DLL
