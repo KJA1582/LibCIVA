@@ -374,3 +374,5 @@ Scripts/outputs
 dist
 
 Examples/xkhofmann-fss-aircraft-boeing-727-civa
+
+Scripts/git-filter-repo.py
