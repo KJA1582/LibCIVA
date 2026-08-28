@@ -389,25 +389,28 @@ the track angle delta of the inbound and new outbound track.
 
 #### Events
 
-| Function                 | Parameters       | Returns | Description                                                                                              |
-| ------------------------ | ---------------- | ------- | -------------------------------------------------------------------------------------------------------- |
-| `incDataSelectorPos`     | none             | `void`  | Rotate data selector knob clockwise (TK/GS → HDG/DA → XTK/TKE → POS → WPT → DIS/TIME → WIND → DSRTK/STS) |
-| `decDataSelectorPos`     | none             | `void`  | Rotate data selector knob counter-clockwise                                                              |
-| `incModeSelectorPos`     | none             | `void`  | Rotate mode selector knob clockwise (OFF → STBY → ALIGN → NAV → ATT)                                     |
-| `decModeSelectorPos`     | none             | `void`  | Rotate mode selector knob counter-clockwise                                                              |
-| `incWaypointSelectorPos` | none             | `void`  | Rotate waypoint selector thumb wheel forward (0→9→0)                                                     |
-| `decWaypointSelectorPos` | none             | `void`  | Rotate waypoint selector thumb wheel backward                                                            |
-| `handleNumeric`          | `value: uint8_t` | `void`  | Handle digit key press 0-9. Used for position/DME/waypoint entry in insert mode                          |
-| `handleInsert`           | none             | `void`  | Press INSERT button. Initiates insert mode for position, DME, waypoint, or waypoint change               |
-| `handleTestButtonState`  | `state: bool`    | `void`  | Press/release TEST button. Triggers self-test sequence and illuminates all segments                      |
-| `handleDMEModeEntry`     | `value: uint8_t` | `void`  | Enter DME entry mode                                                                                     |
-| `handleClear`            | none             | `void`  | Press CLEAR button. Cancels insert mode, clears entered data                                             |
-| `handleWaypointChange`   | none             | `void`  | Press WPT CHG button. Initiates leg change (FROM/TO waypoint)                                            |
-| `handleHoldButton`       | none             | `void`  | Press HOLD button. Toggles HOLD mode to freeze position display                                          |
-| `handleAutoMan`          | none             | `void`  | Toggle AUTO/MAN switch. Switches between auto leg advance and manual leg advance                         |
-| `handleInstantAlign`     | none             | `void`  | Instantly complete ALIGN mode (skip to NAV)                                                              |
-| `handleRemote`           | none             | `void`  | Toggle REMOTE mode indicator                                                                             |
-| `handleExternalPower`    | `powered: bool`  | `void`  | Signal external power state. When powered, battery charges                                               |
+| Function                 | Parameters           | Returns | Description                                                                                              |
+| ------------------------ | -------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
+| `incDataSelectorPos`     | none                 | `void`  | Rotate data selector knob clockwise (TK/GS → HDG/DA → XTK/TKE → POS → WPT → DIS/TIME → WIND → DSRTK/STS) |
+| `decDataSelectorPos`     | none                 | `void`  | Rotate data selector knob counter-clockwise                                                              |
+| `setDataSelectorPos`     | `pos: DATA_SELECTOR` | `void`  | Set data selector knob to desired position. Bounded                                                      |
+| `incModeSelectorPos`     | none                 | `void`  | Rotate mode selector knob clockwise (OFF → STBY → ALIGN → NAV → ATT)                                     |
+| `decModeSelectorPos`     | none                 | `void`  | Rotate mode selector knob counter-clockwise                                                              |
+| `setModeSelectorPos`     | `pos: MODE_SELECTOR` | `void`  | Set mode selector knob to desired position. Bounded                                                      |
+| `incWaypointSelectorPos` | none                 | `void`  | Rotate waypoint selector thumb wheel forward (0→9→0)                                                     |
+| `decWaypointSelectorPos` | none                 | `void`  | Rotate waypoint selector thumb wheel backward                                                            |
+| `setWaypointSelectorPos` | `pos: uint8_t`       | `void`  | Set waypoint selector thumb wheel to desired position. Bounded                                           |
+| `handleNumeric`          | `value: uint8_t`     | `void`  | Handle digit key press 0-9. Used for position/DME/waypoint entry in insert mode                          |
+| `handleInsert`           | none                 | `void`  | Press INSERT button. Initiates insert mode for position, DME, waypoint, or waypoint change               |
+| `handleTestButtonState`  | `state: bool`        | `void`  | Press/release TEST button. Triggers self-test sequence and illuminates all segments                      |
+| `handleDMEModeEntry`     | `value: uint8_t`     | `void`  | Enter DME entry mode                                                                                     |
+| `handleClear`            | none                 | `void`  | Press CLEAR button. Cancels insert mode, clears entered data                                             |
+| `handleWaypointChange`   | none                 | `void`  | Press WPT CHG button. Initiates leg change (FROM/TO waypoint)                                            |
+| `handleHoldButton`       | none                 | `void`  | Press HOLD button. Toggles HOLD mode to freeze position display                                          |
+| `handleAutoMan`          | none                 | `void`  | Toggle AUTO/MAN switch. Switches between auto leg advance and manual leg advance                         |
+| `handleInstantAlign`     | none                 | `void`  | Instantly complete ALIGN mode (skip to NAV)                                                              |
+| `handleRemote`           | none                 | `void`  | Toggle REMOTE mode indicator                                                                             |
+| `handleExternalPower`    | `powered: bool`      | `void`  | Signal external power state. When powered, battery charges                                               |
 
 #### Remote Insert
 

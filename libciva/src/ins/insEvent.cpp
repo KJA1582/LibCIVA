@@ -204,6 +204,24 @@ void INS::decWaypointSelectorPos() noexcept {
   }
 }
 
+void INS::setDataSelectorPos(const DATA_SELECTOR pos) noexcept {
+  if (pos >= DATA_SELECTOR::TKGS && pos <= DATA_SELECTOR::DSRTKSTS) {
+    dataSelector = pos;
+  }
+}
+
+void INS::setModeSelectorPos(const MODE_SELECTOR pos) noexcept {
+  if (pos >= MODE_SELECTOR::OFF && pos <= MODE_SELECTOR::ALIGN) {
+    modeSelector = pos;
+  }
+}
+
+void INS::setWaypointSelectorPos(const uint8_t pos) noexcept {
+  if (pos >= 0 && pos <= 9) {
+    waypointSelector = pos;
+  }
+}
+
 void INS::handleNumeric(const uint8_t value) noexcept {
   // cannot enter anything when OFF or ATT
   if (state <= INS_STATE::OFF || state >= INS_STATE::ATT) return;

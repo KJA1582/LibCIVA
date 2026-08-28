@@ -1,30 +1,23 @@
 {
-    "configurations": [
-        {
-            "name": "Win32",
-            "includePath": [
-                "${workspaceFolder}/**",
-                "${workspaceFolder}/.vscode",
-                "C:\\MSFS 2024 SDK\\WASM\\wasi-sysroot\\include",
-                "C:\\MSFS 2024 SDK\\WASM\\wasi-sysroot\\include\\c++\\v1",
-                "C:\\MSFS 2024 SDK\\WASM\\include",
-                "C:\\MSFS 2024 SDK\\SimConnect SDK\\include"
-            ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE",
-                "WORK_DIR=\"\\work\""
-            ],
-            "compilerArgs": [
-                "/Zc:__cplusplus"
-            ],
-            "windowsSdkVersion": "10.0.26100.0",
-            "compilerPath": "cl.exe",
-            "cStandard": "c17",
-            "intelliSenseMode": "windows-msvc-x64",
-            "cppStandard": "c++17"
-        }
-    ],
-    "version": 4
+  "configurations": [
+    {
+      "name": "Win32",
+      "includePath": [
+        "${workspaceFolder}/libciva/include",
+        "${workspaceFolder}/.vscode",
+        "C:\\MSFS 2024 SDK\\WASM\\wasi-sysroot\\include",
+        "C:\\MSFS 2024 SDK\\WASM\\wasi-sysroot\\include\\c++\\v1",
+        "C:\\MSFS 2024 SDK\\WASM\\include",
+        "C:\\MSFS 2024 SDK\\SimConnect SDK\\include"
+      ],
+      "defines": ["_DEBUG", "UNICODE", "_UNICODE", "WORK_DIR=\"\\work\""],
+      "compilerArgs": ["/Zc:__cplusplus"],
+      "windowsSdkVersion": "10.0.26100.0",
+      "compilerPath": "cl.exe",
+      "cStandard": "c17",
+      "intelliSenseMode": "windows-msvc-x64",
+      "cppStandard": "c++17"
+    }
+  ],
+  "version": 4
 }

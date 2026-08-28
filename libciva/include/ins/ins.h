@@ -303,8 +303,7 @@ public:
 #pragma region Lifecycle
 
   INS(VarManager &varManager, const UNIT_INDEX id, const std::string &configID, const std::string &workDir, const bool hasADEU,
-      const bool hasDME, const bool hasExpandedBattery)
-  noexcept;
+      const bool hasDME, const bool hasExpandedBattery) noexcept;
   ~INS() noexcept;
 
 #pragma endregion
@@ -326,6 +325,10 @@ public:
   void decDataSelectorPos() noexcept;
   void decModeSelectorPos() noexcept;
   void decWaypointSelectorPos() noexcept;
+
+  void setDataSelectorPos(const DATA_SELECTOR pos) noexcept;
+  void setModeSelectorPos(const MODE_SELECTOR pos) noexcept;
+  void setWaypointSelectorPos(const uint8_t pos) noexcept;
 
   void handleNumeric(const uint8_t value) noexcept;
   void handleInsert() noexcept;

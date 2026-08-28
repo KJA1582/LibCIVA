@@ -20,6 +20,8 @@
 #define WORK_DIR "\\work"
 #endif
 
+#define LIBCIVA_VERSION 100
+
 #include "ins/ins.h"
 #include "insContainer/insContainer.h"
 #include "logger/logger.h"
