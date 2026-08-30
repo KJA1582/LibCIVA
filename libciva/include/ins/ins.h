@@ -337,7 +337,10 @@ public:
   void handleClear() noexcept;
   void handleWaypointChange() noexcept;
   void handleHoldButton() noexcept;
+
   void handleAutoMan() noexcept;
+  void setAutoMan(const bool state) noexcept;
+
   void handleInstantAlign() noexcept;
   void handleRemote() noexcept;
   void handleExternalPower(const bool powered) noexcept;

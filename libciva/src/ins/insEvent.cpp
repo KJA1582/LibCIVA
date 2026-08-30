@@ -628,7 +628,11 @@ void INS::handleDMEModeEntry(const uint8_t value) noexcept {
   // Can't in OFF or ATT
   if (state == INS_STATE::OFF || state == INS_STATE::ATT) return;
 
+  // Only in these positions possible
   if (dataSelector != DATA_SELECTOR::WPT && dataSelector != DATA_SELECTOR::DISTIME) return;
+
+  // Can't in insert mode
+  if (insertMode != INSERT_MODE::INV) return;
 
   if (value == 'L') {
     dmeMode = DME_MODE::DME_LL;
@@ -701,6 +705,8 @@ void INS::handleHoldButton() noexcept {
 }
 
 void INS::handleAutoMan() noexcept { autoMode = !autoMode; }
+
+void INS::setAutoMan(const bool state) noexcept { autoMode = state; }
 
 void INS::handleInstantAlign() noexcept {
   if (modeSelector != MODE_SELECTOR::ALIGN) return;
