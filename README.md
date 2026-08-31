@@ -408,6 +408,7 @@ the track angle delta of the inbound and new outbound track.
 | `handleWaypointChange`   | none                 | `void`  | Press WPT CHG button. Initiates leg change (FROM/TO waypoint)                                            |
 | `handleHoldButton`       | none                 | `void`  | Press HOLD button. Toggles HOLD mode to freeze position display                                          |
 | `handleAutoMan`          | none                 | `void`  | Toggle AUTO/MAN switch. Switches between auto leg advance and manual leg advance                         |
+| `setAutoMan`             | `state: bool`        | `void`  | Set AUTO/MAN switch                                                                                      |
 | `handleInstantAlign`     | none                 | `void`  | Instantly complete ALIGN mode (skip to NAV)                                                              |
 | `handleRemote`           | none                 | `void`  | Toggle REMOTE mode indicator                                                                             |
 | `handleExternalPower`    | `powered: bool`      | `void`  | Signal external power state. When powered, battery charges                                               |
