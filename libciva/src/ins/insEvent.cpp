@@ -205,19 +205,31 @@ void INS::decWaypointSelectorPos() noexcept {
 }
 
 void INS::setDataSelectorPos(const DATA_SELECTOR pos) noexcept {
-  if (pos >= DATA_SELECTOR::TKGS && pos <= DATA_SELECTOR::DSRTKSTS) {
+  if (pos < DATA_SELECTOR::TKGS) {
+    dataSelector = DATA_SELECTOR::TKGS;
+  } else if (pos > DATA_SELECTOR::DSRTKSTS) {
+    dataSelector = DATA_SELECTOR::DSRTKSTS;
+  } else {
     dataSelector = pos;
   }
 }
 
 void INS::setModeSelectorPos(const MODE_SELECTOR pos) noexcept {
-  if (pos >= MODE_SELECTOR::OFF && pos <= MODE_SELECTOR::ALIGN) {
+  if (pos < MODE_SELECTOR::OFF) {
+    modeSelector = MODE_SELECTOR::OFF;
+  } else if (pos > MODE_SELECTOR::ATT) {
+    modeSelector = MODE_SELECTOR::ATT;
+  } else {
     modeSelector = pos;
   }
 }
 
 void INS::setWaypointSelectorPos(const uint8_t pos) noexcept {
-  if (pos >= 0 && pos <= 9) {
+  if (pos < 0) {
+    waypointSelector = 0;
+  } else if (pos > 9) {
+    waypointSelector = 9;
+  } else {
     waypointSelector = pos;
   }
 }
@@ -706,7 +718,7 @@ void INS::handleHoldButton() noexcept {
 
 void INS::handleAutoMan() noexcept { autoMode = !autoMode; }
 
-void INS::setAutoMan(const bool state) noexcept { autoMode = state; }
+void INS::setAutoMan(const bool _state) noexcept { autoMode = _state; }
 
 void INS::handleInstantAlign() noexcept {
   if (modeSelector != MODE_SELECTOR::ALIGN) return;
