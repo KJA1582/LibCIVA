@@ -214,9 +214,9 @@ void INS::updateDisplay(const double dTime) noexcept {
         gs = std::round(gs);
       }
 
-      display.characters.LEFT_DEC_1 = display.characters.LEFT_DEG_1 = display.characters.RIGHT_DEC_1 =
-          display.characters.RIGHT_DEC_2 = display.characters.RIGHT_DEG_1 = display.characters.RIGHT_DEG_2 =
-              display.characters.N = display.characters.S = display.characters.E = display.characters.W = false;
+      display.characters.LEFT_DEC_1 = display.characters.LEFT_DEG_1 = display.characters.RIGHT_DEC_2 =
+          display.characters.RIGHT_DEG_1 = display.characters.RIGHT_DEG_2 = display.characters.N = display.characters.S =
+              display.characters.E = display.characters.W = false;
       display.characters.LEFT_DEG_2 = display.characters.LEFT_DEC_2 = true;
       display.characters.LEFT_1 = display.characters.LEFT_2 = display.characters.LEFT_3 = display.characters.RIGHT_1 =
           display.characters.RIGHT_2 = display.characters.RIGHT_3 = display.characters.RIGHT_4 = display.characters.RIGHT_5 =
@@ -243,9 +243,9 @@ void INS::updateDisplay(const double dTime) noexcept {
         driftAngleDir = DISPLAY_CHAR_LEFT;
       }
 
-      display.characters.LEFT_DEC_1 = display.characters.LEFT_DEG_1 = display.characters.RIGHT_DEC_1 =
-          display.characters.RIGHT_DEC_2 = display.characters.RIGHT_DEG_1 = display.characters.N = display.characters.S =
-              display.characters.E = display.characters.W = false;
+      display.characters.LEFT_DEC_1 = display.characters.LEFT_DEG_1 = display.characters.RIGHT_DEC_2 =
+          display.characters.RIGHT_DEG_1 = display.characters.N = display.characters.S = display.characters.E =
+              display.characters.W = false;
       display.characters.LEFT_DEG_2 = display.characters.LEFT_DEC_2 = display.characters.RIGHT_DEG_2 = true;
       display.characters.LEFT_1 = display.characters.LEFT_2 = display.characters.LEFT_3 = display.characters.RIGHT_1 =
           display.characters.RIGHT_2 = display.characters.RIGHT_3 = display.characters.RIGHT_4 = display.characters.RIGHT_5 =
@@ -263,9 +263,8 @@ void INS::updateDisplay(const double dTime) noexcept {
     }
     case DATA_SELECTOR::XTKTKE: {
       display.characters.LEFT_DEC_1 = display.characters.LEFT_DEC_2 = display.characters.LEFT_DEG_1 =
-          display.characters.LEFT_DEG_2 = display.characters.RIGHT_DEC_1 = display.characters.RIGHT_DEC_2 =
-              display.characters.RIGHT_DEG_1 = display.characters.N = display.characters.S = display.characters.E =
-                  display.characters.W = false;
+          display.characters.LEFT_DEG_2 = display.characters.RIGHT_DEC_2 = display.characters.RIGHT_DEG_1 = display.characters.N =
+              display.characters.S = display.characters.E = display.characters.W = false;
       display.characters.LEFT_DEC_1 = display.characters.RIGHT_DEG_2 = true;
       display.characters.LEFT_1 = display.characters.LEFT_2 = display.characters.RIGHT_1 = display.characters.RIGHT_2 =
           display.characters.RIGHT_3 = display.characters.RIGHT_4 = DISPLAY_CHAR_BLANK;
@@ -304,8 +303,7 @@ void INS::updateDisplay(const double dTime) noexcept {
       if (insertMode == INSERT_MODE::POS_LAT || insertMode == INSERT_MODE::PRE_POS_LON || insertMode == INSERT_MODE::POS_LON)
         break;
 
-      display.characters.LEFT_DEG_2 = display.characters.LEFT_DEC_1 = display.characters.RIGHT_DEG_2 =
-          display.characters.RIGHT_DEC_1 = false;
+      display.characters.LEFT_DEG_2 = display.characters.LEFT_DEC_1 = display.characters.RIGHT_DEG_2 = false;
       display.characters.LEFT_DEG_1 = display.characters.LEFT_DEC_2 = display.characters.RIGHT_DEG_1 =
           display.characters.RIGHT_DEC_2 = true;
 
@@ -318,8 +316,7 @@ void INS::updateDisplay(const double dTime) noexcept {
           insertMode == INSERT_MODE::DME_FREQ)
         break;
 
-      display.characters.LEFT_DEG_2 = display.characters.LEFT_DEC_1 = display.characters.RIGHT_DEG_2 =
-          display.characters.RIGHT_DEC_1 = false;
+      display.characters.LEFT_DEG_2 = display.characters.LEFT_DEC_1 = display.characters.RIGHT_DEG_2 = false;
       display.characters.LEFT_DEG_1 = display.characters.LEFT_DEC_2 = display.characters.RIGHT_DEG_1 =
           display.characters.RIGHT_DEC_2 = true;
 
@@ -360,9 +357,8 @@ void INS::updateDisplay(const double dTime) noexcept {
       int16_t time = -1;
 
       display.characters.LEFT_DEC_1 = display.characters.LEFT_DEC_2 = display.characters.LEFT_DEG_1 =
-          display.characters.LEFT_DEG_2 = display.characters.RIGHT_DEC_1 = display.characters.RIGHT_DEG_1 =
-              display.characters.RIGHT_DEG_2 = display.characters.N = display.characters.S = display.characters.E =
-                  display.characters.W = false;
+          display.characters.LEFT_DEG_2 = display.characters.RIGHT_DEG_1 = display.characters.RIGHT_DEG_2 = display.characters.N =
+              display.characters.S = display.characters.E = display.characters.W = false;
       display.characters.RIGHT_DEC_2 = true;
       display.characters.LEFT_1 = display.characters.RIGHT_1 = display.characters.RIGHT_2 = DISPLAY_CHAR_BLANK;
 
@@ -403,9 +399,8 @@ void INS::updateDisplay(const double dTime) noexcept {
       double tas = varManager.sim.airspeedTrue;
 
       display.characters.LEFT_DEC_1 = display.characters.LEFT_DEC_2 = display.characters.LEFT_DEG_1 =
-          display.characters.RIGHT_DEC_1 = display.characters.RIGHT_DEC_2 = display.characters.RIGHT_DEG_1 =
-              display.characters.RIGHT_DEG_2 = display.characters.N = display.characters.S = display.characters.E =
-                  display.characters.W = false;
+          display.characters.RIGHT_DEC_2 = display.characters.RIGHT_DEG_1 = display.characters.RIGHT_DEG_2 =
+              display.characters.N = display.characters.S = display.characters.E = display.characters.W = false;
       display.characters.LEFT_DEG_2 = true;
       display.characters.LEFT_1 = display.characters.LEFT_2 = display.characters.LEFT_3 = display.characters.LEFT_4 =
           display.characters.RIGHT_1 = display.characters.RIGHT_2 = display.characters.RIGHT_3 = display.characters.RIGHT_4 =
@@ -427,9 +422,9 @@ void INS::updateDisplay(const double dTime) noexcept {
     }
     case DATA_SELECTOR::DSRTKSTS: {
       display.characters.LEFT_DEC_1 = display.characters.LEFT_DEC_2 = display.characters.LEFT_DEG_1 =
-          display.characters.LEFT_DEG_2 = display.characters.RIGHT_DEC_1 = display.characters.RIGHT_DEC_2 =
-              display.characters.RIGHT_DEG_1 = display.characters.RIGHT_DEG_2 = display.characters.N = display.characters.S =
-                  display.characters.E = display.characters.W = false;
+          display.characters.LEFT_DEG_2 = display.characters.RIGHT_DEC_2 = display.characters.RIGHT_DEG_1 =
+              display.characters.RIGHT_DEG_2 = display.characters.N = display.characters.S = display.characters.E =
+                  display.characters.W = false;
       display.characters.LEFT_3 = display.characters.RIGHT_4 = DISPLAY_CHAR_BLANK;
 
       if (pos.isValid()) {

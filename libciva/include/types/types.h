@@ -173,7 +173,7 @@ typedef union {
     uint8_t TO : 4;
     bool RIGHT_DEG_1 : 1;
     bool RIGHT_DEG_2 : 1;
-    bool RIGHT_DEC_1 : 1;
+    bool UNUSED : 1;
     bool RIGHT_DEC_2 : 1;
     bool N : 1;
     bool S : 1;

@@ -522,7 +522,7 @@ Bit field, 32bits
 
 | 31  | 30  | 29  | 28  | 27          | 26          | 25          | 24          | 23 - 20 | 19 - 16 | 15 - 12 | 11 - 08 | 07 - 04 | 03 - 00 |
 | --- | --- | --- | --- | ----------- | ----------- | ----------- | ----------- | ------- | ------- | ------- | ------- | ------- | ------- |
-| W   | E   | S   | N   | Right 2nd . | Right 1st . | Right 2nd ° | Right 1st ° | TO      | FROM    | Right 6 | Right 5 | Right 4 | Right 3 |
+| W   | E   | S   | N   | Right 2nd . | UNUSED      | Right 2nd ° | Right 1st ° | TO      | FROM    | Right 6 | Right 5 | Right 4 | Right 3 |
 
 Single bit fields are boolean and should illuminate/show respective symbol.  
 4bit fields are characters. Convert using following:
@@ -689,3 +689,21 @@ function GetDisplay() {
  return `${l1}${l2}${lDeg1}${l3}${lDec1}${l4}${lDec2}${l5}${lDeg2}${n}${s}|${from}${to}|${r1}${r2}${r3}${rDeg1}${r4}${rDec1}${r5}${rDec2}${r6}${rDeg2}${e}${w}`;
 }
 ```
+
+# Changelog
+
+## 100
+
+Initial versioned release
+
+## 101
+
+Addition of direct Auto/Man switch setter
+
+## 102
+
+Setter bounding refined
+
+## 103
+
+Remove right display DEC_1, real IV CDU does not have this

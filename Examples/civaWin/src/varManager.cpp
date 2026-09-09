@@ -51,7 +51,6 @@ static std::string getUnitDisplayLine(const libciva::DISPLAY &v, const libciva::
   oss << convertCharacter(v.characters.RIGHT_3);
   oss << (v.characters.RIGHT_DEG_1 ? "'" : " ");
   oss << convertCharacter(v.characters.RIGHT_4);
-  oss << (v.characters.RIGHT_DEC_1 ? "." : " ");
   oss << convertCharacter(v.characters.RIGHT_5);
   oss << (v.characters.RIGHT_DEC_2 ? "." : " ");
   oss << convertCharacter(v.characters.RIGHT_6);
