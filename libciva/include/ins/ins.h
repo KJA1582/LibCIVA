@@ -31,12 +31,11 @@
 
 namespace libciva {
 
-static constexpr uint8_t DISPLAY_CHAR_RIGHT = 10;
-static constexpr uint8_t DISPLAY_CHAR_LEFT = 11;
-static constexpr uint8_t DISPLAY_CHAR_BLANK = 12;
+static constexpr uint8_t DISPLAY_CHAR_RIGHT = 11;
+static constexpr uint8_t DISPLAY_CHAR_LEFT = 10;
+static constexpr uint8_t DISPLAY_CHAR_BLANK = 15; // all bits set
 
 class INS {
-
   static constexpr double OPERATING_TEMP = 76;      // °C
   static constexpr double HEATER_WATTAGE = 2000;    // W
   static constexpr double HEATER_EFFICIENCY = 0.9;  // %
@@ -285,7 +284,7 @@ class INS {
   void reset(const bool full) noexcept;
   inline void clearDisplay() noexcept {
     uint64_t d;
-    d = 0x00CCCCCCCC0CCCCC;
+    d = 0x00FFFFFFFF0FFFFF;
     display = *(reinterpret_cast<DISPLAY *>(&d));
   }
 
