@@ -28,30 +28,46 @@ bool Snapshot::deserialize(const std::vector<uint8_t> &data) noexcept {
 
   size_t offset = 0;
 
-  std::memcpy(&version, data.data() + offset, sizeof(version));
-  offset += sizeof(version);
+  uint32_t fileVersion = 0;
+  std::memcpy(&fileVersion, data.data() + offset, sizeof(fileVersion));
+  offset += sizeof(fileVersion);
 
-  if (version != LIBCIVA_SNAPSHOT_VERSION) {
+  if (fileVersion != LIBCIVA_SNAPSHOT_VERSION && fileVersion != LIBCIVA_SNAPSHOT_VERSION_V1) {
+    return false;
+  }
+  const bool legacy = fileVersion == LIBCIVA_SNAPSHOT_VERSION_V1;
+  const size_t unitSize = legacy ? UNIT_DATA_SIZE_V1 : UNIT_DATA_SIZE;
+
+  uint8_t count = 0;
+  std::memcpy(&count, data.data() + offset, sizeof(count));
+  offset += sizeof(count);
+
+  if (count > 3) {
     return false;
   }
 
-  std::memcpy(&unitCount, data.data() + offset, sizeof(unitCount));
-  offset += sizeof(unitCount);
-
-  if (unitCount > 3) {
-    return false;
-  }
-
-  const size_t expectedSize = sizeof(version) + sizeof(unitCount) + (static_cast<size_t>(unitCount) * sizeof(UnitData));
+  const size_t expectedSize = sizeof(version) + sizeof(unitCount) + (static_cast<size_t>(count) * unitSize);
   if (data.size() != expectedSize) {
     return false;
   }
 
-  units.resize(unitCount);
-  for (size_t i = 0; i < unitCount; ++i) {
-    std::memcpy(&units[i], data.data() + offset, sizeof(UnitData));
-    offset += sizeof(UnitData);
+  units.assign(count, UnitData{});
+  for (size_t i = 0; i < count; ++i) {
+    uint8_t *dst = reinterpret_cast<uint8_t *>(&units[i]);
+    const uint8_t *src = data.data() + offset;
+
+    if (legacy) {
+      std::memcpy(dst, src, V1_REMOVED_OFFSET);
+      std::memcpy(dst + V1_REMOVED_OFFSET, src + V1_REMOVED_OFFSET + 1, UNIT_DATA_SIZE - V1_REMOVED_OFFSET);
+    } else {
+      std::memcpy(dst, src, UNIT_DATA_SIZE);
+    }
+    offset += unitSize;
   }
+
+  // Upgraded to current version
+  version = LIBCIVA_SNAPSHOT_VERSION;
+  unitCount = count;
 
   return true;
 }

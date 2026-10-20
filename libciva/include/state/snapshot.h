@@ -13,6 +13,7 @@
 #define __restrict__
 #endif
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
@@ -22,7 +23,8 @@ namespace libciva {
 
 class Snapshot {
 public:
-  static constexpr uint32_t LIBCIVA_SNAPSHOT_VERSION = 1;
+  static constexpr uint32_t LIBCIVA_SNAPSHOT_VERSION = 2;
+  static constexpr uint32_t LIBCIVA_SNAPSHOT_VERSION_V1 = 1;
 
 #pragma pack(push, 1)
   struct UnitData {
@@ -101,6 +103,8 @@ public:
   static constexpr uint8_t FLAG_EXTERNAL_POWER = 13;
 
   static constexpr size_t UNIT_DATA_SIZE = sizeof(UnitData);
+  static constexpr size_t V1_REMOVED_OFFSET = 8;
+  static constexpr size_t UNIT_DATA_SIZE_V1 = UNIT_DATA_SIZE + 1;
 
   uint32_t version = LIBCIVA_SNAPSHOT_VERSION;
   uint8_t unitCount = 0;
@@ -108,6 +112,8 @@ public:
 
   std::vector<uint8_t> serialize() const noexcept;
   bool deserialize(const std::vector<uint8_t> &data) noexcept;
+
+  static_assert(offsetof(UnitData, accuracyIndex) + 1 == V1_REMOVED_OFFSET, "V1 layout mismatch");
 };
 
 } // namespace libciva

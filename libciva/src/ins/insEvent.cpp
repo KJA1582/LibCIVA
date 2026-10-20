@@ -4,44 +4,36 @@ namespace libciva {
 
 #pragma region Static Helpers
 
-static void readLat(DISPLAY &display, uint8_t &read, const uint8_t value) noexcept {
+static void readLat(DISPLAY &display, const uint8_t value) noexcept {
   display.characters.LEFT_1 = display.characters.LEFT_2;
   display.characters.LEFT_2 = display.characters.LEFT_3;
   display.characters.LEFT_3 = display.characters.LEFT_4;
   display.characters.LEFT_4 = display.characters.LEFT_5;
   display.characters.LEFT_5 = value;
-
-  read++;
 }
 
-static void readLon(DISPLAY &display, uint8_t &read, const uint8_t value) noexcept {
+static void readLon(DISPLAY &display, const uint8_t value) noexcept {
   display.characters.RIGHT_1 = display.characters.RIGHT_2;
   display.characters.RIGHT_2 = display.characters.RIGHT_3;
   display.characters.RIGHT_3 = display.characters.RIGHT_4;
   display.characters.RIGHT_4 = display.characters.RIGHT_5;
   display.characters.RIGHT_5 = display.characters.RIGHT_6;
   display.characters.RIGHT_6 = value;
-
-  read++;
 }
 
-static void readAlt(DISPLAY &display, uint8_t &read, const uint8_t value) noexcept {
+static void readAlt(DISPLAY &display, const uint8_t value) noexcept {
   if (display.characters.LEFT_5 > 0) {
     display.characters.LEFT_4 = display.characters.LEFT_5;
   }
   display.characters.LEFT_5 = value;
-
-  read++;
 }
 
-static void readFreq(DISPLAY &display, uint8_t &read, const uint8_t value) noexcept {
+static void readFreq(DISPLAY &display, const uint8_t value) noexcept {
   display.characters.RIGHT_2 = display.characters.RIGHT_3;
   display.characters.RIGHT_3 = display.characters.RIGHT_4;
   display.characters.RIGHT_4 = display.characters.RIGHT_5;
   display.characters.RIGHT_5 = display.characters.RIGHT_6;
   display.characters.RIGHT_6 = value;
-
-  read++;
 }
 
 static void clearLat(DISPLAY &display) noexcept {
@@ -66,9 +58,8 @@ static void clearFreq(DISPLAY &display) noexcept {
       display.characters.RIGHT_6 = 0;
 }
 
-static void startLatN(DISPLAY &display, INDICATORS &indicators, uint8_t &read) noexcept {
+static void startLatN(DISPLAY &display, INDICATORS &indicators) noexcept {
   indicators.indicator.INSERT = true;
-  read = 0;
 
   clearLat(display);
 
@@ -76,9 +67,8 @@ static void startLatN(DISPLAY &display, INDICATORS &indicators, uint8_t &read) n
   display.characters.S = false;
 }
 
-static void startLatS(DISPLAY &display, INDICATORS &indicators, uint8_t &read) noexcept {
+static void startLatS(DISPLAY &display, INDICATORS &indicators) noexcept {
   indicators.indicator.INSERT = true;
-  read = 0;
 
   clearLat(display);
 
@@ -86,9 +76,8 @@ static void startLatS(DISPLAY &display, INDICATORS &indicators, uint8_t &read) n
   display.characters.S = true;
 }
 
-static void startLonE(DISPLAY &display, INDICATORS &indicators, uint8_t &read) noexcept {
+static void startLonE(DISPLAY &display, INDICATORS &indicators) noexcept {
   indicators.indicator.INSERT = true;
-  read = 0;
 
   clearLon(display);
 
@@ -96,9 +85,8 @@ static void startLonE(DISPLAY &display, INDICATORS &indicators, uint8_t &read) n
   display.characters.W = false;
 }
 
-static void startLonW(DISPLAY &display, INDICATORS &indicators, uint8_t &read) noexcept {
+static void startLonW(DISPLAY &display, INDICATORS &indicators) noexcept {
   indicators.indicator.INSERT = true;
-  read = 0;
 
   clearLon(display);
 
@@ -106,18 +94,16 @@ static void startLonW(DISPLAY &display, INDICATORS &indicators, uint8_t &read) n
   display.characters.W = true;
 }
 
-static void startAlt(DISPLAY &display, INDICATORS &indicators, uint8_t &read) noexcept {
+static void startAlt(DISPLAY &display, INDICATORS &indicators) noexcept {
   indicators.indicator.INSERT = true;
-  read = 0;
 
   clearAlt(display);
 
   display.characters.N = display.characters.S = false;
 }
 
-static void startFreq(DISPLAY &display, INDICATORS &indicators, uint8_t &read) noexcept {
+static void startFreq(DISPLAY &display, INDICATORS &indicators) noexcept {
   indicators.indicator.INSERT = true;
-  read = 0;
 
   clearFreq(display);
 
@@ -257,20 +243,20 @@ void INS::handleNumeric(const uint8_t value) noexcept {
 
       if (value == 2 && insertMode == INSERT_MODE::INV) {
         insertMode = INSERT_MODE::POS_LAT;
-        startLatN(display, indicators, charactersRead);
+        startLatN(display, indicators);
       } else if (value == 8 && insertMode == INSERT_MODE::INV) {
         insertMode = INSERT_MODE::POS_LAT;
-        startLatS(display, indicators, charactersRead);
-      } else if (insertMode == INSERT_MODE::POS_LAT && charactersRead < 5) {
-        readLat(display, charactersRead, value);
+        startLatS(display, indicators);
+      } else if (insertMode == INSERT_MODE::POS_LAT) {
+        readLat(display, value);
       } else if (insertMode == INSERT_MODE::PRE_POS_LON && value == 4) {
         insertMode = INSERT_MODE::POS_LON;
-        startLonW(display, indicators, charactersRead);
+        startLonW(display, indicators);
       } else if (insertMode == INSERT_MODE::PRE_POS_LON && value == 6) {
         insertMode = INSERT_MODE::POS_LON;
-        startLonE(display, indicators, charactersRead);
-      } else if (insertMode == INSERT_MODE::POS_LON && charactersRead < 6) {
-        readLon(display, charactersRead, value);
+        startLonE(display, indicators);
+      } else if (insertMode == INSERT_MODE::POS_LON) {
+        readLon(display, value);
       }
 
       break;
@@ -281,43 +267,43 @@ void INS::handleNumeric(const uint8_t value) noexcept {
       else if (value == 2 && insertMode == INSERT_MODE::INV) {
         if (dmeMode == DME_MODE::DME_FREQ) {
           insertMode = INSERT_MODE::DME_ALT;
-          startAlt(display, indicators, charactersRead);
+          startAlt(display, indicators);
         } else {
           insertMode = INSERT_MODE::WPT_LAT;
-          startLatN(display, indicators, charactersRead);
+          startLatN(display, indicators);
         }
       } else if (value == 8 && insertMode == INSERT_MODE::INV) {
         if (dmeMode == DME_MODE::DME_FREQ) {
           insertMode = INSERT_MODE::DME_ALT;
-          startAlt(display, indicators, charactersRead);
+          startAlt(display, indicators);
         } else {
           insertMode = INSERT_MODE::WPT_LAT;
-          startLatS(display, indicators, charactersRead);
+          startLatS(display, indicators);
         }
-      } else if (insertMode == INSERT_MODE::WPT_LAT && charactersRead < 5) {
-        readLat(display, charactersRead, value);
-      } else if (insertMode == INSERT_MODE::DME_ALT && charactersRead < 2) {
-        readAlt(display, charactersRead, value);
+      } else if (insertMode == INSERT_MODE::WPT_LAT) {
+        readLat(display, value);
+      } else if (insertMode == INSERT_MODE::DME_ALT) {
+        readAlt(display, value);
       } else if (insertMode == INSERT_MODE::INV && value == 4) {
         if (dmeMode == DME_MODE::DME_FREQ) {
           insertMode = INSERT_MODE::DME_FREQ;
-          startFreq(display, indicators, charactersRead);
+          startFreq(display, indicators);
         } else {
           insertMode = INSERT_MODE::WPT_LON;
-          startLonW(display, indicators, charactersRead);
+          startLonW(display, indicators);
         }
       } else if (insertMode == INSERT_MODE::INV && value == 6) {
         if (dmeMode == DME_MODE::DME_FREQ) {
           insertMode = INSERT_MODE::DME_FREQ;
-          startFreq(display, indicators, charactersRead);
+          startFreq(display, indicators);
         } else {
           insertMode = INSERT_MODE::WPT_LON;
-          startLonE(display, indicators, charactersRead);
+          startLonE(display, indicators);
         }
-      } else if (insertMode == INSERT_MODE::WPT_LON && charactersRead < 6) {
-        readLon(display, charactersRead, value);
-      } else if (insertMode == INSERT_MODE::DME_FREQ && charactersRead < 5) {
-        readFreq(display, charactersRead, value);
+      } else if (insertMode == INSERT_MODE::WPT_LON) {
+        readLon(display, value);
+      } else if (insertMode == INSERT_MODE::DME_FREQ) {
+        readFreq(display, value);
       }
 
       break;

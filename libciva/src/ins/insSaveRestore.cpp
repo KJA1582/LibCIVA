@@ -13,7 +13,6 @@ Snapshot::UnitData INS::save() const noexcept {
   data.insertMode = static_cast<int8_t>(insertMode);
   data.activePerformanceIndex = static_cast<uint8_t>(activePerformanceIndex);
   data.accuracyIndex = accuracyIndex;
-  data.charactersRead = charactersRead;
   data.waypointSelector = waypointSelector;
   data.displayActionMalfunctionCodeIndex = displayActionMalfunctionCodeIndex;
   data.currentLegStart = currentLegStart;
@@ -94,7 +93,6 @@ void INS::restore(const Snapshot::UnitData &data) noexcept {
   insertMode = static_cast<INSERT_MODE>(data.insertMode);
   activePerformanceIndex = static_cast<PERFORMANCE_INDEX>(data.activePerformanceIndex);
   accuracyIndex = data.accuracyIndex;
-  charactersRead = data.charactersRead;
   waypointSelector = data.waypointSelector;
   displayActionMalfunctionCodeIndex = data.displayActionMalfunctionCodeIndex;
   currentLegStart = data.currentLegStart;

@@ -208,8 +208,6 @@ class INS {
   PERFORMANCE_INDEX activePerformanceIndex = PERFORMANCE_INDEX::UNAIDED;
   // Current accuracy index, 0 to 9, 0 best, 9 worst, 2 if DME update altitude invalid
   uint8_t accuracyIndex = 9;
-  // CHARS read for insert mode
-  uint8_t charactersRead = 0;
   // Waypoint selector
   uint8_t waypointSelector = 0;
   // Displayed action malfunction code index
